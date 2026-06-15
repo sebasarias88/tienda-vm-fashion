@@ -1,5 +1,43 @@
+import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import ProductosClient from '@/components/catalog/ProductosClient'
+import { buildMetadata } from '@/lib/seo'
+import { getSiteConfig, getSiteName } from '@/lib/site-config'
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; categoria?: string }>
+}): Promise<Metadata> {
+  const { q, categoria } = await searchParams
+  const config = await getSiteConfig()
+  const siteName = getSiteName(config)
+  const query = q?.trim()
+  const categorySlug = categoria?.trim()
+  const hasFilters = Boolean(query || categorySlug)
+
+  let title = 'Catálogo de productos'
+  let description = `Explora el catálogo de belleza y cuidado capilar de ${siteName}. Envíos a toda Colombia.`
+  let path = '/productos'
+
+  if (query) {
+    title = `Resultados para "${query}"`
+    description = `Productos que coinciden con "${query}" en ${siteName}.`
+    path = `/productos?q=${encodeURIComponent(query)}`
+  } else if (categorySlug) {
+    title = 'Productos por categoría'
+    description = `Productos filtrados por categoría en ${siteName}.`
+    path = `/productos?categoria=${encodeURIComponent(categorySlug)}`
+  }
+
+  return buildMetadata({
+    config,
+    title,
+    description,
+    path,
+    noIndex: hasFilters,
+  })
+}
 
 export default async function ProductosPage({
   searchParams,

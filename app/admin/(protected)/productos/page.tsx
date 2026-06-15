@@ -34,6 +34,9 @@ import {
   Star,
   Package,
 } from 'lucide-react'
+import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
+import MobileProductCard from '@/components/admin/mobile/MobileProductCard'
+import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([])
@@ -131,7 +134,8 @@ export default function ProductosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
+    <>
+    <div className="hidden min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10 md:block">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -297,6 +301,89 @@ export default function ProductosPage() {
           )}
         </AdminTableBody>
       </AdminTable>
+    </div>
+
+    <div className="mobile-admin-page px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] md:hidden">
+      <p className="mb-4 text-[12px] font-light text-[var(--text-muted)]">
+        Administra el catálogo de la tienda
+      </p>
+
+      <MobileAdminToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nombre o SKU..."
+        filters={[
+          { id: 'todos' as const, label: 'Todos' },
+          { id: 'disponible' as const, label: 'Disponibles' },
+          { id: 'agotado' as const, label: 'Agotados' },
+        ]}
+        activeFilter={filtroDisponible}
+        onFilterChange={setFiltroDisponible}
+      />
+
+      <p className="mb-3 text-[11px] text-[var(--text-subtle)]">
+        {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+        {search ? ` · "${search}"` : ''}
+        {filtroDisponible !== 'todos' ? ` · ${filtroLabels[filtroDisponible]}` : ''}
+      </p>
+
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-[2px] bg-[var(--bg-card)]" />
+          ))}
+        </div>
+      ) : productosFiltrados.length === 0 ? (
+        <MobileEmptyState
+          icon={Package}
+          title={
+            search
+              ? 'No se encontraron productos'
+              : filtroDisponible !== 'todos'
+                ? `No hay productos ${filtroLabels[filtroDisponible].toLowerCase()}`
+                : 'Aún no hay productos'
+          }
+          description={
+            search || filtroDisponible !== 'todos'
+              ? 'Prueba con otros filtros'
+              : 'Crea el primer producto para empezar'
+          }
+          action={
+            !search && filtroDisponible === 'todos' ? (
+              <Button onClick={abrirCrear} size="sm">
+                <Plus size={13} />
+                Crear producto
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : (
+        <div className="space-y-3">
+          {productosFiltrados.map(p => (
+            <MobileProductCard
+              key={p.id}
+              producto={p}
+              formatPrecio={formatPrecio}
+              onEdit={() => abrirEditar(p)}
+              onDelete={() => {
+                setSelected(p)
+                setDeleteModal(true)
+              }}
+              onToggleDisponible={() => toggleDisponible(p)}
+            />
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={abrirCrear}
+        className="mobile-admin-fab fixed z-40 flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(201,168,76,0.45)] bg-[var(--gold-bright)] text-[var(--bg-base)] shadow-lg md:hidden"
+        aria-label="Nuevo producto"
+      >
+        <Plus size={22} strokeWidth={1.75} />
+      </button>
+    </div>
 
       <Modal
         open={formModal}
@@ -331,6 +418,6 @@ export default function ProductosPage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   )
 }

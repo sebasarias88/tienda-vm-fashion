@@ -33,6 +33,9 @@ import {
   CheckCircle2,
   XCircle,
 } from 'lucide-react'
+import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
+import MobileCategoriaCard from '@/components/admin/mobile/MobileCategoriaCard'
+import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
 
 export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
@@ -135,7 +138,8 @@ export default function CategoriasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
+    <>
+    <div className="hidden min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10 md:block">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -271,6 +275,88 @@ export default function CategoriasPage() {
           )}
         </AdminTableBody>
       </AdminTable>
+    </div>
+
+    <div className="mobile-admin-page px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] md:hidden">
+      <p className="mb-4 text-[12px] font-light text-[var(--text-muted)]">
+        Organiza el catálogo por secciones y subcategorías
+      </p>
+
+      <MobileAdminToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nombre o slug..."
+        filters={[
+          { id: 'todas' as const, label: 'Todas' },
+          { id: 'activas' as const, label: 'Activas' },
+          { id: 'inactivas' as const, label: 'Inactivas' },
+        ]}
+        activeFilter={filtroEstado}
+        onFilterChange={setFiltroEstado}
+      />
+
+      <p className="mb-3 text-[11px] text-[var(--text-subtle)]">
+        {categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? 's' : ''}
+        {search ? ` · "${search}"` : ''}
+        {filtroEstado !== 'todas' ? ` · ${filtroLabels[filtroEstado]}` : ''}
+      </p>
+
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-28 animate-pulse rounded-[2px] bg-[var(--bg-card)]" />
+          ))}
+        </div>
+      ) : categoriasFiltradas.length === 0 ? (
+        <MobileEmptyState
+          icon={Tag}
+          title={
+            search
+              ? 'No se encontraron categorías'
+              : filtroEstado !== 'todas'
+                ? `No hay categorías ${filtroLabels[filtroEstado].toLowerCase()}`
+                : 'Aún no hay categorías'
+          }
+          description={
+            search || filtroEstado !== 'todas'
+              ? 'Prueba con otros filtros'
+              : 'Crea la primera categoría'
+          }
+          action={
+            !search && filtroEstado === 'todas' ? (
+              <Button onClick={abrirCrear} size="sm">
+                <Plus size={13} />
+                Crear categoría
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : (
+        <div className="space-y-3">
+          {categoriasFiltradas.map(cat => (
+            <MobileCategoriaCard
+              key={cat.id}
+              categoria={cat}
+              onEdit={() => abrirEditar(cat)}
+              onDelete={() => {
+                setSelected(cat)
+                setDeleteModal(true)
+              }}
+              onToggleActiva={() => toggleActiva(cat)}
+            />
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={abrirCrear}
+        className="mobile-admin-fab fixed z-40 flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(201,168,76,0.45)] bg-[var(--gold-bright)] text-[var(--bg-base)] shadow-lg md:hidden"
+        aria-label="Nueva categoría"
+      >
+        <Plus size={22} strokeWidth={1.75} />
+      </button>
+    </div>
 
       <Modal
         open={modalOpen}
@@ -308,6 +394,6 @@ export default function CategoriasPage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   )
 }

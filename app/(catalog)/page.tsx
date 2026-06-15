@@ -1,11 +1,29 @@
+import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroSection from '@/components/catalog/HeroSection'
 import CategoriasSection from '@/components/catalog/CategoriasSection'
 import ProductosDestacados from '@/components/catalog/ProductosDestacados'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
+import { buildMetadata } from '@/lib/seo'
+import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
 
-export default async function HomePage() {  
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig()
+  const siteName = getSiteName(config)
+  const heroTitle = config.hero_titulo?.trim()
+
+  return buildMetadata({
+    config,
+    title: heroTitle || siteName,
+    description:
+      config.hero_subtitulo?.trim() ||
+      getSiteDescription(config),
+    path: '/',
+  })
+}
+
+export default async function HomePage() {
   const supabase = await createSupabaseServer()
 
   const [{ data: configData }, { data: categorias }, { data: destacados }] =

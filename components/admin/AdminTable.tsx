@@ -18,7 +18,7 @@ export function AdminTableShell({
       className={`relative overflow-hidden rounded-[2px] border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] ${className}`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-gradient-to-r from-transparent via-[rgba(201,168,76,0.75)] to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.06),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.035),transparent_55%)]" />
       <div className="relative">{children}</div>
     </div>
   )
@@ -51,7 +51,7 @@ export function AdminTable({
 
 export function AdminTableHead({ children }: { children: ReactNode }) {
   return (
-    <thead className="admin-table-head sticky top-0 z-10 border-b border-[var(--border-card)] bg-[var(--bg-muted)] backdrop-blur-sm">
+    <thead className="admin-table-head sticky top-0 z-10 border-b border-[var(--border-card)] bg-[var(--admin-table-head-bg,var(--bg-muted))] backdrop-blur-sm">
       {children}
     </thead>
   )
@@ -74,7 +74,7 @@ export function AdminTableTh({
 }) {
   return (
     <th
-      className={`px-5 py-4 text-left text-[10px] font-medium uppercase tracking-[2px] text-[var(--gold)] ${className}`}
+      className={`px-5 py-4 text-left text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)] ${className}`}
     >
       {children}
     </th>
@@ -97,7 +97,7 @@ export function AdminTableRow({
   animated?: boolean
 }) {
   const rowClass =
-    'group relative border-b border-[var(--border-card)] transition-all duration-200 even:bg-[var(--gold-muted)] hover:bg-[rgba(201,168,76,0.07)] hover:shadow-[inset_3px_0_0_var(--gold)]'
+    'admin-table-row group relative border-b border-[var(--border-card)] transition-all duration-200 hover:bg-[rgba(201,168,76,0.05)] hover:shadow-[inset_3px_0_0_var(--gold)]'
 
   if (!animated) {
     return <tr className={rowClass}>{children}</tr>
@@ -130,7 +130,7 @@ export function AdminSectionTitle({
     <div className={`mb-5 flex min-h-[28px] items-center justify-between gap-4 ${className}`}>
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <div className="h-px max-w-[32px] flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.5)] to-transparent" />
-        <h2 className="shrink-0 text-[10px] font-medium uppercase tracking-[2.5px] text-[var(--gold)]">
+        <h2 className="shrink-0 text-[10px] font-semibold uppercase tracking-[2.5px] text-[var(--gold)]">
           {title}
         </h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.2)] to-transparent" />
@@ -180,7 +180,7 @@ export function AdminListToolbar<T extends string>({
           placeholder={searchPlaceholder}
           value={search}
           onChange={e => onSearchChange(e.target.value)}
-          className="w-full border-0 border-b border-[var(--border-input)] bg-transparent py-3 pl-7 pr-8 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[rgba(201,168,76,0.55)]"
+          className="w-full border-0 border-b border-[var(--border-input)] bg-transparent py-3 pl-7 pr-8 text-[13px] text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[rgba(201,168,76,0.55)]"
         />
         {search && (
           <button
@@ -200,7 +200,7 @@ export function AdminListToolbar<T extends string>({
             key={f.id}
             type="button"
             onClick={() => onFilterChange(f.id)}
-            className={`h-10 rounded-[2px] border px-3 text-[10px] font-light uppercase tracking-[1.4px] transition-all ${
+            className={`h-10 rounded-[2px] border px-3 text-[10px] uppercase tracking-[1.4px] transition-all ${
               activeFilter === f.id
                 ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.12)] text-[var(--gold-bright)] shadow-[0_0_12px_rgba(201,168,76,0.08)]'
                 : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[rgba(201,168,76,0.32)] hover:text-[var(--gold-bright)]'
@@ -228,13 +228,13 @@ export function AdminListMeta({
 }) {
   return (
     <div className="mb-4 flex items-center justify-between border-b border-[rgba(201,168,76,0.12)] pb-3">
-      <p className="text-[12px] font-light uppercase tracking-[1px] text-[var(--text-muted)]">
+      <p className="text-[12px] uppercase tracking-[1px] text-[var(--text-muted)]">
         {count} {noun}
         {count !== 1 ? 's' : ''}
         {search ? ` para "${search}"` : ''}
       </p>
       {activeFilterLabel && (
-        <span className="text-[11px] font-light text-[var(--gold-bright)]">
+        <span className="text-[11px] text-[var(--gold-bright)]">
           Filtro: {activeFilterLabel}
         </span>
       )}
@@ -267,8 +267,8 @@ export function AdminTableEmpty({
               <Icon size={24} className="text-[var(--gold-bright)]" />
             </div>
           </div>
-          <p className="text-[15px] font-light tracking-[0.3px] text-[var(--text-primary)]">{title}</p>
-          <p className="mt-2 max-w-sm text-[13px] font-light leading-relaxed text-[var(--text-muted)]">
+          <p className="text-[15px] tracking-[0.3px] text-[var(--text-primary)]">{title}</p>
+          <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-[var(--text-muted)]">
             {description}
           </p>
           {action && <div className="mt-6">{action}</div>}
@@ -318,11 +318,11 @@ export function AdminTablePrimary({
 }) {
   return (
     <div className={indent ? 'pl-3 border-l-2 border-[rgba(201,168,76,0.25)]' : ''}>
-      <p className="truncate text-[14px] font-light tracking-[0.2px] text-[var(--text-primary)]" title={title}>
+      <p className="truncate text-[14px] tracking-[0.2px] text-[var(--text-primary)]" title={title}>
         {title}
       </p>
       {subtitle && (
-        <p className="mt-0.5 truncate text-[11px] font-light text-[var(--text-subtle)]">
+        <p className="mt-0.5 truncate text-[11px] text-[var(--text-subtle)]">
           {subtitle}
         </p>
       )}
@@ -344,7 +344,7 @@ export function AdminTableBadge({
   }
   return (
     <span
-      className={`inline-block max-w-[160px] truncate rounded-[2px] border px-2.5 py-1 text-[10px] font-light uppercase tracking-[1px] ${styles[variant]}`}
+      className={`inline-block max-w-[160px] truncate rounded-[2px] border px-2.5 py-1 text-[10px] uppercase tracking-[1px] ${styles[variant]}`}
     >
       {children}
     </span>
@@ -361,7 +361,7 @@ export function AdminTableCategory({ name }: { name: string }) {
       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.14)] ring-1 ring-[rgba(201,168,76,0.28)]">
         <Tag size={12} className="text-[var(--gold-bright)]" strokeWidth={1.5} />
       </span>
-      <span className="truncate text-[12px] font-light tracking-[0.2px] text-[var(--text-primary)]">
+      <span className="truncate text-[12px] tracking-[0.2px] text-[var(--text-primary)]">
         {name}
       </span>
     </div>
@@ -370,7 +370,7 @@ export function AdminTableCategory({ name }: { name: string }) {
 
 export function AdminTableCategoryEmpty() {
   return (
-    <span className="inline-flex items-center gap-2 text-[11px] font-light italic text-[var(--text-faint)]">
+    <span className="inline-flex items-center gap-2 text-[11px] italic text-[var(--text-faint)]">
       <span className="h-px w-4 bg-[rgba(248,246,241,0.12)]" />
       Sin categoría
     </span>
@@ -387,7 +387,7 @@ export function AdminTableSlug({ slug, className = '' }: { slug: string; classNa
       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(248,246,241,0.04)] ring-1 ring-[rgba(248,246,241,0.1)]">
         <Hash size={11} className="text-[rgba(201,168,76,0.6)]" strokeWidth={1.75} />
       </span>
-      <span className="truncate text-[12px] font-light tracking-[0.15px] text-[var(--text-primary)]">
+      <span className="truncate text-[12px] tracking-[0.15px] text-[var(--text-primary)]">
         {slug}
       </span>
     </div>
@@ -410,9 +410,9 @@ export function AdminTablePrice({
   }
   return (
     <div className="space-y-0.5">
-      <p className={`text-[13px] font-light tabular-nums ${colors[tone]}`}>{value}</p>
+      <p className={`text-[13px] tabular-nums ${colors[tone]}`}>{value}</p>
       {previous && (
-        <p className="text-[11px] font-light tabular-nums text-[var(--text-faint)] line-through">
+        <p className="text-[11px] tabular-nums text-[var(--text-faint)] line-through">
           {previous}
         </p>
       )}
@@ -425,7 +425,7 @@ export function AdminTableNumber({ value }: { value: number | string }) {
   return (
     <div className="inline-flex items-center gap-2.5" title={`Orden: ${value}`}>
       <span className="h-4 w-px shrink-0 bg-gradient-to-b from-transparent via-[rgba(201,168,76,0.55)] to-transparent" />
-      <span className="text-[15px] font-light tabular-nums tracking-[0.05em] text-[var(--text-primary)]">
+      <span className="text-[15px] tabular-nums tracking-[0.05em] text-[var(--text-primary)]">
         {padded}
       </span>
     </div>
@@ -475,7 +475,7 @@ export function AdminTableStatus({
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-all ${styles[variant]} ${onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''}`}
     >
       <Icon size={12} className={`${iconColors[variant]} ${iconClassName ?? ''}`} />
-      <span className="text-[10px] font-light uppercase tracking-[1px]">{label}</span>
+      <span className="text-[10px] uppercase tracking-[1px]">{label}</span>
     </Tag>
   )
 }
@@ -541,7 +541,7 @@ export function AdminTableActions({
               setOpen(false)
               onEdit()
             }}
-            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] font-light text-[var(--text-primary)] transition-colors hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
+            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
           >
             <Pencil size={14} className="shrink-0 text-[rgba(201,168,76,0.65)]" />
             {editLabel}
@@ -554,7 +554,7 @@ export function AdminTableActions({
               setOpen(false)
               onDelete()
             }}
-            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] font-light text-[var(--text-primary)] transition-colors hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
+            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
           >
             <Trash2 size={14} className="shrink-0 text-red-400/70" />
             {deleteLabel}
@@ -567,7 +567,7 @@ export function AdminTableActions({
 
 export function AdminTableSkeletonRow({ cols }: { cols: number }) {
   return (
-    <tr className="border-b border-[var(--border-card)] even:bg-[var(--gold-muted)]">
+    <tr className="admin-table-row border-b border-[var(--border-card)]">
       {Array.from({ length: cols }).map((_, i) => (
         <td key={i} className="px-5 py-4">
           <div

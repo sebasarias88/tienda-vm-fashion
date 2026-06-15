@@ -2,6 +2,8 @@ import { createSupabaseServer } from '@/lib/supabase-server'
 import Navbar from '@/components/catalog/Navbar'
 import Footer from '@/components/catalog/Footer'
 import PageTransition from '@/components/catalog/PageTransition'
+import JsonLd from '@/components/seo/JsonLd'
+import { organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 
 export default async function CatalogLayout({
   children,
@@ -25,6 +27,7 @@ export default async function CatalogLayout({
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
+      <JsonLd data={[organizationJsonLd(config), websiteJsonLd(config)]} />
       <Navbar
         nombreNegocio={config['nombre_negocio'] || 'Tienda VM Fashion'}
         categorias={categorias || []}

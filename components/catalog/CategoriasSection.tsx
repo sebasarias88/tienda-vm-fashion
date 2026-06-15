@@ -83,7 +83,7 @@ export default function CategoriasSection({
           >
             <Link
               href={`${productosHref}?categoria=${cat.slug}`}
-              className="group relative block aspect-[4/5] overflow-hidden border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)]"
+              className="mobile-catalog-category-card group relative block aspect-[4/5] overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] md:rounded-none"
             >
               {cat.imagen_url ? (
                 <img

@@ -79,7 +79,7 @@ export default function NosotrosSection({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="catalog-gold-cta group mt-8 inline-flex items-center gap-3 rounded-[2px] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[2px]"
+            className="catalog-gold-cta group mt-8 inline-flex items-center gap-3 rounded-xl px-6 py-3.5 text-[11px] font-medium uppercase tracking-[2px] md:rounded-[2px]"
           >
             <MessageCircle size={15} />
             Contáctanos por WhatsApp
@@ -107,7 +107,7 @@ export default function NosotrosSection({
                 transition={{ duration: 0.5, delay: 0.12 + i * 0.06 }}
                 className="flex gap-4 py-5 first:pt-0 last:pb-0"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-[var(--gold-muted)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--gold-muted)] md:rounded-[2px]">
                   <Icon size={17} className="text-[var(--gold)]" />
                 </div>
                 <div className="min-w-0 pt-0.5">

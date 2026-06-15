@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Categoria } from '@/types'
-import { Input } from '@/components/ui/Input'
+import { Input, adminSelectClass } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
 import toast from 'react-hot-toast'
 import { ImageIcon, X } from 'lucide-react'
 
@@ -27,7 +28,7 @@ function FormSection({
     <section className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(201,168,76,0.88)]">
+        <h3 className="admin-form-section-title shrink-0">
           {title}
         </h3>
         <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
@@ -158,12 +159,21 @@ export default function CategoriaForm({
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors`
-
   return (
-    <div className="space-y-8">
+    <AdminFormLayout
+      footer={
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onCancel} fullWidth>
+            Cancelar
+          </Button>
+          <Button onClick={handleGuardar} loading={saving} fullWidth>
+            {categoria ? 'Guardar cambios' : 'Crear categoría'}
+          </Button>
+        </div>
+      }
+    >
       <FormSection title="Información">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Nombre *"
             value={form.nombre}
@@ -181,15 +191,13 @@ export default function CategoriaForm({
       </FormSection>
 
       <FormSection title="Clasificación">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
-              Categoría padre
-            </label>
+            <label className="admin-form-label">Categoría padre</label>
             <select
               value={form.padre_id}
               onChange={e => setForm(f => ({ ...f, padre_id: e.target.value }))}
-              className={inputSelect}
+              className={adminSelectClass}
             >
               <option value="">Ninguna — categoría raíz</option>
               {categoriasRaiz
@@ -200,9 +208,7 @@ export default function CategoriaForm({
                   </option>
                 ))}
             </select>
-            <p className="text-[10px] font-light tracking-[0.3px] text-[var(--text-subtle)]">
-              Opcional — convierte esta en subcategoría
-            </p>
+            <p className="admin-form-hint">Opcional — convierte esta en subcategoría</p>
           </div>
           <Input
             label="Orden de aparición"
@@ -215,10 +221,10 @@ export default function CategoriaForm({
       </FormSection>
 
       <FormSection title="Imagen">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+        <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
           {form.imagen_url ? (
-            <div className="relative h-[9.5rem] w-[9.5rem] shrink-0">
-              <div className="h-full w-full overflow-hidden rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-white">
+            <div className="relative mx-auto h-36 w-36 shrink-0 md:mx-0 md:h-[9.5rem] md:w-[9.5rem]">
+              <div className="h-full w-full overflow-hidden rounded-xl border border-[rgba(201,168,76,0.2)] bg-white md:rounded-[2px]">
                 <img
                   src={form.imagen_url}
                   alt="Vista previa"
@@ -236,20 +242,18 @@ export default function CategoriaForm({
             </div>
           ) : null}
           <label className="flex min-w-0 flex-1 cursor-pointer flex-col">
-            <div className="flex min-h-[9.5rem] flex-1 flex-col items-center justify-center rounded-[2px] border border-dashed border-[rgba(201,168,76,0.35)] bg-[var(--bg-muted)] px-4 py-8 text-center transition-all hover:border-[rgba(201,168,76,0.55)] hover:bg-[rgba(201,168,76,0.06)]">
+            <div className="admin-upload-zone min-h-[10rem] md:min-h-[9.5rem]">
               {uploadingImg ? (
-                <p className="animate-pulse text-[12px] font-light text-[var(--text-muted)]">
+                <p className="animate-pulse text-[12px] text-[var(--text-muted)]">
                   Subiendo imagen...
                 </p>
               ) : (
                 <>
-                  <ImageIcon size={20} className="mx-auto mb-2 text-[rgba(201,168,76,0.65)]" />
-                  <p className="text-[12px] font-light text-[var(--text-primary)]">
+                  <ImageIcon size={20} className="mx-auto mb-2 text-[rgba(201,168,76,0.72)]" />
+                  <p className="admin-upload-zone__title">
                     {form.imagen_url ? 'Cambiar imagen' : 'Subir imagen de categoría'}
                   </p>
-                  <p className="mt-1 text-[10px] font-light text-[var(--text-subtle)]">
-                    JPG, PNG o WebP — opcional
-                  </p>
+                  <p className="admin-upload-zone__meta">JPG, PNG o WebP — opcional</p>
                 </>
               )}
             </div>
@@ -269,43 +273,21 @@ export default function CategoriaForm({
       </FormSection>
 
       <FormSection title="Visibilidad">
-        <div className="flex items-center justify-between rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5">
+        <div className="admin-form-panel flex items-center justify-between px-4 py-3.5">
           <div className="pr-4">
-            <p className="text-[13px] font-light text-[var(--text-primary)]">Categoría activa</p>
-            <p className="mt-0.5 text-[11px] font-light text-[var(--text-subtle)]">
-              Las inactivas no aparecen en la tienda
-            </p>
+            <p className="admin-form-panel__title">Categoría activa</p>
+            <p className="admin-form-panel__desc">Las inactivas no aparecen en la tienda</p>
           </div>
           <button
             type="button"
             onClick={() => setForm(f => ({ ...f, activa: !f.activa }))}
-            className={`relative h-5 w-10 shrink-0 rounded-full transition-all duration-300 ${
-              form.activa ? 'bg-[var(--gold-bright)]' : 'bg-[rgba(248,246,241,0.22)]'
-            }`}
+            className={`admin-toggle ${form.activa ? 'admin-toggle--on' : 'admin-toggle--off'}`}
             aria-pressed={form.activa}
           >
-            <span
-              className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--bg-card)] shadow transition-all duration-300 ${
-                form.activa ? 'left-5' : 'left-0.5'
-              }`}
-            />
+            <span className="admin-toggle__thumb" />
           </button>
         </div>
       </FormSection>
-
-      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(201,168,76,0.18)] bg-[var(--bg-card)] px-6 py-4">
-        <Button variant="outline" onClick={onCancel} fullWidth>
-          Cancelar
-        </Button>
-        <Button
-          onClick={handleGuardar}
-          loading={saving}
-          fullWidth
-          className=""
-        >
-          {categoria ? 'Guardar cambios' : 'Crear categoría'}
-        </Button>
-      </div>
-    </div>
+    </AdminFormLayout>
   )
 }

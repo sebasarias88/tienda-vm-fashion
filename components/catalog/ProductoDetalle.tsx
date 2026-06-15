@@ -197,12 +197,12 @@ export default function ProductoDetalle({
 
               <div className="absolute left-4 top-4 flex flex-col gap-2">
                 {!producto.disponible && (
-                  <span className="rounded-[2px] bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-primary)] backdrop-blur-sm">
+                  <span className="rounded-lg bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-primary)] backdrop-blur-sm md:rounded-[2px]">
                     Agotado
                   </span>
                 )}
                 {descuento && producto.disponible && (
-                  <span className="rounded-[2px] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--gold)] backdrop-blur-sm">
+                  <span className="rounded-lg bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--gold)] backdrop-blur-sm md:rounded-[2px]">
                     -{descuento}%
                   </span>
                 )}
@@ -332,7 +332,7 @@ export default function ProductoDetalle({
                                 [tipo.id]: opcion.id,
                               }))
                             }
-                            className={`rounded-[2px] border px-4 py-2 text-[12px] font-light transition-colors ${
+                            className={`rounded-xl border px-4 py-2 text-[12px] font-light transition-colors md:rounded-[2px] ${
                               unavailable
                                 ? 'cursor-not-allowed opacity-40'
                                 : selected
@@ -396,7 +396,7 @@ export default function ProductoDetalle({
                   type="button"
                   onClick={handleAgregar}
                   whileTap={{ scale: 0.98 }}
-                  className={`flex w-full items-center justify-center gap-3 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px] transition-all duration-300 ${
+                  className={`flex w-full items-center justify-center gap-3 rounded-xl py-4 text-[11px] font-medium uppercase tracking-[2.5px] transition-all duration-300 md:rounded-[2px] ${
                     agregado
                       ? 'bg-emerald-600 text-white'
                       : 'catalog-gold-cta'
@@ -483,7 +483,7 @@ export default function ProductoDetalle({
             <motion.img
               src={imagenes[imagenActiva]}
               alt={producto.nombre}
-              className="max-h-full max-w-full rounded-[2px] object-contain"
+              className="max-h-full max-w-full rounded-lg object-contain md:rounded-[2px]"
               initial={{ scale: 0.94, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.94, opacity: 0 }}
@@ -492,7 +492,7 @@ export default function ProductoDetalle({
             <button
               type="button"
               onClick={() => setZoomOpen(false)}
-              className="absolute right-5 top-5 rounded-[2px] p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+              className="absolute right-5 top-5 rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] md:rounded-[2px]"
               aria-label="Cerrar"
             >
               <X size={20} />

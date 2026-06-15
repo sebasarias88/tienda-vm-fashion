@@ -1,8 +1,25 @@
+import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroSection from '@/components/catalog/HeroSection'
 import CategoriasSection from '@/components/catalog/CategoriasSection'
 import ProductosDestacados from '@/components/catalog/ProductosDestacados'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
+import { buildMetadata } from '@/lib/seo'
+import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig()
+  const siteName = getSiteName(config)
+
+  return buildMetadata({
+    config,
+    title: `Mayoreo — ${siteName}`,
+    description:
+      config.hero_subtitulo?.trim() ||
+      `Catálogo al por mayor de ${getSiteDescription(config)}`,
+    path: '/mayoreo',
+  })
+}
 
 export default async function MayoreoHomePage() {
   const supabase = await createSupabaseServer()

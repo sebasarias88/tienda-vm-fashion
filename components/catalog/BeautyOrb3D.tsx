@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { MeshDistortMaterial, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -131,25 +131,27 @@ type ParticleData = {
   isBox: boolean
 }
 
+function createParticles(): ParticleData[] {
+  return Array.from({ length: 30 }, () => ({
+    position: randomSpherePoint(2.5, 4.5),
+    size: 0.03 + Math.random() * 0.04,
+    speed: 0.2 + Math.random() * 0.4,
+    axis: new THREE.Vector3(
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      Math.random() - 0.5
+    ).normalize(),
+    isBox: Math.random() > 0.5,
+  }))
+}
+
+const PARTICLES = createParticles()
+
 function Particles() {
   const groupRef = useRef<THREE.Group>(null)
   const meshRefs = useRef<(THREE.Mesh | null)[]>([])
 
-  const particles = useMemo<ParticleData[]>(
-    () =>
-      Array.from({ length: 30 }, () => ({
-        position: randomSpherePoint(2.5, 4.5),
-        size: 0.03 + Math.random() * 0.04,
-        speed: 0.2 + Math.random() * 0.4,
-        axis: new THREE.Vector3(
-          Math.random() - 0.5,
-          Math.random() - 0.5,
-          Math.random() - 0.5
-        ).normalize(),
-        isBox: Math.random() > 0.5,
-      })),
-    []
-  )
+  const particles = PARTICLES
 
   useFrame(state => {
     const t = state.clock.elapsedTime

@@ -43,8 +43,8 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4">
 
-      <div className="absolute top-5 right-5 z-10">
-        <ThemeToggle showLabel />
+      <div className="absolute right-4 top-4 z-10 mobile-safe-top">
+        <ThemeToggle variant="mobile" />
       </div>
 
       {/* Glow de fondo */}
@@ -81,7 +81,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="admin@vmfashion.com"
-              className="admin-input w-full rounded-[2px] border px-4 py-3 text-[13px] font-light transition-colors"
+              className="admin-input w-full rounded-xl border px-4 py-3 text-[13px] font-light transition-colors"
             />
           </div>
 
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="admin-input w-full rounded-[2px] border px-4 py-3 pr-12 text-[13px] font-light transition-colors"
+                className="admin-input w-full rounded-xl border px-4 py-3 pr-12 text-[13px] font-light transition-colors"
               />
               <button
                 type="button"
@@ -120,7 +120,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="admin-gold-cta w-full mt-2 py-3 rounded-[2px] text-[12px] tracking-[3px] uppercase font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="admin-gold-cta mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-[12px] font-medium uppercase tracking-[3px] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>

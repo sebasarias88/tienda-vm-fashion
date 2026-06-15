@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Producto } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
-import ProductCard from '@/components/catalog/ProductCard'
+import ResponsiveProductCard from '@/components/catalog/mobile/ResponsiveProductCard'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
 import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
@@ -67,13 +67,13 @@ export default function ProductosDestacados({
         {productos.map((producto, i) => (
           <motion.div
             key={producto.id}
-            className="h-full overflow-hidden rounded-[2px] border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)]"
+            className="h-full max-md:overflow-hidden md:overflow-hidden md:rounded-[2px] md:border md:border-[var(--border-card)] md:bg-[var(--bg-card)] md:shadow-[var(--shadow-card)]"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.04 }}
           >
-            <ProductCard producto={producto} catalogType={catalogType} />
+            <ResponsiveProductCard producto={producto} catalogType={catalogType} />
           </motion.div>
         ))}
       </HorizontalCarousel>

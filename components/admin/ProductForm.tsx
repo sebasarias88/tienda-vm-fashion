@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto, Categoria } from '@/types'
-import { Input, Textarea } from '@/components/ui/Input'
+import { Input, Textarea, adminSelectClass } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
+import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
 import toast from 'react-hot-toast'
 
 type ProductFormProps = {
@@ -26,7 +27,7 @@ function FormSection({
     <section className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(201,168,76,0.88)]">
+        <h3 className="admin-form-section-title shrink-0">
           {title}
         </h3>
         <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
@@ -152,10 +153,19 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors`
-
   return (
-    <div className="space-y-8">
+    <AdminFormLayout
+      footer={
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onCancel} fullWidth>
+            Cancelar
+          </Button>
+          <Button onClick={handleGuardar} loading={saving} fullWidth>
+            {producto ? 'Guardar cambios' : 'Crear producto'}
+          </Button>
+        </div>
+      }
+    >
       <FormSection title="Imágenes">
         <ImageUploader
           imagenes={form.imagenes}
@@ -164,7 +174,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Información">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Nombre *"
             value={form.nombre}
@@ -189,7 +199,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Precios — Detal">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Precio (COP) *"
             type="number"
@@ -209,7 +219,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Precios — Mayoreo">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Precio mayoreo (COP)"
             type="number"
@@ -230,15 +240,13 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Clasificación">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
-              Categoría
-            </label>
+            <label className="admin-form-label">Categoría</label>
             <select
               value={form.categoria_id}
               onChange={e => setForm(f => ({ ...f, categoria_id: e.target.value }))}
-              className={inputSelect}
+              className={adminSelectClass}
             >
               <option value="">Sin categoría</option>
               {categorias.map(cat => (
@@ -266,7 +274,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Visibilidad">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {[
             {
               key: 'disponible' as const,
@@ -281,27 +289,19 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           ].map(({ key, label, desc }) => (
             <div
               key={key}
-              className="flex items-center justify-between rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5"
+              className="admin-form-panel flex items-center justify-between px-4 py-3.5"
             >
               <div className="pr-4">
-                <p className="text-[13px] font-light text-[var(--text-primary)]">{label}</p>
-                <p className="mt-0.5 text-[11px] font-light text-[var(--text-muted)]">
-                  {desc}
-                </p>
+                <p className="admin-form-panel__title">{label}</p>
+                <p className="admin-form-panel__desc">{desc}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
-                className={`relative h-5 w-10 shrink-0 rounded-full transition-all duration-300 ${
-                  form[key] ? 'bg-[var(--gold-bright)]' : 'bg-[rgba(248,246,241,0.22)]'
-                }`}
+                className={`admin-toggle ${form[key] ? 'admin-toggle--on' : 'admin-toggle--off'}`}
                 aria-pressed={form[key]}
               >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--bg-card)] shadow transition-all duration-300 ${
-                    form[key] ? 'left-5' : 'left-0.5'
-                  }`}
-                />
+                <span className="admin-toggle__thumb" />
               </button>
             </div>
           ))}
@@ -311,20 +311,6 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       <FormSection title="Variaciones">
         <VariacionesEditor productoId={producto?.id ?? null} />
       </FormSection>
-
-      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(201,168,76,0.18)] bg-[var(--bg-card)] px-6 py-4">
-        <Button variant="outline" onClick={onCancel} fullWidth>
-          Cancelar
-        </Button>
-        <Button
-          onClick={handleGuardar}
-          loading={saving}
-          fullWidth
-          className=""
-        >
-          {producto ? 'Guardar cambios' : 'Crear producto'}
-        </Button>
-      </div>
-    </div>
+    </AdminFormLayout>
   )
 }
