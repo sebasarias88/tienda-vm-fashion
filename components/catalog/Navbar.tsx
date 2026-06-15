@@ -125,19 +125,20 @@ export default function Navbar({
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="navbar-actions flex items-center gap-2.5">
               <ThemeToggle />
 
               <motion.button
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setCartOpen(true)}
                 className="navbar-action-btn navbar-action-btn--cart group/cart"
                 aria-label={`Carrito${mounted && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
               >
-                <span className="flex shrink-0 items-center justify-center text-current">
-                  <LuxuryCartIcon size={17} />
+                <span className="navbar-action-btn__icon-wrap">
+                  <LuxuryCartIcon size={16} />
                 </span>
-                <span className="hidden sm:inline">Carrito</span>
+                <span className="navbar-action-btn__label">Carrito</span>
                 {mounted && cantidad > 0 && (
                   <span className="cart-count-badge" aria-hidden>
                     {cantidad > 99 ? '99+' : cantidad}

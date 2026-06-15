@@ -14,10 +14,12 @@ export default async function AdminProtectedLayout({
   if (!user) redirect('/admin/login')
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)]">
+    <div className="admin-shell min-h-screen bg-[var(--bg-base)]">
       <AdminSidebar />
       <MobileAdminShell>
-        <main className="min-h-screen md:ml-64">{children}</main>
+        <main className="min-h-screen md:ml-64 max-md:pt-[calc(5.25rem+1.25rem+env(safe-area-inset-top,0px))]">
+          {children}
+        </main>
       </MobileAdminShell>
     </div>
   )

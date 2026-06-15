@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
-import { Save, Clock } from 'lucide-react'
 import { AdminTableShell } from '@/components/admin/AdminTable'
 import ConfigTabPanels from '@/components/admin/config/ConfigTabPanels'
+import AdminConfigSaveBar from '@/components/admin/config/AdminConfigSaveBar'
 import { CONFIG_TABS, Config, TabId } from '@/components/admin/config/config-ui'
 import MobileConfigView from '@/components/admin/mobile/MobileConfigView'
 
@@ -19,11 +18,7 @@ export default function ConfiguracionPage() {
   const [nuevoMetodo, setNuevoMetodo] = useState('')
   const [tab, setTab] = useState<TabId>('negocio')
 
-  useEffect(() => {
-    fetchConfig()
-  }, [])
-
-  const fetchConfig = async () => {
+  const fetchConfig = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase.from('configuracion').select('*')
     if (error) {
@@ -46,7 +41,11 @@ export default function ConfiguracionPage() {
     }
 
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    void fetchConfig()
+  }, [fetchConfig])
 
   const updateConfig = (clave: string, valor: string) => {
     setConfig(prev => ({ ...prev, [clave]: valor }))
@@ -116,7 +115,6 @@ export default function ConfiguracionPage() {
               <div className="mb-3 h-3 w-20 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
               <div className="h-9 w-64 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
             </div>
-            <div className="h-9 w-32 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
           </div>
           <div className="h-80 animate-pulse rounded-[2px] border border-[rgba(201,168,76,0.1)] bg-[var(--bg-card)]" />
         </div>
@@ -144,30 +142,24 @@ export default function ConfiguracionPage() {
       />
 
       <div className="hidden min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10 md:block">
-        <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-px w-8 bg-[var(--gold-bright)]" />
-              <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
-                Gestión
-              </p>
-            </div>
-            <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
-              Configuración
-            </h1>
-            <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
-              Ajustes generales de la tienda, envíos y checkout
+        <div className="mb-8 border-b border-[rgba(201,168,76,0.16)] pb-8">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="h-px w-8 bg-[var(--gold-bright)]" />
+            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
+              Gestión
             </p>
           </div>
-          <Button onClick={handleGuardar} loading={saving} size="sm" className="self-start sm:self-auto">
-            <Save size={13} />
-            Guardar cambios
-          </Button>
+          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
+            Configuración
+          </h1>
+          <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
+            Ajustes generales de la tienda, envíos y checkout
+          </p>
         </div>
 
         <AdminTableShell className="overflow-hidden">
           <div className="flex flex-col">
-            <nav className="grid grid-cols-2 gap-2 border-b border-[rgba(201,168,76,0.14)] p-3 sm:grid-cols-4">
+            <nav className="grid grid-cols-2 gap-2 border-b border-[rgba(201,168,76,0.14)] bg-[color-mix(in_srgb,var(--bg-muted)_40%,var(--bg-card))] p-3 sm:grid-cols-4">
               {CONFIG_TABS.map(({ id, label, icon: Icon, desc }) => {
                 const activo = tab === id
                 return (
@@ -227,25 +219,16 @@ export default function ConfiguracionPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
-                  className="mobile-admin-form flex-1 space-y-8 p-6"
+                  className="mobile-admin-form flex-1 space-y-8 p-6 sm:p-8"
                 >
                   <ConfigTabPanels tab={tab} variant="desktop" {...panelProps} />
                 </motion.div>
               </AnimatePresence>
-
-              <div className="flex items-center justify-between gap-4 border-t border-[rgba(201,168,76,0.16)] bg-[var(--bg-muted)] px-6 py-4">
-                <div className="flex items-center gap-2 text-[11px] font-light text-[var(--text-subtle)]">
-                  <Clock size={13} className="shrink-0 text-[rgba(201,168,76,0.55)]" />
-                  Los cambios se aplican al guardar
-                </div>
-                <Button onClick={handleGuardar} loading={saving} size="sm">
-                  <Save size={13} />
-                  Guardar
-                </Button>
-              </div>
             </div>
           </div>
         </AdminTableShell>
+
+        <AdminConfigSaveBar onSave={handleGuardar} saving={saving} />
       </div>
     </>
   )

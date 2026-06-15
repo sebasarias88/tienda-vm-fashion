@@ -12,7 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".restore-backup/**",
   ]),
+  {
+    rules: {
+      // React 19 compiler rules — demasiado estrictas para patrones habituales (fetch en mount, hidratación).
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/immutability": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

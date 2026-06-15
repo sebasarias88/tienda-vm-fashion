@@ -1,30 +1,40 @@
+import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import ProductoDetalle from '@/components/catalog/ProductoDetalle'
 import ProductosRelacionados from '@/components/catalog/ProductosRelacionados'
+import ProductPageSeo from '@/components/seo/ProductPageSeo'
 import { normalizarVariacionesProducto } from '@/lib/variaciones'
+import { buildProductMetadata } from '@/lib/seo'
+import { getSiteConfig } from '@/lib/site-config'
 import { VariacionTipo } from '@/types'
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createSupabaseServer()
+  const config = await getSiteConfig()
+
   const { data } = await supabase
     .from('productos')
-    .select('nombre, descripcion')
+    .select('nombre, descripcion, imagenes, slug')
     .eq('slug', slug)
     .single()
 
-  if (!data) return { title: 'Producto no encontrado' }
-
-  return {
-    title: `${data.nombre} — Mayoreo — Tienda VM Fashion`,
-    description: data.descripcion || `${data.nombre} disponible en catálogo al por mayor`,
+  if (!data) {
+    return { title: 'Producto no encontrado', robots: { index: false, follow: false } }
   }
+
+  return buildProductMetadata(config, data, 'mayoreo')
 }
 
 export default async function MayoreoProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createSupabaseServer()
+  const config = await getSiteConfig()
 
   const { data: producto, error } = await supabase
     .from('productos')
@@ -54,6 +64,7 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
 
   return (
     <>
+      <ProductPageSeo config={config} producto={producto} catalogType="mayoreo" />
       <ProductoDetalle
         producto={producto}
         catalogType="mayoreo"

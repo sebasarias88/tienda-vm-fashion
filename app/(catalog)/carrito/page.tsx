@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
@@ -228,12 +228,7 @@ export default function CarritoPage() {
 
   const [errores, setErrores] = useState<Partial<DatosCliente>>({})
 
-  useEffect(() => {
-    setMounted(true)
-    fetchConfig()
-  }, [])
-
-  const fetchConfig = async () => {
+  const fetchConfig = useCallback(async () => {
     const { data } = await supabase.from('configuracion').select('clave, valor')
     if (data) {
       const map: Record<string, string> = {}
@@ -257,7 +252,12 @@ export default function CarritoPage() {
       })
     }
     setLoadingConfig(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    setMounted(true)
+    void fetchConfig()
+  }, [fetchConfig])
 
   const esArmenia = CIUDADES_ARMENIA.includes(datos.ciudad.toLowerCase().trim())
   const subtotal = useMemo(

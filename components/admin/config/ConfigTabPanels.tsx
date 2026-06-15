@@ -1,7 +1,6 @@
 'use client'
 
 import { Input, Textarea } from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
 import {
   Truck,
   CreditCard,
@@ -11,18 +10,9 @@ import {
   Globe,
   Gift,
   Sparkles,
-  Trash2,
 } from 'lucide-react'
-import {
-  AdminTableHead,
-  AdminTableHeaderRow,
-  AdminTableTh,
-  AdminTableBody,
-  AdminTableRow,
-  AdminTableTd,
-  AdminTableEmpty,
-} from '@/components/admin/AdminTable'
 import MobilePaymentMethodCard from '@/components/admin/mobile/MobilePaymentMethodCard'
+import ConfigPaymentMethodsDesktop from '@/components/admin/config/ConfigPaymentMethodsDesktop'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
 import { Config, FormSection, InfoBanner, TabId } from '@/components/admin/config/config-ui'
 
@@ -37,9 +27,6 @@ export type ConfigTabPanelsProps = {
   quitarMetodo: (metodo: string) => void
   variant?: 'desktop' | 'mobile'
 }
-
-const inputInline =
-  'min-w-0 w-full rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors md:rounded-[2px]'
 
 function ZoneCard({
   icon: Icon,
@@ -56,19 +43,17 @@ function ZoneCard({
 }) {
   return (
     <div
-      className={`mobile-admin-field rounded-xl border border-[rgba(201,168,76,0.2)] bg-[var(--bg-muted)] transition-colors md:rounded-[2px] ${
-        mobile ? 'p-4' : 'p-5 hover:border-[rgba(201,168,76,0.35)]'
-      }`}
+      className={`admin-form-panel mobile-admin-field transition-colors ${mobile ? 'p-4' : 'p-5'}`}
     >
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.1)] md:rounded-[2px]">
           <Icon size={16} className="text-[var(--gold-bright)]" />
         </div>
         <div>
-          <p className="text-[12px] font-light uppercase tracking-[1px] text-[var(--text-primary)]">
+          <p className="text-[12px] uppercase tracking-[1px] text-[var(--text-primary)]">
             {title}
           </p>
-          <p className="text-[10px] font-light text-[var(--text-subtle)]">{subtitle}</p>
+          <p className="text-[10px] text-[var(--text-subtle)]">{subtitle}</p>
         </div>
       </div>
       {children}
@@ -147,6 +132,25 @@ export default function ConfigTabPanels({
             rows={mobile ? 6 : 5}
           />
         </FormSection>
+        <FormSection title="SEO — Motores de búsqueda">
+          <div className={`grid grid-cols-1 gap-4 ${mobile ? '' : 'lg:grid-cols-2'}`}>
+            <Textarea
+              label="Meta descripción"
+              value={config['seo_descripcion'] || ''}
+              onChange={e => updateConfig('seo_descripcion', e.target.value)}
+              placeholder="Descripción que aparece en Google y al compartir el enlace del sitio."
+              rows={mobile ? 4 : 3}
+              hint="Máximo recomendado: 160 caracteres"
+            />
+            <Input
+              label="Palabras clave"
+              value={config['seo_keywords'] || ''}
+              onChange={e => updateConfig('seo_keywords', e.target.value)}
+              placeholder="belleza, cuidado capilar, Armenia"
+              hint="Separadas por comas"
+            />
+          </div>
+        </FormSection>
       </>
     )
   }
@@ -197,7 +201,7 @@ export default function ConfigTabPanels({
           </div>
         </FormSection>
         <FormSection title="Promoción de envío">
-          <div className={`mobile-admin-field rounded-xl border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.06)] md:rounded-[2px] ${mobile ? 'p-4' : 'p-5'}`}>
+          <div className={`admin-form-panel mobile-admin-field ${mobile ? 'p-4' : 'p-5'}`}>
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.12)] md:rounded-[2px]">
                 <Gift size={16} className="text-[var(--gold-bright)]" />
@@ -231,129 +235,66 @@ export default function ConfigTabPanels({
         Opciones en el paso de pago del carrito. Agrega al menos uno.
       </InfoBanner>
 
-      <FormSection title="Métodos activos">
-        {mobile ? (
-          metodosPago.length === 0 ? (
-            <MobileEmptyState
-              icon={CreditCard}
-              title="Sin métodos de pago"
-              description="Agrega al menos uno abajo"
-            />
-          ) : (
-            <div className="space-y-2.5">
-              {metodosPago.map(metodo => (
-                <MobilePaymentMethodCard
-                  key={metodo}
-                  metodo={metodo}
-                  onRemove={() => quitarMetodo(metodo)}
-                />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="overflow-x-auto rounded-[2px] border border-[var(--border-card)]">
-            <table className="w-full" style={{ minWidth: '480px' }}>
-              <AdminTableHead>
-                <AdminTableHeaderRow>
-                  <AdminTableTh className="w-14">#</AdminTableTh>
-                  <AdminTableTh>Método de pago</AdminTableTh>
-                  <AdminTableTh className="w-28 text-right">Acciones</AdminTableTh>
-                </AdminTableHeaderRow>
-              </AdminTableHead>
-              <AdminTableBody>
-                {metodosPago.length === 0 ? (
-                  <AdminTableEmpty
-                    colSpan={3}
-                    icon={CreditCard}
-                    title="Sin métodos de pago"
-                    description="Agrega al menos uno usando el formulario de abajo"
-                  />
-                ) : (
-                  metodosPago.map((metodo, i) => (
-                    <AdminTableRow key={metodo}>
-                      <AdminTableTd>
-                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[11px] font-light tabular-nums text-[var(--text-muted)]">
-                          {i + 1}
-                        </span>
-                      </AdminTableTd>
-                      <AdminTableTd>
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)]">
-                            <CreditCard size={14} className="text-[var(--gold-bright)]" />
-                          </div>
-                          <span className="text-[13px] font-light text-[var(--text-primary)]">{metodo}</span>
-                        </div>
-                      </AdminTableTd>
-                      <AdminTableTd className="text-right">
-                        <button
-                          type="button"
-                          onClick={() => quitarMetodo(metodo)}
-                          className="inline-flex items-center gap-1.5 rounded-[2px] border border-transparent px-2.5 py-1.5 text-[var(--text-muted)] transition-all hover:border-[rgba(248,113,113,0.25)] hover:bg-[rgba(248,113,113,0.08)] hover:text-red-400"
-                          aria-label={`Eliminar ${metodo}`}
-                        >
-                          <Trash2 size={14} />
-                          <span className="text-[10px] font-light uppercase tracking-[1px]">Quitar</span>
-                        </button>
-                      </AdminTableTd>
-                    </AdminTableRow>
-                  ))
-                )}
-              </AdminTableBody>
-            </table>
-          </div>
-        )}
-      </FormSection>
-
-      <FormSection title="Agregar método">
-        {mobile ? (
-          <div className="pb-6">
-            <div className="flex items-center gap-2 rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] py-1.5 pl-4 pr-1.5">
-              <input
-                type="text"
-                value={nuevoMetodo}
-                onChange={e => setNuevoMetodo(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    agregarMetodo()
-                  }
-                }}
-                placeholder="Ej: Nequi, Bancolombia, Efectivo..."
-                className="mobile-config-add-input min-h-[2.75rem] min-w-0 flex-1 border-0 bg-transparent py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:outline-none"
+      {mobile ? (
+        <>
+          <FormSection title="Métodos activos">
+            {metodosPago.length === 0 ? (
+              <MobileEmptyState
+                icon={CreditCard}
+                title="Sin métodos de pago"
+                description="Agrega al menos uno abajo"
               />
-              <button
-                type="button"
-                onClick={agregarMetodo}
-                disabled={!nuevoMetodo.trim()}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[var(--gold-bright)] text-[var(--bg-base)] transition-opacity disabled:opacity-35"
-                aria-label="Agregar método"
-              >
-                <Plus size={17} strokeWidth={2} />
-              </button>
+            ) : (
+              <div className="space-y-2.5">
+                {metodosPago.map(metodo => (
+                  <MobilePaymentMethodCard
+                    key={metodo}
+                    metodo={metodo}
+                    onRemove={() => quitarMetodo(metodo)}
+                  />
+                ))}
+              </div>
+            )}
+          </FormSection>
+
+          <FormSection title="Agregar método">
+            <div className="pb-6">
+              <div className="flex items-center gap-2 rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] py-1.5 pl-4 pr-1.5">
+                <input
+                  type="text"
+                  value={nuevoMetodo}
+                  onChange={e => setNuevoMetodo(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      agregarMetodo()
+                    }
+                  }}
+                  placeholder="Ej: Nequi, Bancolombia, Efectivo..."
+                  className="mobile-config-add-input min-h-[2.75rem] min-w-0 flex-1 border-0 bg-transparent py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={agregarMetodo}
+                  disabled={!nuevoMetodo.trim()}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[var(--gold-bright)] text-[var(--bg-base)] transition-opacity disabled:opacity-35"
+                  aria-label="Agregar método"
+                >
+                  <Plus size={17} strokeWidth={2} />
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <input
-              type="text"
-              value={nuevoMetodo}
-              onChange={e => setNuevoMetodo(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  agregarMetodo()
-                }
-              }}
-              placeholder="Ej: Nequi, Bancolombia, Efectivo..."
-              className={inputInline}
-            />
-            <Button type="button" onClick={agregarMetodo} size="sm" className="shrink-0 sm:w-auto">
-              <Plus size={13} />
-              Agregar
-            </Button>
-          </div>
-        )}
-      </FormSection>
+          </FormSection>
+        </>
+      ) : (
+        <ConfigPaymentMethodsDesktop
+          metodosPago={metodosPago}
+          nuevoMetodo={nuevoMetodo}
+          setNuevoMetodo={setNuevoMetodo}
+          agregarMetodo={agregarMetodo}
+          quitarMetodo={quitarMetodo}
+        />
+      )}
     </>
   )
 }

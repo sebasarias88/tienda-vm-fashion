@@ -15,24 +15,18 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 }
 
 const baseInput = `
-  admin-input w-full rounded-xl border px-4 py-3 text-[13px] font-light md:rounded-[2px]
-  transition-colors duration-200 disabled:opacity-40
+  admin-input w-full rounded-xl border px-4 py-3 text-[13px] md:rounded-[2px]
+  transition-[border-color,box-shadow,background-color] duration-200 disabled:opacity-40
 `
 
 export function Input({ label, error, hint, className = '', ...props }: InputProps) {
   return (
     <div className="space-y-1.5">
-      {label && (
-        <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
-          {label}
-        </label>
-      )}
+      {label && <label className="admin-form-label">{label}</label>}
       <input className={`${baseInput} ${className}`} {...props} />
-      {hint && !error && (
-        <p className="text-[10px] font-light tracking-[0.3px] text-[var(--text-subtle)]">{hint}</p>
-      )}
+      {hint && !error && <p className="admin-form-hint">{hint}</p>}
       {error && (
-        <p className="text-[10px] font-light tracking-[0.3px] text-red-400">{error}</p>
+        <p className="text-[10px] tracking-[0.3px] text-red-400">{error}</p>
       )}
     </div>
   )
@@ -41,22 +35,20 @@ export function Input({ label, error, hint, className = '', ...props }: InputPro
 export function Textarea({ label, error, hint, className = '', ...props }: TextareaProps) {
   return (
     <div className="space-y-1.5">
-      {label && (
-        <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
-          {label}
-        </label>
-      )}
+      {label && <label className="admin-form-label">{label}</label>}
       <textarea
         rows={4}
         className={`${baseInput} resize-none ${className}`}
         {...props}
       />
-      {hint && !error && (
-        <p className="text-[10px] font-light tracking-[0.3px] text-[var(--text-subtle)]">{hint}</p>
-      )}
+      {hint && !error && <p className="admin-form-hint">{hint}</p>}
       {error && (
-        <p className="text-[10px] font-light tracking-[0.3px] text-red-400">{error}</p>
+        <p className="text-[10px] tracking-[0.3px] text-red-400">{error}</p>
       )}
     </div>
   )
 }
+
+/** Select con el mismo lenguaje visual que admin-input */
+export const adminSelectClass =
+  'admin-select admin-input w-full rounded-xl px-4 py-3 text-[13px] md:rounded-[2px]'

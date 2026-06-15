@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto, Categoria } from '@/types'
-import { Input, Textarea } from '@/components/ui/Input'
+import { Input, Textarea, adminSelectClass } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
@@ -27,7 +27,7 @@ function FormSection({
     <section className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(201,168,76,0.88)]">
+        <h3 className="admin-form-section-title shrink-0">
           {title}
         </h3>
         <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
@@ -153,8 +153,6 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors md:rounded-[2px]`
-
   return (
     <AdminFormLayout
       footer={
@@ -244,13 +242,11 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       <FormSection title="Clasificación">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
-              Categoría
-            </label>
+            <label className="admin-form-label">Categoría</label>
             <select
               value={form.categoria_id}
               onChange={e => setForm(f => ({ ...f, categoria_id: e.target.value }))}
-              className={inputSelect}
+              className={adminSelectClass}
             >
               <option value="">Sin categoría</option>
               {categorias.map(cat => (
@@ -293,27 +289,19 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           ].map(({ key, label, desc }) => (
             <div
               key={key}
-              className="flex items-center justify-between rounded-xl border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5 md:rounded-[2px]"
+              className="admin-form-panel flex items-center justify-between px-4 py-3.5"
             >
               <div className="pr-4">
-                <p className="text-[13px] font-light text-[var(--text-primary)]">{label}</p>
-                <p className="mt-0.5 text-[11px] font-light text-[var(--text-muted)]">
-                  {desc}
-                </p>
+                <p className="admin-form-panel__title">{label}</p>
+                <p className="admin-form-panel__desc">{desc}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
-                className={`relative h-5 w-10 shrink-0 rounded-full transition-all duration-300 ${
-                  form[key] ? 'bg-[var(--gold-bright)]' : 'bg-[rgba(248,246,241,0.22)]'
-                }`}
+                className={`admin-toggle ${form[key] ? 'admin-toggle--on' : 'admin-toggle--off'}`}
                 aria-pressed={form[key]}
               >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--bg-card)] shadow transition-all duration-300 ${
-                    form[key] ? 'left-5' : 'left-0.5'
-                  }`}
-                />
+                <span className="admin-toggle__thumb" />
               </button>
             </div>
           ))}

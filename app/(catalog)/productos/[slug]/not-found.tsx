@@ -1,4 +1,18 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { buildMetadata } from '@/lib/seo'
+import { getSiteConfig } from '@/lib/site-config'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig()
+  return buildMetadata({
+    config,
+    title: 'Producto no encontrado',
+    description: 'El producto que buscas no existe o ya no está disponible.',
+    path: '/productos',
+    noIndex: true,
+  })
+}
 
 export default function ProductoNotFound() {
   return (

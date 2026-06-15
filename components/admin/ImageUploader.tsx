@@ -78,9 +78,11 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
 
   return (
     <div className="space-y-3">
-      <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
+      <label className="admin-form-label">
         Imágenes del producto
-        <span className="ml-2 text-[var(--text-subtle)]">({imagenes.length}/6)</span>
+        <span className="ml-2 normal-case tracking-normal text-[var(--text-subtle)]">
+          ({imagenes.length}/6)
+        </span>
       </label>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
@@ -140,27 +142,23 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
             }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
-            className={`flex min-h-[10rem] min-w-0 flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-8 text-center transition-all duration-200 md:min-h-[9.5rem] md:rounded-[2px] ${
-              dragOver
-                ? 'border-[var(--gold-bright)] bg-[rgba(201,168,76,0.1)]'
-                : 'border-[rgba(201,168,76,0.35)] bg-[var(--bg-muted)] hover:border-[rgba(201,168,76,0.55)] hover:bg-[rgba(201,168,76,0.06)]'
+            className={`admin-upload-zone min-h-[10rem] md:min-h-[9.5rem] ${
+              dragOver ? 'admin-upload-zone--active' : ''
             }`}
           >
             {uploading ? (
               <div className="flex items-center justify-center gap-2 text-[var(--text-muted)]">
                 <Loader2 size={16} className="animate-spin text-[var(--gold-bright)]" />
-                <span className="text-[11px] font-light tracking-[1px]">Subiendo imágenes...</span>
+                <span className="text-[11px] tracking-[0.04em]">Subiendo imágenes...</span>
               </div>
             ) : (
               <>
-                <ImageIcon size={20} className="mb-2 text-[rgba(201,168,76,0.55)]" />
-                <p className="text-[12px] font-light text-[var(--text-primary)]">
+                <ImageIcon size={20} className="mb-2 text-[rgba(201,168,76,0.72)]" />
+                <p className="admin-upload-zone__title">
                   Arrastra imágenes aquí o{' '}
                   <span className="text-[var(--gold-bright)]">haz clic para seleccionar</span>
                 </p>
-                <p className="mt-1 text-[10px] font-light uppercase tracking-[1px] text-[var(--placeholder)]">
-                  JPG, PNG, WEBP — Máx. 5MB
-                </p>
+                <p className="admin-upload-zone__meta">JPG, PNG, WEBP — Máx. 5MB</p>
               </>
             )}
             <input

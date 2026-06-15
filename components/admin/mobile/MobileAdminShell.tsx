@@ -21,9 +21,7 @@ export default function MobileAdminShell({ children }: { children: React.ReactNo
         />
         <MobileNavigation open={navOpen} onClose={() => setNavOpen(false)} />
       </div>
-      <div className="mobile-admin-content mobile-admin-content-offset md:pt-0">
-        {children}
-      </div>
+      {children}
     </>
   )
 }

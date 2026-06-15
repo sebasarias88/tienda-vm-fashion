@@ -17,8 +17,7 @@ type NuevaOpcionState = {
   valor_color: string
 }
 
-const inputClass =
-  'w-full rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] px-3 py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors md:rounded-[2px]'
+const inputClass = 'admin-input admin-input--compact w-full rounded-xl px-3 py-2 text-[13px] md:rounded-[2px]'
 
 function colorSwatchStyle(value: string | null | undefined): React.CSSProperties | undefined {
   const v = value?.trim()
@@ -204,13 +203,11 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
 
   if (!productoId) {
     return (
-      <div className="rounded-xl border border-dashed border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.06)] px-4 py-5 text-center md:rounded-[2px]">
-        <p className="text-[13px] font-light text-[var(--text-muted)]">
+      <div className="admin-form-empty px-4 py-5">
+        <p className="text-[13px] text-[var(--text-muted)]">
           Guarda el producto primero para agregar variaciones
         </p>
-        <p className="mt-1 text-[11px] font-light text-[var(--text-subtle)]">
-          Ej: Color → Rubio, Castaño · Tono → Claro, Oscuro
-        </p>
+        <p className="admin-form-hint mt-1">Ej: Color → Rubio, Castaño · Tono → Claro, Oscuro</p>
       </div>
     )
   }
@@ -222,16 +219,13 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
           <Loader2 size={20} className="animate-spin text-[var(--gold-bright)]" />
         </div>
       ) : tipos.length === 0 ? (
-        <p className="rounded-xl border border-[rgba(201,168,76,0.12)] bg-[var(--bg-muted)] py-4 text-center text-[12px] font-light text-[var(--text-muted)] md:rounded-[2px]">
+        <p className="admin-form-empty py-4 text-[12px] text-[var(--text-muted)]">
           Aún no hay tipos de variación. Agrega el primero abajo.
         </p>
       ) : (
         <div className="space-y-3">
           {tipos.map(tipo => (
-            <div
-              key={tipo.id}
-              className="rounded-xl border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] p-4 md:rounded-[2px]"
-            >
+            <div key={tipo.id} className="admin-form-card p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
                 {editingTipoId === tipo.id ? (
                   <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -255,7 +249,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                     </button>
                   </div>
                 ) : (
-                  <h4 className="text-[13px] font-light uppercase tracking-[1px] text-[var(--text-primary)]">
+                  <h4 className="text-[13px] font-medium uppercase tracking-[1px] text-[var(--text-primary)]">
                     {tipo.nombre}
                   </h4>
                 )}
@@ -300,7 +294,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                           title={opcion.valor_color}
                         />
                       )}
-                      <span className="text-[12px] font-light text-[var(--text-primary)]">{opcion.nombre}</span>
+                      <span className="text-[12px] text-[var(--text-primary)]">{opcion.nombre}</span>
                       <button
                         type="button"
                         onClick={() => handleToggleDisponible(opcion.id, opcion.disponible)}
@@ -330,9 +324,9 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                 )}
               </div>
 
-              <div className="mt-3 flex flex-col gap-2 rounded-xl border border-dashed border-[rgba(201,168,76,0.25)] bg-[var(--bg-card)] p-3 md:flex-row md:items-end md:rounded-[2px]">
+              <div className="admin-form-empty mt-3 flex flex-col gap-2 p-3 md:flex-row md:items-end">
                 <div className="min-w-0 flex-1 space-y-1">
-                  <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
+                  <label className="admin-form-label text-[9px] tracking-[0.1em]">
                     Nombre de la opción
                   </label>
                   <input
@@ -350,7 +344,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                   />
                 </div>
                 <div className="w-full space-y-1 md:w-36">
-                  <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
+                  <label className="admin-form-label text-[9px] tracking-[0.1em]">
                     Color hex (opcional)
                   </label>
                   <div className="flex items-center gap-2">
@@ -384,13 +378,11 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
         </div>
       )}
 
-      <div className="rounded-xl border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-4 md:rounded-[2px]">
-        <p className="mb-3 text-[10px] font-light uppercase tracking-[1.5px] text-[rgba(201,168,76,0.85)]">
-          Nuevo tipo de variación
-        </p>
+      <div className="admin-form-panel p-4">
+        <p className="admin-form-section-title mb-3">Nuevo tipo de variación</p>
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="min-w-0 flex-1 space-y-1.5">
-            <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
+            <label className="admin-form-label text-[9px] tracking-[0.1em]">
               Nombre del tipo
             </label>
             <input
@@ -416,7 +408,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
             Agregar tipo
           </Button>
         </div>
-        <p className="mt-2 text-[10px] font-light text-[var(--text-faint)]">
+        <p className="admin-form-hint mt-2">
           Solo escribe el nombre del tipo y las opciones en texto. El color hex es opcional y sirve
           para mostrar un círculo de muestra en la tienda.
         </p>
