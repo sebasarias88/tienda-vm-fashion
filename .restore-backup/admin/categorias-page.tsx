@@ -22,13 +22,13 @@ import {
   AdminTableStatus,
   AdminTableActions,
   AdminTableSkeletonRow,
-  AdminListToolbar,
-  AdminListMeta,
 } from '@/components/admin/AdminTable'
 import toast from 'react-hot-toast'
 import {
   Plus,
   GripVertical,
+  Search,
+  X,
   Tag,
   CheckCircle2,
   XCircle,
@@ -158,44 +158,79 @@ export default function CategoriasPage() {
         </Button>
       </div>
 
-      <AdminListToolbar
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Buscar por nombre o slug..."
-        filters={[
-          { id: 'todas' as const, label: 'Todas' },
-          { id: 'activas' as const, label: 'Activas' },
-          { id: 'inactivas' as const, label: 'Inactivas' },
-        ]}
-        activeFilter={filtroEstado}
-        onFilterChange={setFiltroEstado}
-      />
+      {/* Toolbar */}
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="flex w-full min-w-0 flex-1 items-center gap-2.5 rounded-[2px] border border-[rgba(212,175,55,0.22)] bg-[#161616] px-3 py-2.5">
+          <Search size={15} className="shrink-0 text-[rgba(248,246,241,0.45)]" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o slug..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="min-w-0 flex-1 bg-transparent text-[13px] font-light text-[#F8F6F1] outline-none placeholder:text-[rgba(248,246,241,0.45)]"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="shrink-0 text-[rgba(248,246,241,0.5)] transition-colors hover:text-[#D4AF37]"
+              aria-label="Limpiar búsqueda"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
 
-      <AdminListMeta
-        count={categoriasFiltradas.length}
-        noun="categoría"
-        search={search || undefined}
-        activeFilterLabel={filtroEstado !== 'todas' ? filtroLabels[filtroEstado] : undefined}
-      />
+        <div className="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto lg:flex-nowrap">
+          {(['todas', 'activas', 'inactivas'] as const).map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFiltroEstado(f)}
+              className={`rounded-[2px] border px-4 py-2.5 text-[11px] font-light uppercase tracking-[1.5px] transition-all lg:whitespace-nowrap ${
+                filtroEstado === f
+                  ? 'border-[rgba(212,175,55,0.5)] bg-[rgba(212,175,55,0.12)] text-[#D4AF37]'
+                  : 'border-[rgba(248,246,241,0.15)] text-[rgba(248,246,241,0.65)] hover:border-[rgba(212,175,55,0.35)] hover:text-[#D4AF37]'
+              }`}
+            >
+              {filtroLabels[f]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Contador */}
+      <div className="mb-4 flex items-center justify-between border-b border-[rgba(212,175,55,0.12)] pb-3">
+        <p className="text-[12px] font-light uppercase tracking-[1px] text-[rgba(248,246,241,0.65)]">
+          {categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? 's' : ''}
+          {search && ` para "${search}"`}
+        </p>
+        {filtroEstado !== 'todas' && (
+          <span className="text-[11px] font-light text-[#D4AF37]">
+            Filtro: {filtroLabels[filtroEstado]}
+          </span>
+        )}
+      </div>
 
       {/* Tabla */}
-      <AdminTable fixed>
+      <AdminTable minWidth="800px">
         <AdminTableHead>
           <AdminTableHeaderRow>
-            <AdminTableTh className="w-[5.5rem] px-3" />
-            <AdminTableTh className="w-[32%]">Categoría</AdminTableTh>
-            <AdminTableTh className="w-[28%]">Slug</AdminTableTh>
-            <AdminTableTh className="w-[4.5rem]">Orden</AdminTableTh>
-            <AdminTableTh className="w-[8rem]">Estado</AdminTableTh>
-            <AdminTableTh className="w-[5.5rem] text-center">Acciones</AdminTableTh>
+            <AdminTableTh className="w-10" />
+            <AdminTableTh>Imagen</AdminTableTh>
+            <AdminTableTh>Categoría</AdminTableTh>
+            <AdminTableTh>Slug</AdminTableTh>
+            <AdminTableTh className="w-16 text-center">Orden</AdminTableTh>
+            <AdminTableTh>Estado</AdminTableTh>
+            <AdminTableTh className="w-14 text-center">Acciones</AdminTableTh>
           </AdminTableHeaderRow>
         </AdminTableHead>
         <AdminTableBody>
           {loading ? (
-            Array.from({ length: 5 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={6} />)
+            Array.from({ length: 5 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={7} />)
           ) : categoriasFiltradas.length === 0 ? (
             <AdminTableEmpty
-              colSpan={6}
+              colSpan={7}
               icon={Tag}
               title={
                 search
@@ -221,14 +256,15 @@ export default function CategoriasPage() {
           ) : (
             categoriasFiltradas.map((cat, i) => (
               <AdminTableRow key={cat.id} index={i}>
-                <AdminTableTd className="px-3">
-                  <div className="flex items-center gap-2">
-                    <GripVertical
-                      size={15}
-                      className="shrink-0 text-[rgba(248,246,241,0.2)] transition-colors group-hover:text-[rgba(212,175,55,0.45)]"
-                    />
-                    <AdminTableImage src={cat.imagen_url} alt={cat.nombre} size="sm" />
-                  </div>
+                <AdminTableTd className="w-10">
+                  <GripVertical
+                    size={15}
+                    className="text-[rgba(248,246,241,0.2)] transition-colors group-hover:text-[rgba(212,175,55,0.45)]"
+                  />
+                </AdminTableTd>
+
+                <AdminTableTd>
+                  <AdminTableImage src={cat.imagen_url} alt={cat.nombre} size="sm" />
                 </AdminTableTd>
 
                 <AdminTableTd className="max-w-0">
@@ -240,14 +276,14 @@ export default function CategoriasPage() {
                 </AdminTableTd>
 
                 <AdminTableTd className="max-w-0">
-                  <AdminTableSlug slug={cat.slug} className="max-w-full" />
+                  <AdminTableSlug slug={cat.slug} />
                 </AdminTableTd>
 
-                <AdminTableTd className="px-3">
+                <AdminTableTd>
                   <AdminTableNumber value={cat.orden} />
                 </AdminTableTd>
 
-                <AdminTableTd className="px-3">
+                <AdminTableTd>
                   <AdminTableStatus
                     label={cat.activa ? 'Activa' : 'Inactiva'}
                     icon={cat.activa ? CheckCircle2 : XCircle}
@@ -257,7 +293,7 @@ export default function CategoriasPage() {
                   />
                 </AdminTableTd>
 
-                <AdminTableTd className="px-3 text-center">
+                <AdminTableTd className="text-center">
                   <AdminTableActions
                     onEdit={() => abrirEditar(cat)}
                     onDelete={() => {
@@ -276,7 +312,7 @@ export default function CategoriasPage() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={selected ? 'Editar categoría' : 'Nueva categoría'}
-        size="xl"
+        size="lg"
       >
         <CategoriaForm
           key={selected?.id ?? 'nueva'}

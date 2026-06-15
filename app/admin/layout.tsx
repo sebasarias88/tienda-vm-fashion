@@ -1,7 +1,7 @@
-export default function AdminRootLayout({
+export default function AdminLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
-  return children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return children;
 }

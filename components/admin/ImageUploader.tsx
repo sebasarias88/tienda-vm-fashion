@@ -78,98 +78,101 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
 
   return (
     <div className="space-y-3">
-      <label className="block text-[10px] tracking-[2px] uppercase text-[rgba(240,235,228,0.65)] font-light">
+      <label className="block text-[10px] font-light uppercase tracking-[2px] text-[rgba(248,246,241,0.65)]">
         Imágenes del producto
-        <span className="ml-2 text-[rgba(240,235,228,0.55)]">({imagenes.length}/6)</span>
+        <span className="ml-2 text-[rgba(248,246,241,0.45)]">({imagenes.length}/6)</span>
       </label>
 
-      {/* Grid de imágenes */}
-      {imagenes.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
-          <AnimatePresence>
-            {imagenes.map((url, i) => (
-              <motion.div
-                key={url}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="relative group aspect-square"
-              >
-                <img
-                  src={url}
-                  alt={`Imagen ${i + 1}`}
-                  className="w-full h-full object-cover rounded-[2px] border border-[rgba(184,146,42,0.3)]"
-                />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+        {imagenes.length > 0 && (
+          <div className="grid shrink-0 grid-cols-3 gap-2 sm:w-[9.75rem] sm:grid-cols-2 sm:content-start">
+            <AnimatePresence>
+              {imagenes.map((url, i) => (
+                <motion.div
+                  key={url}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="group relative aspect-square"
+                >
+                  <img
+                    src={url}
+                    alt={`Imagen ${i + 1}`}
+                    className="h-full w-full rounded-[2px] border border-[rgba(212,175,55,0.28)] bg-white object-cover"
+                  />
 
-                {/* Badge principal */}
-                {i === 0 && (
-                  <span className="absolute top-1.5 left-1.5 text-[8px] tracking-[1px] uppercase bg-[#B8922A] text-[#1A1A1A] px-2 py-0.5 rounded-[2px] font-medium">
-                    Principal
-                  </span>
-                )}
-
-                {/* Overlay acciones */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2px] flex items-center justify-center gap-2">
-                  {i > 0 && (
-                    <button
-                      onClick={() => moverImagen(i, i - 1)}
-                      className="p-1.5 bg-[rgba(184,146,42,0.92)] text-[#1A1A1A] rounded-[2px] hover:bg-[#B8922A] transition-colors"
-                      title="Mover a principal"
-                    >
-                      <GripVertical size={12} />
-                    </button>
+                  {i === 0 && (
+                    <span className="absolute left-1.5 top-1.5 rounded-[2px] bg-[#D4AF37] px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-[1px] text-[#0D0D0D]">
+                      Principal
+                    </span>
                   )}
-                  <button
-                    onClick={() => eliminarImagen(url)}
-                    className="p-1.5 bg-[rgba(248,113,113,0.9)] text-white rounded-[2px] hover:bg-red-500 transition-colors"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
 
-      {/* Zona de drop */}
-      {imagenes.length < 6 && (
-        <label
-          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          className={`block cursor-pointer border border-dashed rounded-[2px] px-4 py-8 text-center transition-all duration-200 ${
-            dragOver
-              ? 'border-[#B8922A] bg-[rgba(184,146,42,0.14)]'
-              : 'border-[rgba(184,146,42,0.36)] hover:border-[rgba(184,146,42,0.62)] hover:bg-[rgba(184,146,42,0.24)]'
-          }`}
-        >
-          {uploading ? (
-            <div className="flex items-center justify-center gap-2 text-[rgba(240,235,228,0.65)]">
-              <Loader2 size={16} className="animate-spin text-[#B8922A]" />
-              <span className="text-[11px] font-light tracking-[1px]">Subiendo imágenes...</span>
-            </div>
-          ) : (
-            <>
-              <ImageIcon size={20} className="mx-auto mb-2 text-[rgba(184,146,42,0.5)]" />
-              <p className="text-[11px] tracking-[0.5px] text-[rgba(240,235,228,0.52)] font-light">
-                Arrastra imágenes aquí o{' '}
-                <span className="text-[#B8922A]">haz clic para seleccionar</span>
-              </p>
-              <p className="text-[9px] tracking-[1px] text-[rgba(240,235,228,0.52)] font-light mt-1 uppercase">
-                JPG, PNG, WEBP — Máx. 5MB por imagen
-              </p>
-            </>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={e => e.target.files && handleFiles(e.target.files)}
-          />
-        </label>
-      )}
+                  <div className="absolute inset-0 flex items-center justify-center gap-1.5 rounded-[2px] bg-black/55 opacity-0 transition-opacity group-hover:opacity-100">
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => moverImagen(i, i - 1)}
+                        className="rounded-[2px] bg-[rgba(212,175,55,0.92)] p-1.5 text-[#0D0D0D] transition-colors hover:bg-[#D4AF37]"
+                        title="Mover a principal"
+                      >
+                        <GripVertical size={12} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => eliminarImagen(url)}
+                      className="rounded-[2px] bg-[rgba(248,113,113,0.92)] p-1.5 text-white transition-colors hover:bg-red-500"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {imagenes.length < 6 && (
+          <label
+            onDragOver={e => {
+              e.preventDefault()
+              setDragOver(true)
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            className={`flex min-h-[9.5rem] min-w-0 flex-1 cursor-pointer flex-col items-center justify-center rounded-[2px] border border-dashed px-4 py-8 text-center transition-all duration-200 ${
+              dragOver
+                ? 'border-[#D4AF37] bg-[rgba(212,175,55,0.1)]'
+                : 'border-[rgba(212,175,55,0.35)] bg-[#161616] hover:border-[rgba(212,175,55,0.55)] hover:bg-[rgba(212,175,55,0.06)]'
+            }`}
+          >
+            {uploading ? (
+              <div className="flex items-center justify-center gap-2 text-[rgba(248,246,241,0.65)]">
+                <Loader2 size={16} className="animate-spin text-[#D4AF37]" />
+                <span className="text-[11px] font-light tracking-[1px]">Subiendo imágenes...</span>
+              </div>
+            ) : (
+              <>
+                <ImageIcon size={20} className="mb-2 text-[rgba(212,175,55,0.55)]" />
+                <p className="text-[12px] font-light text-[#F8F6F1]">
+                  Arrastra imágenes aquí o{' '}
+                  <span className="text-[#D4AF37]">haz clic para seleccionar</span>
+                </p>
+                <p className="mt-1 text-[10px] font-light uppercase tracking-[1px] text-[rgba(248,246,241,0.42)]">
+                  JPG, PNG, WEBP — Máx. 5MB
+                </p>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={e => e.target.files && handleFiles(e.target.files)}
+            />
+          </label>
+        )}
+      </div>
     </div>
   )
 }

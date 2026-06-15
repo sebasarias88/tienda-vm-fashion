@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, MessageCircle, Truck } from 'lucide-react'
+import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
 type Props = {
   texto: string
@@ -39,6 +40,7 @@ export default function NosotrosSection({
 
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <SectionGoldDivider />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -56,7 +58,7 @@ export default function NosotrosSection({
 
         <h2 className="max-w-2xl text-[1.75rem] font-thin uppercase leading-tight tracking-[1.5px] text-[#f0ebe4] sm:text-[2.125rem]">
           Tu aliada de{' '}
-          <span className="text-[#C9A84C]">belleza</span>
+          <span className="gold-shimmer">belleza</span>
         </h2>
         <p className="mt-3 max-w-lg text-[14px] font-light leading-relaxed text-[rgba(240,235,228,0.85)]">
           {nombreNegocio} — productos profesionales con atención cercana

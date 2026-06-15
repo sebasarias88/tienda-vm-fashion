@@ -23,16 +23,16 @@ import {
   AdminTableStatus,
   AdminTableActions,
   AdminTableSkeletonRow,
-  AdminListToolbar,
-  AdminListMeta,
 } from '@/components/admin/AdminTable'
 import toast from 'react-hot-toast'
 import {
   Plus,
+  Search,
   CheckCircle2,
   XCircle,
   Star,
   Package,
+  X,
 } from 'lucide-react'
 
 export default function ProductosPage() {
@@ -154,25 +154,59 @@ export default function ProductosPage() {
         </Button>
       </div>
 
-      <AdminListToolbar
-        search={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Buscar por nombre o SKU..."
-        filters={[
-          { id: 'todos' as const, label: 'Todos' },
-          { id: 'disponible' as const, label: 'Disponibles' },
-          { id: 'agotado' as const, label: 'Agotados' },
-        ]}
-        activeFilter={filtroDisponible}
-        onFilterChange={setFiltroDisponible}
-      />
+      {/* Toolbar */}
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="flex w-full min-w-0 flex-1 items-center gap-2.5 rounded-[2px] border border-[rgba(212,175,55,0.22)] bg-[#161616] px-3 py-2.5">
+          <Search size={15} className="shrink-0 text-[rgba(248,246,241,0.45)]" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o SKU..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="min-w-0 flex-1 bg-transparent text-[13px] font-light text-[#F8F6F1] outline-none placeholder:text-[rgba(248,246,241,0.45)]"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="shrink-0 text-[rgba(248,246,241,0.5)] transition-colors hover:text-[#D4AF37]"
+              aria-label="Limpiar búsqueda"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
 
-      <AdminListMeta
-        count={productosFiltrados.length}
-        noun="producto"
-        search={search || undefined}
-        activeFilterLabel={filtroDisponible !== 'todos' ? filtroLabels[filtroDisponible] : undefined}
-      />
+        <div className="grid w-full grid-cols-3 gap-2 lg:flex lg:w-auto lg:flex-nowrap">
+          {(['todos', 'disponible', 'agotado'] as const).map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFiltroDisponible(f)}
+              className={`rounded-[2px] border px-4 py-2.5 text-[11px] font-light uppercase tracking-[1.5px] transition-all lg:whitespace-nowrap ${
+                filtroDisponible === f
+                  ? 'border-[rgba(212,175,55,0.5)] bg-[rgba(212,175,55,0.12)] text-[#D4AF37]'
+                  : 'border-[rgba(248,246,241,0.15)] text-[rgba(248,246,241,0.65)] hover:border-[rgba(212,175,55,0.35)] hover:text-[#D4AF37]'
+              }`}
+            >
+              {filtroLabels[f]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Contador */}
+      <div className="mb-4 flex items-center justify-between border-b border-[rgba(212,175,55,0.12)] pb-3">
+        <p className="text-[12px] font-light uppercase tracking-[1px] text-[rgba(248,246,241,0.65)]">
+          {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+          {search && ` para "${search}"`}
+        </p>
+        {filtroDisponible !== 'todos' && (
+          <span className="text-[11px] font-light text-[#D4AF37]">
+            Filtro: {filtroLabels[filtroDisponible]}
+          </span>
+        )}
+      </div>
 
       {/* Tabla */}
       <AdminTable minWidth="1040px" fixed>

@@ -31,9 +31,9 @@ function MainSphere() {
     <mesh ref={meshRef} scale={2.2}>
       <sphereGeometry args={[1, 64, 64]} />
       <MeshDistortMaterial
-        color="#B8922A"
-        emissive="#8B6914"
-        emissiveIntensity={0.4}
+        color="#D4AF37"
+        emissive="#A87C28"
+        emissiveIntensity={0.45}
         metalness={0.9}
         roughness={0.1}
         distort={0.35}
@@ -55,9 +55,9 @@ function InnerRing() {
     <mesh ref={meshRef} rotation={[Math.PI / 2, 0, 0]}>
       <torusGeometry args={[2.6, 0.008, 16, 100]} />
       <meshStandardMaterial
-        color="#B8922A"
-        emissive="#B8922A"
-        emissiveIntensity={0.8}
+        color="#D4AF37"
+        emissive="#E6C76A"
+        emissiveIntensity={0.85}
         metalness={0.6}
         roughness={0.2}
       />
@@ -77,9 +77,9 @@ function OuterRing() {
     <mesh ref={meshRef} rotation={[Math.PI / 3, 0, 0]}>
       <torusGeometry args={[3.0, 0.004, 16, 100]} />
       <meshStandardMaterial
-        color="#B8922A"
-        emissive="#B8922A"
-        emissiveIntensity={0.4}
+        color="#E6C76A"
+        emissive="#D4AF37"
+        emissiveIntensity={0.5}
         metalness={0.6}
         roughness={0.2}
       />
@@ -116,8 +116,8 @@ function OrbitingSphere({ radius, speed, size, color, phase, tilt = 0 }: Orbitin
         color={color}
         metalness={1}
         roughness={0.1}
-        emissive="#B8922A"
-        emissiveIntensity={1}
+        emissive="#D4AF37"
+        emissiveIntensity={1.2}
       />
     </mesh>
   )
@@ -182,11 +182,11 @@ function Particles() {
             <sphereGeometry args={[p.size, 8, 8]} />
           )}
           <meshStandardMaterial
-            color="#B8922A"
+            color="#E6C76A"
             metalness={0.8}
             roughness={0.1}
-            emissive="#B8922A"
-            emissiveIntensity={2}
+            emissive="#D4AF37"
+            emissiveIntensity={2.2}
           />
         </mesh>
       ))}
@@ -198,18 +198,18 @@ function Scene() {
   return (
     <>
       <ambientLight intensity={1.2} />
-      <pointLight position={[3, 3, 3]} intensity={3} color="#B8922A" />
-      <pointLight position={[-3, -2, -3]} intensity={1.5} color="#111111" />
-      <pointLight position={[0, -4, 2]} intensity={1} color="#9A7820" />
-      <spotLight position={[0, 10, 0]} intensity={2} angle={0.4} penumbra={0.5} color="#B8922A" />
+      <pointLight position={[3, 3, 3]} intensity={3} color="#E6C76A" />
+      <pointLight position={[-3, -2, -3]} intensity={1.5} color="#ffffff" />
+      <pointLight position={[0, -4, 2]} intensity={1} color="#D4AF37" />
+      <spotLight position={[0, 10, 0]} intensity={2} angle={0.4} penumbra={0.5} color="#D4AF37" />
 
       <MainSphere />
       <InnerRing />
       <OuterRing />
 
-      <OrbitingSphere radius={3.2} speed={1.1} size={0.2} color="#B8922A" phase={0} />
-      <OrbitingSphere radius={2.6} speed={1.4} size={0.15} color="#9A7820" phase={1.2} tilt={0.8} />
-      <OrbitingSphere radius={3.6} speed={0.95} size={0.18} color="#9A7820" phase={2.4} tilt={1.6} />
+      <OrbitingSphere radius={3.2} speed={1.1} size={0.2} color="#D4AF37" phase={0} />
+      <OrbitingSphere radius={2.6} speed={1.4} size={0.15} color="#E6C76A" phase={1.2} tilt={0.8} />
+      <OrbitingSphere radius={3.6} speed={0.95} size={0.18} color="#C9A84C" phase={2.4} tilt={1.6} />
 
       <Particles />
 

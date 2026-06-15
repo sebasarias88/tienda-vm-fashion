@@ -12,6 +12,7 @@ import {
 import { catalogPath, getProductoPrecios, type CatalogType } from '@/lib/catalog'
 import { X, ShoppingBag, Minus, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
 
 type CartDrawerProps = {
   open: boolean
@@ -60,7 +61,7 @@ export default function CartDrawer({
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[rgba(201,168,76,0.22)]">
               <div className="flex items-center gap-3">
-                <ShoppingBag size={16} className="text-[#C9A84C]" />
+                <LuxuryCartIcon size={18} />
                 <h2 className="text-[13px] tracking-[3px] uppercase font-light text-[#f0ebe4]">
                   Carrito
                 </h2>

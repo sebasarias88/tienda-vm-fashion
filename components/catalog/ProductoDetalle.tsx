@@ -31,6 +31,7 @@ import {
   getProductoPrecios,
 } from '@/lib/catalog'
 import ProductoPrecio from '@/components/catalog/ProductoPrecio'
+import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 
 const ENVIO_INFO = [
   { icon: Package, text: 'Envío en Armenia el mismo día' },
@@ -110,8 +111,9 @@ export default function ProductoDetalle({
   const homeHref = catalogPath(catalogType, '/')
 
   return (
-    <div className={`min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+    <div className={`relative min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
+      <PageGoldAccent />
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-12 sm:pb-16">
         {/* Navegación superior */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}

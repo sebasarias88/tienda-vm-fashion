@@ -40,7 +40,7 @@ export default function AdminSidebar() {
             Admin Panel
           </span>
         </div>
-        <p className="gold-shimmer text-[16px] font-thin uppercase tracking-[2px]">
+        <p className="text-[16px] tracking-[2px] uppercase font-light text-[#1A1A1A]">
           VM Fashion
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function AdminSidebar() {
               className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-[13px] tracking-[1.5px] uppercase font-light transition-all duration-200 ${
                 active
                   ? 'bg-[rgba(184,146,42,0.14)] text-[#C9A84C] border border-[rgba(184,146,42,0.45)]'
-                  : 'text-[rgba(240,235,228,0.78)] hover:text-[#D4AF37] hover:bg-[rgba(240,235,228,0.06)]'
+                  : 'text-[rgba(240,235,228,0.78)] hover:text-[#1A1A1A] hover:bg-[rgba(240,235,228,0.06)]'
               }`}
             >
               <Icon size={15} />

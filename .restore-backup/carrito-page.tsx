@@ -18,6 +18,14 @@ import { catalogPath, type CatalogType } from '@/lib/catalog'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
 import {
+  cartSubtotal,
+  formatVariacionesResumen,
+  itemLineKey,
+  itemLineTotal,
+  variacionesCarritoClassName,
+} from '@/lib/cart'
+import { catalogPath, type CatalogType } from '@/lib/catalog'
+import {
   ShoppingBag,
   Trash2,
   Minus,
@@ -324,7 +332,7 @@ export default function CarritoPage() {
   }
 
   const inputClass = (campo: keyof DatosCliente) =>
-    `w-full border-0 border-b bg-transparent py-3.5 text-[13px] font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] ${
+    `w-full border-0 border-b bg-transparent py-3.5 text-[13px] font-light text-[#1A1A1A] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] ${
       errores[campo]
         ? 'border-red-400/50 focus:border-red-400'
         : 'border-[rgba(240,235,228,0.42)] focus:border-[rgba(184,146,42,0.67)]'
@@ -348,9 +356,9 @@ export default function CarritoPage() {
               Mi pedido
             </span>
           </div>
-          <h1 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[#F8F6F1] sm:text-[2.125rem]">
+          <h1 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[#1A1A1A] sm:text-[2.125rem]">
             Tu{' '}
-            <span className="gold-shimmer">carrito</span>
+            <span className="text-[#B8922A]">carrito</span>
           </h1>
 
           {/* Steps */}
@@ -450,7 +458,7 @@ export default function CarritoPage() {
                             )}
                             <Link
                               href={catalogPath(catalogType, `/productos/${producto.slug}`)}
-                              className="mb-1 block truncate text-[14px] font-light text-[#F8F6F1] transition-colors hover:text-[#D4AF37]"
+                              className="mb-1 block truncate text-[14px] font-light text-[#1A1A1A] transition-colors hover:text-[#B8922A]"
                             >
                               {producto.nombre}
                             </Link>
@@ -470,7 +478,7 @@ export default function CarritoPage() {
                                 >
                                   <Minus size={13} />
                                 </button>
-                                <span className="min-w-[1.5rem] text-center text-[14px] font-light text-[#F8F6F1]">
+                                <span className="min-w-[1.5rem] text-center text-[14px] font-light text-[#1A1A1A]">
                                   {cantidad}
                                 </span>
                                 <button
@@ -671,7 +679,7 @@ export default function CarritoPage() {
                           className={`flex w-full items-center justify-between py-4 text-left transition-colors ${
                             datos.metodoPago === metodo
                               ? 'text-[#B8922A]'
-                              : 'text-[rgba(240,235,228,0.82)] hover:text-[#F8F6F1]'
+                              : 'text-[rgba(240,235,228,0.82)] hover:text-[#1A1A1A]'
                           }`}
                         >
                           <span className="text-[14px] font-light">{metodo}</span>
@@ -683,7 +691,7 @@ export default function CarritoPage() {
                             }`}
                           >
                             {datos.metodoPago === metodo && (
-                              <span className="block h-full w-full scale-[0.4] rounded-full bg-[#0D0D0D]" />
+                              <span className="block h-full w-full scale-[0.4] rounded-full bg-[#1A1A1A]" />
                             )}
                           </span>
                         </button>
@@ -703,7 +711,7 @@ export default function CarritoPage() {
                     onChange={e => setDatos(d => ({ ...d, notas: e.target.value }))}
                     placeholder="Indicaciones especiales para la entrega, referencias, etc."
                     rows={3}
-                    className="w-full resize-none border-0 border-b border-[rgba(240,235,228,0.42)] bg-transparent py-3 text-[13px] font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] focus:border-[rgba(184,146,42,0.67)]"
+                    className="w-full resize-none border-0 border-b border-[rgba(240,235,228,0.42)] bg-transparent py-3 text-[13px] font-light text-[#1A1A1A] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] focus:border-[rgba(184,146,42,0.67)]"
                   />
                 </section>
 
@@ -804,7 +812,7 @@ export default function CarritoPage() {
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[13px] font-light text-[#F8F6F1]">{producto.nombre}</p>
+                            <p className="truncate text-[13px] font-light text-[#1A1A1A]">{producto.nombre}</p>
                             {vars && (
                               <p className={`truncate ${variacionesCarritoClassName}`}>
                                 {vars}

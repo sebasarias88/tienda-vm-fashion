@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
-import { ShoppingBag, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import CartDrawer from '@/components/catalog/CartDrawer'
+import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
 
 type NavbarProps = {
   nombreNegocio: string
@@ -86,7 +87,7 @@ export default function Navbar({
                 whileHover={{ opacity: 0.8 }}
                 className="flex items-center gap-2"
               >
-                <span className="text-[15px] tracking-[3px] uppercase font-thin text-[var(--gold)]">
+                <span className="gold-shimmer text-[15px] font-thin uppercase tracking-[4px]">
                   {nombreNegocio}
                 </span>
                 {isMayoreo && (
@@ -117,9 +118,9 @@ export default function Navbar({
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCartOpen(true)}
-                className="relative flex items-center gap-2 border border-[rgba(201,168,76,0.5)] text-[var(--gold)] px-4 py-2 rounded-[2px] text-[12px] tracking-[2px] uppercase font-light hover:bg-[var(--gold-muted)] transition-all"
+                className="gold-border-glow relative flex items-center gap-2 rounded-[2px] border border-[rgba(201,168,76,0.5)] px-4 py-2 text-[12px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
               >
-                <ShoppingBag size={13} />
+                <LuxuryCartIcon size={16} />
                 <span className="hidden sm:inline">Carrito</span>
                 {mounted && cantidad > 0 && (
                   <span className="w-4 h-4 bg-[var(--gold)] text-[var(--bg-base)] rounded-full text-[9px] font-medium flex items-center justify-center">
