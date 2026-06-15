@@ -26,7 +26,7 @@ function WhatsAppIcon({ className, size = 14 }: { className?: string; size?: num
 
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-4 text-[12px] font-light uppercase tracking-[2.5px] text-[#C9A84C]">
+    <p className="mb-4 text-[12px] font-medium uppercase tracking-[2.5px] text-[var(--gold)]">
       {children}
     </p>
   )
@@ -45,11 +45,9 @@ export default function Footer({
   const whatsappUrl = `https://wa.me/${whatsapp.replace(/\D/g, '')}`
 
   return (
-    <footer className="mt-20 border-t border-[rgba(201,168,76,0.22)] bg-[#141414]">
+    <footer className="mt-20 border-t border-[var(--border)] bg-[var(--bg-footer)]">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        {/* Contenido principal */}
         <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12 lg:py-14">
-          {/* Marca */}
           <div>
             <Link
               href={catalogPath(catalogType, '/')}
@@ -59,12 +57,11 @@ export default function Footer({
                 {nombreNegocio}
               </p>
             </Link>
-            <p className="mt-4 max-w-xs text-[13px] font-light leading-relaxed text-[rgba(240,235,228,0.68)]">
+            <p className="mt-4 max-w-xs text-[13px] catalog-lead leading-relaxed">
               Productos de belleza y cuidado capilar en Armenia, Quindío. Envíos a toda Colombia.
             </p>
           </div>
 
-          {/* Navegación */}
           <div>
             <FooterHeading>Navegación</FooterHeading>
             <nav className="flex flex-col gap-2.5">
@@ -72,7 +69,7 @@ export default function Footer({
                 <Link
                   key={href}
                   href={href}
-                  className="text-[13px] font-light text-[rgba(240,235,228,0.75)] transition-colors hover:text-[#C9A84C]"
+                  className="text-[13px] font-light text-[var(--text-secondary)] transition-colors hover:text-[var(--gold)]"
                 >
                   {label}
                 </Link>
@@ -80,7 +77,6 @@ export default function Footer({
             </nav>
           </div>
 
-          {/* Contacto */}
           <div className="sm:col-span-2 lg:col-span-1">
             <FooterHeading>Contacto</FooterHeading>
             <ul className="space-y-3">
@@ -89,18 +85,15 @@ export default function Footer({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-2.5 text-[13px] font-light text-[rgba(240,235,228,0.75)] transition-colors hover:text-[#C9A84C]"
+                  className="flex items-start gap-2.5 text-[13px] font-light text-[var(--text-secondary)] transition-colors hover:text-[var(--gold)]"
                 >
-                  <WhatsAppIcon
-                    size={14}
-                    className="mt-0.5 shrink-0 text-[rgba(201,168,76,0.77)]"
-                  />
+                  <WhatsAppIcon size={14} className="mt-0.5 shrink-0 text-[var(--gold-subtle)]" />
                   <span>WhatsApp</span>
                 </a>
               </li>
               <li>
-                <div className="flex items-start gap-2.5 text-[13px] font-light text-[rgba(240,235,228,0.75)]">
-                  <MapPin size={14} className="mt-0.5 shrink-0 text-[rgba(201,168,76,0.77)]" />
+                <div className="flex items-start gap-2.5 text-[13px] font-light text-[var(--text-secondary)]">
+                  <MapPin size={14} className="mt-0.5 shrink-0 text-[var(--gold-subtle)]" />
                   <span>Armenia, Quindío — Colombia</span>
                 </div>
               </li>
@@ -108,12 +101,11 @@ export default function Footer({
           </div>
         </div>
 
-        {/* Barra inferior */}
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-[rgba(201,168,76,0.18)] py-6 sm:flex-row">
-          <p className="text-center text-[12px] font-light text-[rgba(240,235,228,0.52)] sm:text-left">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-[var(--border-subtle)] py-6 sm:flex-row">
+          <p className="text-center text-[12px] font-light text-[var(--text-subtle)] sm:text-left">
             © {new Date().getFullYear()} {nombreNegocio}. Todos los derechos reservados.
           </p>
-          <p className="text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(201,168,76,0.62)]">
+          <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold-subtle)]">
             Pedidos vía WhatsApp
           </p>
         </div>

@@ -41,7 +41,7 @@ const stepVariant = {
 function StepConnector() {
   return (
     <div
-      className="mx-1 mt-7 h-0 min-w-[28px] shrink-0 flex-1 border-t-2 border-dotted border-[rgba(212,175,55,0.35)] sm:min-w-[40px] lg:mx-0 lg:min-w-[16px]"
+      className="mx-1 mt-7 h-0 min-w-[28px] shrink-0 flex-1 border-t-2 border-dotted border-[var(--border)] sm:min-w-[40px] lg:mx-0 lg:min-w-[16px]"
       aria-hidden
     />
   )
@@ -60,16 +60,16 @@ export default function ProcesoPedido() {
         className="mb-10 text-center"
       >
         <div className="mb-4 flex items-center justify-center gap-3">
-          <div className="h-px w-8 bg-[#D4AF37]" />
-          <span className="text-[11px] font-light uppercase tracking-[3px] text-[rgba(212,175,55,0.92)]">
+          <div className="h-px w-8 bg-[var(--gold)] opacity-40" />
+          <span className="catalog-eyebrow tracking-[3px]">
             Cómo comprar
           </span>
-          <div className="h-px w-8 bg-[#D4AF37]" />
+          <div className="h-px w-8 bg-[var(--gold)] opacity-40" />
         </div>
-        <h2 className="text-[1.25rem] font-thin uppercase tracking-[2px] text-[#F8F6F1] sm:text-[1.5rem]">
-          Tu pedido en <span className="text-[#D4AF37]">6 pasos</span>
+        <h2 className="text-[1.25rem] font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-[1.5rem]">
+          Tu pedido en <span className="text-[var(--gold)]">6 pasos</span>
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-[13px] font-light text-[rgba(248,246,241,0.55)]">
+        <p className="mx-auto mt-2 max-w-md text-[13px] font-light text-[var(--text-muted)]">
           Proceso simple vía catálogo y WhatsApp
         </p>
       </motion.div>
@@ -90,14 +90,14 @@ export default function ProcesoPedido() {
                 className="flex w-[108px] shrink-0 flex-col items-center sm:w-[128px] lg:w-auto lg:min-w-0 lg:flex-1"
               >
                 <div className="relative">
-                  <span className="absolute -left-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full border border-[rgba(212,175,55,0.45)] bg-[#0D0D0D] text-[9px] font-light text-[#D4AF37]">
+                  <span className="absolute -left-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-card)] text-[9px] font-light text-[var(--gold)] shadow-[var(--shadow-card)]">
                     {step.num}
                   </span>
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(212,175,55,0.5)] bg-[rgba(212,175,55,0.06)] shadow-[0_0_12px_rgba(212,175,55,0.08)]">
-                    <Icon size={20} className="text-[#D4AF37]" strokeWidth={1.25} />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--gold-muted)] shadow-[var(--shadow-soft)]">
+                    <Icon size={20} className="text-[var(--gold)]" strokeWidth={1.25} />
                   </div>
                 </div>
-                <p className="mt-3 max-w-[100px] text-center text-[10px] font-light uppercase leading-snug tracking-[1px] text-[rgba(248,246,241,0.72)] sm:max-w-[120px] sm:text-[11px]">
+                <p className="mt-3 max-w-[100px] text-center text-[10px] font-light uppercase leading-snug tracking-[1px] text-[var(--text-muted)] sm:max-w-[120px] sm:text-[11px]">
                   {step.label}
                 </p>
               </motion.div>

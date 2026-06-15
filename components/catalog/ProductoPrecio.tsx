@@ -30,13 +30,11 @@ export default function ProductoPrecio({
       ? 'text-[1.75rem] font-light leading-none sm:text-3xl'
       : 'text-base font-light leading-none'
   const labelClass =
-    'text-[10px] font-light uppercase tracking-[1px] text-[rgba(240,235,228,0.55)]'
+    'text-[10px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]'
 
   const priceColor = disponible
-    ? size === 'lg'
-      ? 'text-[#C9A84C]'
-      : 'text-[#D4AF37]'
-    : 'text-[rgba(240,235,228,0.58)]'
+    ? 'text-[var(--gold)]'
+    : 'text-[var(--text-faint)]'
 
   const wrapperClass =
     layout === 'stack'
@@ -47,7 +45,7 @@ export default function ProductoPrecio({
     return (
       <div className={wrapperClass}>
         {isMayoreo && <span className={labelClass}>Precio al por mayor</span>}
-        <span className={`${precioClass} text-[#A09890]`}>Consultar precio</span>
+        <span className={`${precioClass} text-[var(--text-subtle)]`}>Consultar precio</span>
       </div>
     )
   }
@@ -60,12 +58,12 @@ export default function ProductoPrecio({
       {isMayoreo && <span className={labelClass}>Precio al por mayor</span>}
       <span className={`${precioClass} ${priceColor}`}>{formatPrecio(precio!)}</span>
       {precioAntes != null && precioAntes > 0 && (
-        <span className="shrink-0 text-xs font-light leading-none text-[rgba(240,235,228,0.78)] line-through sm:text-base">
+        <span className="shrink-0 text-xs font-light leading-none text-[var(--text-subtle)] line-through sm:text-base">
           {formatPrecio(precioAntes)}
         </span>
       )}
       {descuento != null && size === 'lg' && disponible && (
-        <span className="text-[11px] font-light uppercase tracking-[1px] text-[rgba(201,168,76,0.92)]">
+        <span className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold-subtle)]">
           Ahorras {formatPrecio(precioAntes! - precio!)}
         </span>
       )}

@@ -17,9 +17,9 @@ type ButtonProps = {
 }
 
 const variants = {
-  primary: 'bg-[#C9A84C] text-[#f0ebe4] hover:bg-[#D4AF37] border border-[#C9A84C]',
-  outline: 'bg-transparent text-[#C9A84C] border border-[rgba(201,168,76,0.62)] hover:bg-[rgba(201,168,76,0.14)]',
-  ghost: 'bg-transparent text-[rgba(240,235,228,0.78)] border border-transparent hover:text-[#f0ebe4] hover:bg-[#0a0a0a]',
+  primary: 'bg-[var(--gold)] text-[var(--text-on-gold)] hover:bg-[var(--gold-hover)] border border-[var(--gold)]',
+  outline: 'bg-transparent text-[var(--gold)] border border-[var(--border)] hover:bg-[var(--gold-muted)]',
+  ghost: 'bg-transparent text-[var(--text-muted)] border border-transparent hover:text-[var(--text-primary)] hover:bg-[var(--bg-base)]',
   danger: 'bg-transparent text-red-400 border border-[rgba(248,113,113,0.3)] hover:bg-[rgba(248,113,113,0.06)]',
 }
 

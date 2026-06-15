@@ -25,11 +25,11 @@ function FormSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(212,175,55,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(212,175,55,0.88)]">
+        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
+        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(201,168,76,0.88)]">
           {title}
         </h3>
-        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(212,175,55,0.35)] to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
       </div>
       {children}
     </section>
@@ -152,7 +152,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-[2px] border border-[rgba(248,246,241,0.15)] bg-[#161616] px-4 py-3 text-[13px] font-light text-[#F8F6F1] [color-scheme:dark] focus:border-[rgba(212,175,55,0.65)] focus:outline-none transition-colors`
+  const inputSelect = `w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors`
 
   return (
     <div className="space-y-8">
@@ -232,7 +232,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       <FormSection title="Clasificación">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[rgba(248,246,241,0.65)]">
+            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
               Categoría
             </label>
             <select
@@ -281,11 +281,11 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           ].map(({ key, label, desc }) => (
             <div
               key={key}
-              className="flex items-center justify-between rounded-[2px] border border-[rgba(212,175,55,0.18)] bg-[#161616] px-4 py-3.5"
+              className="flex items-center justify-between rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5"
             >
               <div className="pr-4">
-                <p className="text-[13px] font-light text-[#F8F6F1]">{label}</p>
-                <p className="mt-0.5 text-[11px] font-light text-[rgba(248,246,241,0.5)]">
+                <p className="text-[13px] font-light text-[var(--text-primary)]">{label}</p>
+                <p className="mt-0.5 text-[11px] font-light text-[var(--text-muted)]">
                   {desc}
                 </p>
               </div>
@@ -293,12 +293,12 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
                 type="button"
                 onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
                 className={`relative h-5 w-10 shrink-0 rounded-full transition-all duration-300 ${
-                  form[key] ? 'bg-[#D4AF37]' : 'bg-[rgba(248,246,241,0.22)]'
+                  form[key] ? 'bg-[var(--gold-bright)]' : 'bg-[rgba(248,246,241,0.22)]'
                 }`}
                 aria-pressed={form[key]}
               >
                 <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-[#111111] shadow transition-all duration-300 ${
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--bg-card)] shadow transition-all duration-300 ${
                     form[key] ? 'left-5' : 'left-0.5'
                   }`}
                 />
@@ -312,7 +312,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         <VariacionesEditor productoId={producto?.id ?? null} />
       </FormSection>
 
-      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(212,175,55,0.18)] bg-[#111111] px-6 py-4">
+      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(201,168,76,0.18)] bg-[var(--bg-card)] px-6 py-4">
         <Button variant="outline" onClick={onCancel} fullWidth>
           Cancelar
         </Button>
@@ -320,7 +320,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           onClick={handleGuardar}
           loading={saving}
           fullWidth
-          className="!text-[#0D0D0D] hover:!bg-[#C9A030]"
+          className=""
         >
           {producto ? 'Guardar cambios' : 'Crear producto'}
         </Button>

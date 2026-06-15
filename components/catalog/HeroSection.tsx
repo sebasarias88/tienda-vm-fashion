@@ -12,7 +12,7 @@ import GoldDecorations from '@/components/catalog/GoldDecorations'
 const BeautyOrb3D = dynamic(() => import('@/components/catalog/BeautyOrb3D'), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full animate-pulse rounded-[2px] bg-[rgba(201,168,76,0.26)]" />
+    <div className="h-full w-full animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
   ),
 })
 
@@ -56,14 +56,14 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
 
       {/* Glow background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 right-[10%] w-[520px] h-[520px] bg-[radial-gradient(circle,rgba(201,168,76,0.27)_0%,transparent_70%)]" />
-        <div className="absolute bottom-1/3 left-[8%] w-[360px] h-[360px] bg-[radial-gradient(circle,rgba(201,168,76,0.25)_0%,transparent_70%)]" />
+        <div className="absolute top-1/4 right-[10%] w-[520px] h-[520px] bg-[radial-gradient(circle,var(--glow-gold)_0%,transparent_70%)]" />
+        <div className="absolute bottom-1/3 left-[8%] w-[360px] h-[360px] bg-[radial-gradient(circle,var(--glow-gold-strong)_0%,transparent_70%)]" />
       </div>
 
       {/* Líneas decorativas */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-[28%] w-px h-full bg-gradient-to-b from-transparent via-[rgba(201,168,76,0.18)] to-transparent hidden lg:block" />
-        <div className="absolute top-0 left-[10%] w-px h-full bg-gradient-to-b from-transparent via-[rgba(201,168,76,0.27)] to-transparent" />
+        <div className="absolute top-0 right-[28%] w-px h-full bg-gradient-to-b from-transparent via-[var(--border)] to-transparent hidden lg:block" />
+        <div className="absolute top-0 left-[10%] w-px h-full bg-gradient-to-b from-transparent via-[var(--glow-gold-strong)] to-transparent" />
       </div>
 
       <motion.div
@@ -83,7 +83,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
           >
             <motion.div variants={item} className="flex items-center gap-3 mb-6 sm:mb-7">
               <div className="h-px w-10 bg-[var(--gold)]" />
-              <span className="text-[11px] sm:text-xs tracking-[3px] uppercase text-[rgba(201,168,76,0.92)] font-light">
+              <span className="catalog-eyebrow sm:text-xs tracking-[3px]">
                 Belleza & Cuidado Capilar
               </span>
             </motion.div>
@@ -101,7 +101,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
 
             <motion.p
               variants={item}
-              className="text-[15px] sm:text-base font-light text-[var(--text-muted)] leading-relaxed mb-8 sm:mb-9"
+              className="text-[15px] sm:text-base catalog-lead leading-relaxed mb-8 sm:mb-9"
             >
               {subtitulo}
             </motion.p>
@@ -116,7 +116,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Buscar shampoo, mascarillas, tintes…"
-                className="w-full border-0 border-b border-[rgba(240,235,228,0.2)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
+                className="w-full border-0 border-b-2 border-[var(--border-input)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-normal text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
               />
               <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
                 {query && (
@@ -131,7 +131,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 )}
                 <button
                   type="submit"
-                  className="rounded-[2px] px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-colors hover:text-[var(--gold-light)]"
+                  className="rounded-[2px] px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)]"
                 >
                   Buscar
                 </button>
@@ -165,7 +165,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
               variants={item}
               className="flex items-center gap-3 mt-8 sm:mt-10 text-[11px] tracking-[1.5px] uppercase text-[var(--text-subtle)] font-light"
             >
-              <div className="h-px w-8 bg-[rgba(201,168,76,0.36)]" />
+              <div className="h-px w-8 bg-[var(--border)]" />
               Armenia, Quindío — Envíos a toda Colombia
             </motion.div>
           </motion.div>
@@ -182,7 +182,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
             <div className="absolute inset-0">
               <Suspense
                 fallback={
-                  <div className="h-full w-full animate-pulse rounded-[2px] bg-[rgba(201,168,76,0.26)]" />
+                  <div className="h-full w-full animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
                 }
               >
                 <BeautyOrb3D />
@@ -200,7 +200,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 opacity: { delay: 1, duration: 0.6 },
                 y: { delay: 1.6, duration: 3, repeat: Infinity, ease: 'easeInOut' },
               }}
-              className="absolute bottom-8 left-6 z-10 rounded-[2px] border border-[var(--border-subtle)] bg-[rgba(10,10,10,0.85)] px-5 py-4 backdrop-blur-md shadow-sm"
+              className="absolute bottom-8 left-6 z-10 rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-glass)] px-5 py-4 backdrop-blur-md shadow-[var(--shadow-card)]"
             >
               <div className="flex items-center gap-3">
                 <Sparkles size={16} className="text-[var(--gold)]" />
@@ -222,7 +222,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <ArrowDown size={14} className="text-[rgba(201,168,76,0.72)]" />
+        <ArrowDown size={14} className="text-[var(--gold-subtle)]" />
       </motion.div>
     </section>
   )

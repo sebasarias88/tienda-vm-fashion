@@ -137,22 +137,22 @@ export default function CategoriasPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
       {/* Header */}
-      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(212,175,55,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#D4AF37]" />
-            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(212,175,55,0.9)]">
+            <div className="h-px w-8 bg-[var(--gold-bright)]" />
+            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
               Gestión
             </p>
           </div>
-          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[#F8F6F1] sm:text-4xl">
+          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
             Categorías
           </h1>
-          <p className="mt-2 text-[13px] font-light text-[rgba(248,246,241,0.55)]">
+          <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
             Organiza el catálogo por secciones y subcategorías
           </p>
         </div>
-        <Button onClick={abrirCrear} size="sm" className="self-start sm:self-auto !text-[#0D0D0D]">
+        <Button onClick={abrirCrear} size="sm" className="self-start sm:self-auto">
           <Plus size={13} />
           Nueva categoría
         </Button>
@@ -211,7 +211,7 @@ export default function CategoriasPage() {
               }
               action={
                 !search && filtroEstado === 'todas' ? (
-                  <Button onClick={abrirCrear} size="sm" className="!text-[#0D0D0D]">
+                  <Button onClick={abrirCrear} size="sm" className="">
                     <Plus size={13} />
                     Crear categoría
                   </Button>
@@ -225,7 +225,7 @@ export default function CategoriasPage() {
                   <div className="flex items-center gap-2">
                     <GripVertical
                       size={15}
-                      className="shrink-0 text-[rgba(248,246,241,0.2)] transition-colors group-hover:text-[rgba(212,175,55,0.45)]"
+                      className="shrink-0 text-[rgba(248,246,241,0.2)] transition-colors group-hover:text-[rgba(201,168,76,0.45)]"
                     />
                     <AdminTableImage src={cat.imagen_url} alt={cat.nombre} size="sm" />
                   </div>
@@ -293,9 +293,9 @@ export default function CategoriasPage() {
 
       <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Eliminar categoría" size="sm">
         <div className="space-y-5">
-          <p className="text-[13px] font-light leading-relaxed text-[rgba(248,246,241,0.75)]">
+          <p className="text-[13px] font-light leading-relaxed text-[var(--text-secondary)]">
             ¿Estás seguro de eliminar{' '}
-            <span className="text-[#D4AF37]">{selected?.nombre}</span>? Los productos de esta
+            <span className="text-[var(--gold-bright)]">{selected?.nombre}</span>? Los productos de esta
             categoría quedarán sin categoría.
           </p>
           <div className="flex gap-3">

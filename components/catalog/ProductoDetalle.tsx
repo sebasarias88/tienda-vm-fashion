@@ -118,11 +118,11 @@ export default function ProductoDetalle({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex flex-col gap-4 border-b border-[rgba(201,168,76,0.18)] pb-6 sm:flex-row sm:items-center sm:justify-between"
+          className="mb-8 flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-6 sm:flex-row sm:items-center sm:justify-between"
         >
           <Link
             href={productosHref}
-            className="group inline-flex items-center gap-2 text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.72)] transition-colors hover:text-[#C9A84C]"
+            className="group inline-flex items-center gap-2 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
           >
             <ChevronLeft
               size={16}
@@ -133,13 +133,13 @@ export default function ProductoDetalle({
 
           <nav
             aria-label="Ruta de navegación"
-            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-light uppercase tracking-[1.2px] text-[rgba(240,235,228,0.5)]"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-light uppercase tracking-[1.2px] text-[var(--text-faint)]"
           >
-            <Link href={homeHref} className="transition-colors hover:text-[#C9A84C]">
+            <Link href={homeHref} className="transition-colors hover:text-[var(--gold)]">
               Inicio
             </Link>
             <span>/</span>
-            <Link href={productosHref} className="transition-colors hover:text-[#C9A84C]">
+            <Link href={productosHref} className="transition-colors hover:text-[var(--gold)]">
               Catálogo
             </Link>
             {producto.categoria && (
@@ -147,7 +147,7 @@ export default function ProductoDetalle({
                 <span>/</span>
                 <Link
                   href={`${productosHref}?categoria=${producto.categoria.slug}`}
-                  className="transition-colors hover:text-[#C9A84C]"
+                  className="transition-colors hover:text-[var(--gold)]"
                 >
                   {producto.categoria.nombre}
                 </Link>
@@ -166,7 +166,7 @@ export default function ProductoDetalle({
             className="space-y-4"
           >
             <div
-              className="group relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-[#141414]"
+              className="group relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-[var(--bg-surface)]"
               onClick={() => imagenes.length && setZoomOpen(true)}
             >
               {imagenes.length > 0 ? (
@@ -184,25 +184,25 @@ export default function ProductoDetalle({
                 </AnimatePresence>
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <ImageIcon size={48} className="text-[rgba(240,235,228,0.28)]" />
+                  <ImageIcon size={48} className="text-[var(--text-faint)]" />
                 </div>
               )}
 
               {imagenes.length > 0 && (
-                <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-[rgba(10,10,10,0.85)] px-2.5 py-1.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--text-primary)] opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                  <ZoomIn size={12} className="text-[#C9A84C]" />
+                <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-[var(--bg-overlay)] px-2.5 py-1.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--text-primary)] opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                  <ZoomIn size={12} className="text-[var(--gold)]" />
                   Ampliar
                 </div>
               )}
 
               <div className="absolute left-4 top-4 flex flex-col gap-2">
                 {!producto.disponible && (
-                  <span className="rounded-[2px] bg-[rgba(10,10,10,0.92)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[#f0ebe4] backdrop-blur-sm">
+                  <span className="rounded-[2px] bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-primary)] backdrop-blur-sm">
                     Agotado
                   </span>
                 )}
                 {descuento && producto.disponible && (
-                  <span className="rounded-[2px] bg-[rgba(201,168,76,0.3)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[#C9A84C] backdrop-blur-sm">
+                  <span className="rounded-[2px] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--gold)] backdrop-blur-sm">
                     -{descuento}%
                   </span>
                 )}
@@ -222,7 +222,7 @@ export default function ProductoDetalle({
                   >
                     <img src={url} alt={`Vista ${i + 1}`} className="h-full w-full object-cover" />
                     {imagenActiva === i && (
-                      <span className="absolute inset-x-1 bottom-0 h-px bg-[#C9A84C]" />
+                      <span className="absolute inset-x-1 bottom-0 h-px bg-[var(--gold)]" />
                     )}
                   </button>
                 ))}
@@ -239,22 +239,22 @@ export default function ProductoDetalle({
           >
             {producto.categoria && (
               <div className="mb-4 flex items-center gap-3">
-                <div className="h-px w-8 bg-[#C9A84C]" />
+                <div className="h-px w-8 bg-[var(--gold)] opacity-40" />
                 <Link
                   href={`${productosHref}?categoria=${producto.categoria.slug}`}
-                  className="text-[11px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.92)] transition-colors hover:text-[#C9A84C]"
+                  className="catalog-eyebrow tracking-[3px] transition-colors hover:text-[var(--gold)]"
                 >
                   {producto.categoria.nombre}
                 </Link>
               </div>
             )}
 
-            <h1 className="text-[1.75rem] font-thin leading-tight tracking-[-0.3px] text-[#f0ebe4] sm:text-[2rem] lg:text-[2.25rem]">
+            <h1 className="text-[1.75rem] font-thin leading-tight tracking-[-0.3px] text-[var(--text-primary)] sm:text-[2rem] lg:text-[2.25rem]">
               {producto.nombre}
             </h1>
 
             {producto.sku && (
-              <p className="mt-3 text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.55)]">
+              <p className="mt-3 text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
                 SKU · {producto.sku}
               </p>
             )}
@@ -270,7 +270,7 @@ export default function ProductoDetalle({
             </div>
 
             {producto.descripcion && (
-              <p className="mt-8 text-[15px] font-light leading-[1.85] text-[rgba(240,235,228,0.85)]">
+              <p className="mt-8 text-[15px] font-light leading-[1.85] text-[var(--text-muted)]">
                 {producto.descripcion}
               </p>
             )}
@@ -279,7 +279,7 @@ export default function ProductoDetalle({
               <div className="mt-8 space-y-6">
                 {variaciones.map(tipo => (
                   <div key={tipo.id}>
-                    <p className="mb-3 text-[11px] font-light uppercase tracking-[2px] text-[rgba(201,168,76,0.92)]">
+                    <p className="mb-3 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
                       {tipo.nombre}
                     </p>
                     <div className="flex flex-wrap gap-2.5">
@@ -306,7 +306,7 @@ export default function ProductoDetalle({
                                   : 'cursor-pointer'
                               } ${
                                 selected
-                                  ? 'ring-2 ring-[#B8922A] ring-offset-2 ring-offset-[var(--bg-base)]'
+                                  ? 'ring-2 ring-[var(--gold)] ring-offset-2 ring-offset-[var(--bg-base)]'
                                   : ''
                               }`}
                             >
@@ -314,7 +314,7 @@ export default function ProductoDetalle({
                                 className="block h-8 w-8 rounded-full border-2 border-transparent"
                                 style={{
                                   backgroundColor: opcion.valor_color,
-                                  borderColor: selected ? '#B8922A' : 'transparent',
+                                  borderColor: selected ? 'var(--gold)' : 'transparent',
                                 }}
                               />
                             </button>
@@ -336,8 +336,8 @@ export default function ProductoDetalle({
                               unavailable
                                 ? 'cursor-not-allowed opacity-40'
                                 : selected
-                                  ? 'border-[rgba(184,146,42,0.5)] bg-[rgba(184,146,42,0.08)] text-[#B8922A]'
-                                  : 'border-[rgba(232,226,217,0.35)] bg-transparent text-[rgba(240,235,228,0.65)] hover:border-[rgba(184,146,42,0.35)]'
+                                  ? 'border-[var(--border)] bg-[var(--gold-muted)] text-[var(--gold)]'
+                                  : 'border-[var(--border-input)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border)]'
                             }`}
                           >
                             {opcion.nombre}
@@ -349,7 +349,7 @@ export default function ProductoDetalle({
                 ))}
 
                 {resumenSeleccion && (
-                  <p className="text-[12px] font-light text-[#6B6560]">
+                  <p className="text-[12px] font-light text-[var(--text-subtle)]">
                     Seleccionado: {resumenSeleccion}
                   </p>
                 )}
@@ -361,25 +361,25 @@ export default function ProductoDetalle({
             {producto.disponible ? (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.65)]">
+                  <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                     Cantidad
                   </span>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setCantidad(c => Math.max(1, c - 1))}
-                      className="flex h-9 w-9 items-center justify-center text-[rgba(240,235,228,0.78)] transition-colors hover:text-[#C9A84C]"
+                      className="flex h-9 w-9 items-center justify-center text-[var(--text-secondary)] transition-colors hover:text-[var(--gold)]"
                       aria-label="Disminuir cantidad"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="min-w-[2rem] text-center text-[15px] font-light text-[#f0ebe4]">
+                    <span className="min-w-[2rem] text-center text-[15px] font-light text-[var(--text-primary)]">
                       {cantidad}
                     </span>
                     <button
                       type="button"
                       onClick={() => setCantidad(c => c + 1)}
-                      className="flex h-9 w-9 items-center justify-center text-[rgba(240,235,228,0.78)] transition-colors hover:text-[#C9A84C]"
+                      className="flex h-9 w-9 items-center justify-center text-[var(--text-secondary)] transition-colors hover:text-[var(--gold)]"
                       aria-label="Aumentar cantidad"
                     >
                       <Plus size={14} />
@@ -399,7 +399,7 @@ export default function ProductoDetalle({
                   className={`flex w-full items-center justify-center gap-3 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px] transition-all duration-300 ${
                     agregado
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-[#C9A84C] text-[#f0ebe4] hover:bg-[#D4AF37]'
+                      : 'catalog-gold-cta'
                   }`}
                 >
                   <AnimatePresence mode="wait">
@@ -432,7 +432,7 @@ export default function ProductoDetalle({
                 {enCarrito && (
                   <Link
                     href={catalogPath(catalogType, '/carrito')}
-                    className="block w-full py-3.5 text-center text-[11px] font-light uppercase tracking-[2px] text-[#C9A84C] transition-colors hover:text-[#D4AF37]"
+                    className="block w-full py-3.5 text-center text-[11px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)]"
                   >
                     Ver carrito →
                   </Link>
@@ -440,7 +440,7 @@ export default function ProductoDetalle({
               </div>
             ) : (
               <div className="py-5 text-center">
-                <p className="text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.58)]">
+                <p className="text-[11px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
                   Producto agotado
                 </p>
               </div>
@@ -449,8 +449,8 @@ export default function ProductoDetalle({
             <ul className="mt-8 space-y-3.5">
               {ENVIO_INFO.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-start gap-3">
-                  <Icon size={15} className="mt-0.5 shrink-0 text-[rgba(201,168,76,0.77)]" />
-                  <span className="text-[13px] font-light leading-relaxed text-[rgba(240,235,228,0.75)]">
+                  <Icon size={15} className="mt-0.5 shrink-0 text-[var(--gold-subtle)]" />
+                  <span className="text-[13px] catalog-lead leading-relaxed">
                     {text}
                   </span>
                 </li>
@@ -460,7 +460,7 @@ export default function ProductoDetalle({
             <button
               type="button"
               onClick={handleCompartir}
-              className="group mt-8 inline-flex items-center gap-2 border-b border-[rgba(201,168,76,0.36)] pb-1 text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.72)] transition-colors hover:border-[#C9A84C] hover:text-[#C9A84C]"
+              className="group mt-8 inline-flex items-center gap-2 border-b border-[var(--border)] pb-1 text-[11px] font-medium uppercase tracking-[2px] text-[var(--text-muted)] transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
             >
               <Share2 size={13} />
               Compartir producto
@@ -492,7 +492,7 @@ export default function ProductoDetalle({
             <button
               type="button"
               onClick={() => setZoomOpen(false)}
-              className="absolute right-5 top-5 rounded-[2px] p-2 text-[rgba(240,235,228,0.82)] transition-colors hover:text-[#f0ebe4]"
+              className="absolute right-5 top-5 rounded-[2px] p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
               aria-label="Cerrar"
             >
               <X size={20} />

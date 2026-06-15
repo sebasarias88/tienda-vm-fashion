@@ -2,25 +2,114 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+/* ── Tema claro — Luxury beauty boutique ── */
 :root {
-  /* ── Tema oscuro (activo) ── */
+  /* Dorado — familia coherente (oro cálido, no marrón) */
   --gold: #C9A84C;
-  --gold-light: #D4AF37;
-  --gold-muted: rgba(201, 168, 76, 0.14);
+  --gold-bright: #DDB85A;
+  --gold-hover: #B89438;
+  --gold-light: #F5ECD8;
+  --gold-muted: #FAF4E8;
+  --gold-subtle: #C9A84C;
+
+  /* Fondos — cálido premium, cards blancas flotantes */
+  --bg-base: #FAF8F5;
+  --bg-card: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-muted: #F5F2EC;
+  --bg-footer: #F5F0E8;
+  --bg-inverse: #222222;
+  --bg-overlay: rgba(255, 255, 255, 0.97);
+  --bg-glass: rgba(255, 255, 255, 0.92);
+
+  /* Texto — un tono más oscuro para mejor lectura en fondo crema */
+  --text-primary: #1E1E1E;
+  --text-secondary: #6E6E6E;
+  --text-muted: #6E6E6E;
+  --text-subtle: #8C8C8C;
+  --text-faint: #ADADAD;
+  --text-on-gold: #1E1E1E;
+  --text-inverse: #FFFFFF;
+
+  /* Bordes — cálidos sutiles */
+  --border: #EDE7DD;
+  --border-subtle: #EDE7DD;
+  --border-input: #DDD5C8;
+  --border-strong: #EDE7DD;
+  --border-card: #EDE7DD;
+
+  --placeholder: #8C8C8C;
+  --navbar-bg: rgba(250, 248, 245, 0.97);
+
+  --glow-gold: rgba(201, 168, 76, 0.12);
+  --glow-gold-strong: rgba(201, 168, 76, 0.18);
+  --shadow-soft: 0 2px 12px rgba(34, 34, 34, 0.04);
+  --shadow-card: 0 1px 2px rgba(34, 34, 34, 0.03), 0 6px 20px rgba(34, 34, 34, 0.05);
+  --shadow-card-hover: 0 2px 6px rgba(34, 34, 34, 0.05), 0 12px 32px rgba(34, 34, 34, 0.08);
+  --shadow-dropdown: 0 10px 36px rgba(34, 34, 34, 0.09);
+
+  --overlay-backdrop: rgba(34, 34, 34, 0.38);
+  --overlay-image: linear-gradient(
+    to top,
+    rgba(34, 34, 34, 0.7) 0%,
+    rgba(34, 34, 34, 0.05) 55%,
+    transparent 100%
+  );
+  --badge-agotado-bg: rgba(34, 34, 34, 0.88);
+  --badge-oferta-bg: rgba(245, 236, 216, 0.92);
+}
+
+/* ── Tema oscuro (admin) — misma familia dorada que catálogo light ── */
+[data-theme="dark"] {
+  --gold: #C9A84C;
+  --gold-bright: #DDB85A;
+  --gold-hover: #E6C768;
+  --gold-light: rgba(201, 168, 76, 0.14);
+  --gold-muted: rgba(201, 168, 76, 0.1);
+  --gold-subtle: rgba(201, 168, 76, 0.88);
+
   --bg-base: #0a0a0a;
   --bg-card: #111111;
   --bg-surface: #141414;
-  --bg-muted: #1a1a1a;
-  --text-primary: #f0ebe4;
-  --text-secondary: #f0ebe4;
-  --text-muted: rgba(240, 235, 228, 0.72);
-  --text-subtle: rgba(240, 235, 228, 0.58);
-  --text-faint: rgba(240, 235, 228, 0.4);
+  --bg-muted: #161616;
+  --bg-footer: #141414;
+  --bg-inverse: #F0EBE4;
+  --bg-overlay: rgba(10, 10, 10, 0.92);
+  --bg-glass: rgba(10, 10, 10, 0.85);
+
+  --text-primary: #F8F6F1;
+  --text-secondary: #F8F6F1;
+  --text-muted: rgba(248, 246, 241, 0.72);
+  --text-subtle: rgba(248, 246, 241, 0.58);
+  --text-faint: rgba(248, 246, 241, 0.4);
+  --text-on-gold: #0D0D0D;
+  --text-inverse: #1A1612;
+
   --border: rgba(201, 168, 76, 0.28);
-  --border-subtle: rgba(240, 235, 228, 0.12);
-  --border-input: rgba(240, 235, 228, 0.2);
-  --placeholder: rgba(240, 235, 228, 0.42);
+  --border-subtle: rgba(248, 246, 241, 0.12);
+  --border-input: rgba(248, 246, 241, 0.2);
+  --border-strong: rgba(248, 246, 241, 0.32);
+  --border-card: rgba(201, 168, 76, 0.22);
+
+  --placeholder: rgba(248, 246, 241, 0.42);
   --navbar-bg: rgba(10, 10, 10, 0.97);
+
+  --glow-gold: rgba(201, 168, 76, 0.22);
+  --glow-gold-strong: rgba(201, 168, 76, 0.3);
+  --shadow-soft: 0 12px 48px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-dropdown: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+  --overlay-backdrop: rgba(0, 0, 0, 0.6);
+  --overlay-image: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.75) 0%,
+    rgba(10, 10, 10, 0.08) 55%,
+    transparent 100%
+  );
+  --badge-agotado-bg: rgba(10, 10, 10, 0.92);
+  --badge-oferta-bg: rgba(201, 168, 76, 0.22);
 }
 
 * {
@@ -37,6 +126,11 @@ body {
   font-family: var(--font-outfit), sans-serif;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[data-theme="light"] body {
+  font-weight: 400;
 }
 
 button:not(:disabled),
@@ -50,12 +144,16 @@ button:disabled {
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
 
 ::selection {
   background: rgba(201, 168, 76, 0.22);
   color: var(--text-primary);
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(201, 168, 76, 0.22);
 }
 
 .scrollbar-hide {
@@ -69,19 +167,51 @@ button:disabled {
 .gold-shimmer {
   background: linear-gradient(
     105deg,
-    #C9A030 0%,
-    #D4AF37 25%,
-    #E6C76A 45%,
-    #FFFFFF 50%,
-    #E6C76A 55%,
-    #D4AF37 75%,
-    #C9A030 100%
+    #A88B2E 0%,
+    #C9A84C 35%,
+    #DDB85A 50%,
+    #C9A84C 65%,
+    #A88B2E 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 4s linear infinite;
+}
+
+html[data-theme="light"] .gold-shimmer {
+  background: linear-gradient(
+    105deg,
+    #1E1E1E 0%,
+    #1E1E1E 36%,
+    #C9A84C 46%,
+    #DDB85A 50%,
+    #C9A84C 54%,
+    #1E1E1E 64%,
+    #1E1E1E 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="dark"] .gold-shimmer {
+  background: linear-gradient(
+    105deg,
+    #A88B2E 0%,
+    #C9A84C 25%,
+    #DDB85A 45%,
+    #FFFFFF 50%,
+    #DDB85A 55%,
+    #C9A84C 75%,
+    #A88B2E 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @keyframes shimmer {
@@ -94,12 +224,292 @@ button:disabled {
 }
 
 .gold-text {
-  color: #D4AF37;
+  color: var(--gold);
 }
 
 .gold-border-glow {
-  border-color: rgba(212, 175, 55, 0.4);
+  border-color: var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+html[data-theme="light"] .gold-border-glow {
+  border-color: var(--gold);
+  background-color: var(--gold-light);
+  color: var(--gold);
+  box-shadow: var(--shadow-soft);
+}
+
+html[data-theme="light"] .gold-border-glow:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+}
+
+html[data-theme="light"] .gold-border-glow,
+html[data-theme="light"] .gold-border-glow > svg,
+html[data-theme="light"] .gold-border-glow > span:not(.cart-badge) {
+  color: var(--gold) !important;
+}
+
+html[data-theme="light"] .gold-border-glow:hover,
+html[data-theme="light"] .gold-border-glow:hover > svg,
+html[data-theme="light"] .gold-border-glow:hover > span:not(.cart-badge) {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .gold-border-glow:hover .cart-badge {
+  background-color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--gold) !important;
+}
+
+/* CTAs crema → dorado sólido al hover */
+html[data-theme="light"] .catalog-gold-cta {
+  background-color: var(--gold-light);
+  color: var(--text-on-gold);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+html[data-theme="light"] .catalog-gold-cta:hover:not(:disabled) {
+  background-color: var(--gold);
+  color: #ffffff;
+}
+
+html[data-theme="light"] .catalog-gold-cta:hover:not(:disabled) svg {
+  color: #ffffff;
+}
+
+/* Navbar — botones de acción (tema + carrito) */
+.navbar-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 2px;
+  border: 1px solid var(--gold);
+  background-color: var(--gold-light);
+  color: var(--gold);
+  box-shadow: var(--shadow-soft);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-action-btn:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(201, 168, 76, 0.22);
+}
+
+.navbar-action-btn--icon {
+  width: 2.25rem;
+  padding: 0;
+}
+
+.navbar-action-btn--labeled {
+  padding: 0 0.75rem;
+}
+
+.navbar-action-btn--cart {
+  padding: 0 0.875rem;
+  gap: 0.625rem;
+}
+
+.cart-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  background-color: var(--bg-card);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--gold);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.navbar-action-btn:hover .cart-count-badge {
+  background-color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--gold);
+}
+
+[data-theme="dark"] .navbar-action-btn {
+  border-color: var(--border-card);
+  background-color: var(--gold-light);
+  color: var(--gold-bright);
+}
+
+[data-theme="dark"] .navbar-action-btn:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--text-on-gold);
+}
+
+[data-theme="dark"] .cart-count-badge {
+  border-color: rgba(201, 168, 76, 0.4);
+  background-color: var(--bg-card);
+  color: var(--gold-bright);
+}
+
+[data-theme="dark"] .navbar-action-btn:hover .cart-count-badge {
+  background-color: #ffffff;
+  color: var(--gold);
+}
+
+[data-theme="dark"] .gold-border-glow {
+  border-color: var(--border-card);
+  background-color: var(--gold-light);
+  color: var(--gold-bright);
+  box-shadow: var(--shadow-soft);
+}
+
+[data-theme="dark"] .gold-border-glow:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--text-on-gold);
   box-shadow:
-    0 0 12px rgba(212, 175, 55, 0.08),
-    inset 0 0 12px rgba(212, 175, 55, 0.03);
+    0 0 12px rgba(201, 168, 76, 0.18),
+    inset 0 0 12px rgba(201, 168, 76, 0.04);
+}
+
+/* Admin — CTA dorado unificado */
+[data-theme="dark"] .admin-gold-cta {
+  background-color: var(--gold);
+  color: var(--text-on-gold);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+[data-theme="dark"] .admin-gold-cta:hover:not(:disabled) {
+  background-color: var(--gold-hover);
+  color: var(--text-on-gold);
+}
+
+[data-theme="dark"] .admin-input {
+  border-color: var(--border-input);
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .admin-input:focus {
+  border-color: rgba(201, 168, 76, 0.65);
+  outline: none;
+}
+
+[data-theme="dark"] .admin-input::placeholder {
+  color: var(--placeholder);
+}
+
+html[data-theme="light"] .admin-input {
+  border-color: var(--border-input);
+  background-color: var(--bg-muted);
+  color: var(--text-primary);
+  color-scheme: light;
+}
+
+html[data-theme="light"] .admin-input:focus {
+  border-color: rgba(201, 168, 76, 0.55);
+  outline: none;
+}
+
+html[data-theme="light"] .admin-input::placeholder {
+  color: var(--placeholder);
+}
+
+.bg-overlay-image {
+  background: var(--overlay-image);
+}
+
+/* Jerarquía tipográfica — boutique premium */
+.catalog-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.catalog-lead {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.catalog-section-title {
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.catalog-section-accent {
+  color: var(--gold);
+  font-weight: 400;
+}
+
+[data-theme="dark"] .catalog-eyebrow {
+  font-weight: 300;
+  color: var(--gold-subtle);
+}
+
+[data-theme="dark"] .catalog-lead {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .catalog-section-title,
+[data-theme="dark"] .catalog-section-accent {
+  font-weight: inherit;
+}
+
+/* Light — presencia tipográfica refinada */
+html[data-theme="light"] .font-thin {
+  font-weight: 400;
+}
+
+html[data-theme="light"] .font-light {
+  font-weight: 400;
+}
+
+/* Hero principal — más ligero que el resto de títulos */
+html[data-theme="light"] section.min-h-screen h1.font-thin {
+  font-weight: 300;
+}
+
+html[data-theme="light"] section.min-h-screen h1.font-thin .gold-shimmer {
+  font-weight: 300;
+}
+
+html[data-theme="light"] h1.font-thin,
+html[data-theme="light"] h2.font-thin {
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] h3 {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Navbar — un poco más de presencia */
+html[data-theme="light"] header nav a {
+  font-weight: 500;
+}
+
+html[data-theme="light"] .gold-shimmer {
+  font-weight: inherit;
 }

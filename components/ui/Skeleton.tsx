@@ -9,8 +9,7 @@ type SkeletonProps = {
 export function Skeleton({ className = '' }: SkeletonProps) {
   return (
     <motion.div
-      className={`rounded-[2px] ${className}`}
-      style={{ background: 'rgba(240,235,228,0.32)' }}
+      className={`rounded-[2px] bg-[var(--bg-muted)] ${className}`}
       animate={{ opacity: [0.4, 0.8, 0.4] }}
       transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
     />
@@ -20,7 +19,7 @@ export function Skeleton({ className = '' }: SkeletonProps) {
 // Skeleton de card de producto — catálogo
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col bg-[#111111]">
+    <div className="flex h-full flex-col bg-[var(--bg-card)]">
       <Skeleton className="aspect-[3/4] w-full flex-shrink-0" />
       <div className="flex flex-1 flex-col px-4 py-4 min-h-[5.5rem]">
         <Skeleton className="mb-3 h-3 w-24" />

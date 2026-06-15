@@ -102,7 +102,7 @@ function formatPrecio(precio: number) {
 function StatCard({ label, value, hint, iconKey, accent, bg, alert, destacadosCount }: StatItem) {
   const Icon = STAT_ICONS[iconKey]
   return (
-    <div className="group relative overflow-hidden rounded-[2px] border border-[rgba(212,175,55,0.22)] bg-[#111111] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[rgba(212,175,55,0.4)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+    <div className="group relative overflow-hidden rounded-[2px] border border-[rgba(201,168,76,0.22)] bg-[var(--bg-card)] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-[rgba(201,168,76,0.4)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70 transition-opacity group-hover:opacity-100"
         style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
@@ -112,7 +112,7 @@ function StatCard({ label, value, hint, iconKey, accent, bg, alert, destacadosCo
         style={{ backgroundColor: bg }}
       />
       <div className="relative mb-5 flex items-start justify-between">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full ring-1 ring-[rgba(212,175,55,0.2)] transition-transform duration-300 group-hover:scale-105" style={{ backgroundColor: bg }}>
+        <div className="flex h-11 w-11 items-center justify-center rounded-full ring-1 ring-[rgba(201,168,76,0.2)] transition-transform duration-300 group-hover:scale-105" style={{ backgroundColor: bg }}>
           <Icon size={19} style={{ color: accent }} strokeWidth={1.5} />
         </div>
         {alert && value > 0 && (
@@ -124,17 +124,17 @@ function StatCard({ label, value, hint, iconKey, accent, bg, alert, destacadosCo
       <p className="relative mb-1 text-3xl font-light leading-none tabular-nums" style={{ color: accent }}>
         {value}
       </p>
-      <p className="relative text-[12px] font-light uppercase tracking-[1.2px] text-[#F8F6F1]">
+      <p className="relative text-[12px] font-light uppercase tracking-[1.2px] text-[var(--text-primary)]">
         {label}
       </p>
-      <p className="relative mt-1.5 text-[11px] font-light text-[rgba(248,246,241,0.48)]">{hint}</p>
+      <p className="relative mt-1.5 text-[11px] font-light text-[var(--text-subtle)]">{hint}</p>
       {destacadosCount != null && destacadosCount > 0 && (
         <Link
           href="/admin/productos"
-          className="relative mt-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.22)] bg-[rgba(212,175,55,0.08)] px-2.5 py-1 transition-colors hover:border-[rgba(212,175,55,0.4)] hover:bg-[rgba(212,175,55,0.14)]"
+          className="relative mt-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(201,168,76,0.22)] bg-[rgba(201,168,76,0.08)] px-2.5 py-1 transition-colors hover:border-[rgba(201,168,76,0.4)] hover:bg-[rgba(201,168,76,0.14)]"
         >
-          <Star size={10} className="fill-[#D4AF37] text-[#D4AF37]" />
-          <span className="text-[10px] font-light text-[rgba(248,246,241,0.75)]">
+          <Star size={10} className="fill-[var(--gold-bright)] text-[var(--gold-bright)]" />
+          <span className="text-[10px] font-light text-[var(--text-secondary)]">
             {destacadosCount} en inicio
           </span>
         </Link>
@@ -164,23 +164,23 @@ export default function DashboardView({
   return (
     <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
       {/* Header */}
-      <div className="mb-10 flex flex-col gap-5 border-b border-[rgba(212,175,55,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-10 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#D4AF37]" />
-            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(212,175,55,0.9)]">
+            <div className="h-px w-8 bg-[var(--gold-bright)]" />
+            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
               Panel
             </p>
           </div>
-          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[#F8F6F1] sm:text-4xl">
+          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
             Dashboard
           </h1>
-          <p className="mt-2 capitalize text-[13px] font-light text-[rgba(248,246,241,0.55)]">
+          <p className="mt-2 capitalize text-[13px] font-light text-[var(--text-muted)]">
             {hoy}
           </p>
           {destacados > 0 && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-[12px] font-light text-[rgba(248,246,241,0.45)]">
-              <Star size={11} className="shrink-0 fill-[#D4AF37] text-[#D4AF37]" />
+            <p className="mt-1.5 flex items-center gap-1.5 text-[12px] font-light text-[var(--text-subtle)]">
+              <Star size={11} className="shrink-0 fill-[var(--gold-bright)] text-[var(--gold-bright)]" />
               {destacados} destacado{destacados !== 1 ? 's' : ''} en la página de inicio
             </p>
           )}
@@ -188,7 +188,7 @@ export default function DashboardView({
         <Link
           href="/"
           target="_blank"
-          className="inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.08)] px-5 py-2.5 text-[11px] font-light uppercase tracking-[1.5px] text-[#D4AF37] shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all hover:border-[rgba(212,175,55,0.55)] hover:bg-[rgba(212,175,55,0.14)] hover:shadow-[0_4px_20px_rgba(212,175,55,0.12)] sm:self-auto"
+          className="inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.08)] px-5 py-2.5 text-[11px] font-light uppercase tracking-[1.5px] text-[var(--gold-bright)] shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all hover:border-[rgba(201,168,76,0.55)] hover:bg-[rgba(201,168,76,0.14)] hover:shadow-[0_4px_20px_rgba(201,168,76,0.12)] sm:self-auto"
         >
           <ExternalLink size={13} />
           Ver tienda
@@ -220,7 +220,7 @@ export default function DashboardView({
                 agotados > 0 ? (
                   <Link
                     href="/admin/productos"
-                    className="text-[11px] font-light uppercase tracking-[1px] text-[#D4AF37] transition-colors hover:text-[#E6C76A]"
+                    className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold-bright)] transition-colors hover:text-[var(--gold-hover)]"
                   >
                     Ver todos
                   </Link>
@@ -244,24 +244,24 @@ export default function DashboardView({
                     <Link
                       key={href}
                       href={href}
-                      className={`group ${DASHBOARD_ROW_CLASS} transition-all hover:bg-[rgba(212,175,55,0.07)] hover:shadow-[inset_3px_0_0_#D4AF37] ${
-                        i < acciones.length - 1 ? 'border-b border-[rgba(212,175,55,0.08)]' : ''
+                      className={`group ${DASHBOARD_ROW_CLASS} transition-all hover:bg-[rgba(201,168,76,0.07)] hover:shadow-[inset_3px_0_0_var(--gold-bright)] ${
+                        i < acciones.length - 1 ? 'border-b border-[rgba(201,168,76,0.08)]' : ''
                       }`}
                     >
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[rgba(212,175,55,0.22)] bg-gradient-to-br from-[rgba(212,175,55,0.14)] to-[rgba(212,175,55,0.04)] ring-1 ring-[rgba(212,175,55,0.15)] transition-all group-hover:border-[rgba(212,175,55,0.4)] group-hover:shadow-[0_0_16px_rgba(212,175,55,0.15)]">
-                        <Icon size={18} className="text-[#D4AF37]" strokeWidth={1.5} />
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.22)] bg-gradient-to-br from-[rgba(201,168,76,0.14)] to-[rgba(201,168,76,0.04)] ring-1 ring-[rgba(201,168,76,0.15)] transition-all group-hover:border-[rgba(201,168,76,0.4)] group-hover:shadow-[0_0_16px_rgba(201,168,76,0.15)]">
+                        <Icon size={18} className="text-[var(--gold-bright)]" strokeWidth={1.5} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-light uppercase tracking-[1px] text-[#F8F6F1] transition-colors group-hover:text-[#D4AF37]">
+                        <p className="truncate text-[13px] font-light uppercase tracking-[1px] text-[var(--text-primary)] transition-colors group-hover:text-[var(--gold-bright)]">
                           {label}
                         </p>
-                        <p className="mt-0.5 truncate text-[12px] font-light text-[rgba(248,246,241,0.48)]">
+                        <p className="mt-0.5 truncate text-[12px] font-light text-[var(--text-subtle)]">
                           {desc}
                         </p>
                       </div>
                       <ArrowRight
                         size={16}
-                        className="shrink-0 text-[rgba(212,175,55,0.4)] transition-all group-hover:translate-x-0.5 group-hover:text-[#D4AF37]"
+                        className="shrink-0 text-[rgba(201,168,76,0.4)] transition-all group-hover:translate-x-0.5 group-hover:text-[var(--gold-bright)]"
                       />
                     </Link>
                   )
@@ -279,7 +279,7 @@ export default function DashboardView({
                   agotados > 0 ? (
                     <Link
                       href="/admin/productos"
-                      className="text-[11px] font-light uppercase tracking-[1px] text-[#D4AF37] transition-colors hover:text-[#E6C76A]"
+                      className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold-bright)] transition-colors hover:text-[var(--gold-hover)]"
                     >
                       Ver todos
                     </Link>
@@ -297,7 +297,7 @@ export default function DashboardView({
                         <div
                           key={`empty-${i}`}
                           className={`${DASHBOARD_ROW_CLASS} ${
-                            i < 2 ? 'border-b border-[rgba(212,175,55,0.08)]' : ''
+                            i < 2 ? 'border-b border-[rgba(201,168,76,0.08)]' : ''
                           }`}
                           aria-hidden
                         />
@@ -307,8 +307,8 @@ export default function DashboardView({
                       <Link
                         key={p.id}
                         href="/admin/productos"
-                        className={`group ${DASHBOARD_ROW_CLASS} transition-all hover:bg-[rgba(212,175,55,0.07)] hover:shadow-[inset_3px_0_0_#D4AF37] ${
-                          i < 2 ? 'border-b border-[rgba(212,175,55,0.08)]' : ''
+                        className={`group ${DASHBOARD_ROW_CLASS} transition-all hover:bg-[rgba(201,168,76,0.07)] hover:shadow-[inset_3px_0_0_var(--gold-bright)] ${
+                          i < 2 ? 'border-b border-[rgba(201,168,76,0.08)]' : ''
                         }`}
                       >
                         <AdminTableImage src={p.imagenes?.[0]} alt={p.nombre} size="row" />
@@ -328,10 +328,10 @@ export default function DashboardView({
                       <Sparkles size={20} className="text-emerald-400" />
                     </div>
                   </div>
-                  <p className="text-[14px] font-light text-[#F8F6F1]">
+                  <p className="text-[14px] font-light text-[var(--text-primary)]">
                     Todo el inventario está disponible
                   </p>
-                  <p className="mt-1.5 text-[12px] font-light text-[rgba(248,246,241,0.48)]">
+                  <p className="mt-1.5 text-[12px] font-light text-[var(--text-subtle)]">
                     No hay productos agotados en este momento
                   </p>
                 </div>
@@ -349,7 +349,7 @@ export default function DashboardView({
             action={
               <Link
                 href="/admin/productos"
-                className="text-[11px] font-light uppercase tracking-[1px] text-[#D4AF37] transition-colors hover:text-[#E6C76A]"
+                className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold-bright)] transition-colors hover:text-[var(--gold-hover)]"
               >
                 Gestionar productos
               </Link>

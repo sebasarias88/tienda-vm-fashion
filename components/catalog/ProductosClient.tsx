@@ -183,22 +183,22 @@ export default function ProductosClient({
           animate={{ opacity: 1, y: 0 }}
           className="relative mb-8 overflow-visible"
         >
-          <div className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 bg-[radial-gradient(circle,rgba(184,146,42,0.27)_0%,transparent_70%)]" />
+          <div className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 bg-[radial-gradient(circle,var(--glow-gold)_0%,transparent_70%)]" />
 
           {/* Título */}
           <div className="relative pb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <div className="mb-3 flex items-center gap-3">
-                  <div className="h-px w-8 bg-[#B8922A]" />
-                  <span className="text-[11px] font-light uppercase tracking-[3px] text-[rgba(184,146,42,0.92)]">
+                  <div className="h-px w-8 bg-[var(--gold)]" />
+                  <span className="catalog-eyebrow tracking-[3px]">
                     Explorar
                   </span>
                 </div>
                 <h1 className="text-[2rem] font-thin uppercase tracking-[1.5px] sm:text-4xl">
                   <span className="gold-shimmer">{categoriaNombre || 'Catálogo'}</span>
                 </h1>
-                <p className="mt-2 max-w-lg text-[13px] font-light leading-relaxed text-[rgba(240,235,228,0.75)]">
+                <p className="mt-2 max-w-lg text-[13px] catalog-lead leading-relaxed">
                   {categoriaNombre
                     ? `Explora nuestra selección de ${categoriaNombre.toLowerCase()}`
                     : 'Encuentra productos de belleza y cuidado capilar'}
@@ -207,8 +207,8 @@ export default function ProductosClient({
 
               {mounted && (
                 <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
-                  <Package size={15} className="text-[rgba(184,146,42,0.67)]" />
-                  <span className="text-[12px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.78)]">
+                  <Package size={15} className="text-[var(--gold-subtle)]" />
+                  <span className="text-[12px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)]">
                     {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -222,14 +222,14 @@ export default function ProductosClient({
               <form onSubmit={handleSearch} className="relative min-w-0 flex-1">
                 <Search
                   size={16}
-                  className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[rgba(240,235,228,0.58)]"
+                  className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[var(--text-subtle)]"
                 />
                 <input
                   type="text"
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
                   placeholder="Buscar por nombre, SKU o categoría…"
-                  className="w-full border-0 border-b border-[rgba(240,235,228,0.38)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.58)] focus:border-[rgba(184,146,42,0.62)]"
+                  className="w-full border-0 border-b-2 border-[var(--border-input)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-normal text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
                 />
                 <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
                   {inputValue && (
@@ -239,7 +239,7 @@ export default function ProductosClient({
                         setInputValue('')
                         setQuery('')
                       }}
-                      className="rounded-[2px] p-1.5 text-[rgba(240,235,228,0.65)] transition-colors hover:text-[#F8F6F1]"
+                      className="rounded-[2px] p-1.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
                       aria-label="Limpiar búsqueda"
                     >
                       <X size={14} />
@@ -247,7 +247,7 @@ export default function ProductosClient({
                   )}
                   <button
                     type="submit"
-                    className="rounded-[2px] px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[#B8922A] transition-colors hover:text-[#9A7820]"
+                    className="rounded-[2px] px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)]"
                   >
                     Buscar
                   </button>
@@ -258,12 +258,12 @@ export default function ProductosClient({
                   <button
                     type="button"
                     onClick={() => setOrdenOpen(!ordenOpen)}
-                    className="flex items-center gap-2 px-1 py-1 text-[11px] font-light uppercase tracking-[1.2px] text-[rgba(240,235,228,0.82)] transition-all hover:text-[#F8F6F1]"
+                    className="flex items-center gap-2 px-1 py-1 text-[11px] font-light uppercase tracking-[1.2px] text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)]"
                   >
                     {ordenLabels[orden]}
                     <ChevronDown
                       size={13}
-                      className={`text-[rgba(184,146,42,0.72)] transition-transform ${ordenOpen ? 'rotate-180' : ''}`}
+                      className={`text-[var(--gold-subtle)] transition-transform ${ordenOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -273,7 +273,7 @@ export default function ProductosClient({
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 4 }}
-                        className="absolute right-0 top-full z-[100] mt-2 w-52 overflow-hidden rounded-[2px] border border-[rgba(184,146,42,0.3)] bg-[#141414] py-1 shadow-2xl shadow-black/60"
+                        className="absolute right-0 top-full z-[100] mt-2 w-52 overflow-hidden rounded-[2px] border border-[var(--border)] bg-[var(--bg-card)] py-1 shadow-[var(--shadow-dropdown)]"
                       >
                         {(Object.keys(ordenLabels) as Orden[]).map(key => (
                           <button
@@ -285,12 +285,12 @@ export default function ProductosClient({
                             }}
                             className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-[13px] font-light transition-colors ${
                               orden === key
-                                ? 'bg-[rgba(184,146,42,0.18)] text-[#B8922A]'
-                                : 'text-[rgba(240,235,228,0.88)] hover:bg-[rgba(248,246,241,0.06)] hover:text-[#F8F6F1]'
+                                ? 'bg-[var(--gold-muted)] text-[var(--gold)]'
+                                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]'
                             }`}
                           >
                             {ordenLabels[key]}
-                            {orden === key && <Check size={13} className="text-[#B8922A]" />}
+                            {orden === key && <Check size={13} className="text-[var(--gold)]" />}
                           </button>
                         ))}
                       </motion.div>
@@ -301,7 +301,7 @@ export default function ProductosClient({
           </div>
 
           {/* Categorías — raíz + subcategorías */}
-          <div className="relative border-b border-[rgba(184,146,42,0.16)]">
+          <div className="relative border-b border-[var(--border-subtle)]">
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[var(--bg-base)] to-transparent" />
 
             <div className="flex gap-0 overflow-x-auto scrollbar-hide pr-2">
@@ -310,15 +310,15 @@ export default function ProductosClient({
                 onClick={() => setCategoriaActiva('')}
                 className={`relative shrink-0 px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
                   !categoriaActiva
-                    ? 'text-[#B8922A]'
-                    : 'text-[rgba(240,235,228,0.72)] hover:text-[rgba(240,235,228,0.9)]'
+                    ? 'text-[var(--gold)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Todos
                 {!categoriaActiva && (
                   <motion.span
                     layoutId="cat-tab"
-                    className="absolute inset-x-3 bottom-0 h-px bg-[#B8922A]"
+                    className="absolute inset-x-3 bottom-0 h-px bg-[var(--gold)]"
                   />
                 )}
               </button>
@@ -340,15 +340,15 @@ export default function ProductosClient({
                     title={cat.nombre}
                     className={`relative max-w-[9.5rem] shrink-0 truncate px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors sm:max-w-none ${
                       raizActiva
-                        ? 'text-[#B8922A]'
-                        : 'text-[rgba(240,235,228,0.72)] hover:text-[rgba(240,235,228,0.9)]'
+                        ? 'text-[var(--gold)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     {cat.nombre}
                     {categoriaActiva === cat.slug && (
                       <motion.span
                         layoutId="cat-tab"
-                        className="absolute inset-x-3 bottom-0 h-px bg-[#B8922A]"
+                        className="absolute inset-x-3 bottom-0 h-px bg-[var(--gold)]"
                       />
                     )}
                   </button>
@@ -362,7 +362,7 @@ export default function ProductosClient({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden border-t border-[rgba(184,146,42,0.1)]"
+                  className="overflow-hidden border-t border-[var(--border-subtle)]"
                 >
                   <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide px-2 py-3 pl-5 sm:pl-6">
                     {subcategoriasVisibles.map(sub => (
@@ -372,8 +372,8 @@ export default function ProductosClient({
                         onClick={() => setCategoriaActiva(sub.slug)}
                         className={`shrink-0 rounded-[2px] border border-dashed px-3 py-1.5 text-[10px] font-light uppercase tracking-[1px] transition-colors ${
                           categoriaActiva === sub.slug
-                            ? 'border-[rgba(201,168,76,0.55)] bg-[rgba(201,168,76,0.12)] text-[#C9A84C]'
-                            : 'border-[rgba(240,235,228,0.28)] text-[rgba(240,235,228,0.62)] hover:border-[rgba(201,168,76,0.4)] hover:text-[rgba(240,235,228,0.88)]'
+                            ? 'border-[var(--border)] bg-[var(--gold-muted)] text-[var(--gold)]'
+                            : 'border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {sub.nombre}
@@ -399,13 +399,13 @@ export default function ProductosClient({
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center py-20 gap-4"
           >
-            <Search size={40} className="text-[rgba(240,235,228,0.42)]" />
-            <p className="text-sm tracking-[0.5px] uppercase text-[rgba(240,235,228,0.82)] font-light">
+            <Search size={40} className="text-[var(--text-faint)]" />
+            <p className="text-sm tracking-[0.5px] uppercase text-[var(--text-secondary)] font-light">
               No se encontraron productos
             </p>
             <button
               onClick={limpiarFiltros}
-              className="text-[11px] tracking-[1.5px] uppercase text-[#B8922A] border border-[rgba(184,146,42,0.5)] px-5 py-2.5 rounded-[2px] hover:bg-[rgba(184,146,42,0.18)] transition-all font-light"
+              className="text-[11px] tracking-[1.5px] uppercase text-[var(--gold)] border border-[var(--border)] px-5 py-2.5 rounded-[2px] hover:bg-[var(--gold-muted)] transition-all font-light"
             >
               Limpiar filtros
             </button>
@@ -443,7 +443,7 @@ export default function ProductosClient({
             <button
               onClick={() => { setPagina(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               disabled={pagina === 1}
-              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[rgba(240,235,228,0.5)] text-[rgba(240,235,228,0.82)] rounded-[2px] hover:border-[rgba(184,146,42,0.5)] hover:text-[#B8922A] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
               ← Anterior
             </button>
@@ -454,8 +454,8 @@ export default function ProductosClient({
                 onClick={() => { setPagina(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className={`w-10 h-10 text-[13px] font-light rounded-[2px] border transition-all ${
                   pagina === i + 1
-                    ? 'border-[rgba(184,146,42,0.67)] text-[#B8922A] bg-[rgba(184,146,42,0.22)]'
-                    : 'border-[rgba(240,235,228,0.5)] text-[rgba(240,235,228,0.82)] hover:border-[rgba(184,146,42,0.52)] hover:text-[#F8F6F1]'
+                    ? 'border-[var(--border)] text-[var(--gold)] bg-[var(--gold-muted)]'
+                    : 'border-[var(--border-input)] text-[var(--text-secondary)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 {i + 1}
@@ -465,7 +465,7 @@ export default function ProductosClient({
             <button
               onClick={() => { setPagina(p => Math.min(totalPaginas, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               disabled={pagina === totalPaginas}
-              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[rgba(240,235,228,0.5)] text-[rgba(240,235,228,0.82)] rounded-[2px] hover:border-[rgba(184,146,42,0.5)] hover:text-[#B8922A] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
               Siguiente →
             </button>

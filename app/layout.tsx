@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
+import ThemeScript from '@/components/ThemeScript'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -21,7 +22,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className={outfit.variable}>
+    <html lang="es" className={outfit.variable} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-screen antialiased">
         <Providers>{children}</Providers>
       </body>
