@@ -4,6 +4,48 @@ import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Lenis from 'lenis'
 import { Toaster } from 'react-hot-toast'
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider'
+
+function ThemedToaster() {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
+  return (
+    <Toaster
+      position="bottom-right"
+      toastOptions={{
+        style: {
+          background: isDark ? '#111111' : '#FFFFFF',
+          color: isDark ? '#f0ebe4' : '#1A1612',
+          border: isDark
+            ? '0.5px solid rgba(201,168,76,0.42)'
+            : '0.5px solid rgba(154,115,48,0.32)',
+          borderRadius: '2px',
+          fontFamily: 'Outfit, sans-serif',
+          fontSize: '12px',
+          fontWeight: '300',
+          letterSpacing: '0.5px',
+          padding: '12px 16px',
+          boxShadow: isDark
+            ? '0 12px 40px rgba(0,0,0,0.5)'
+            : '0 8px 32px rgba(26,22,18,0.1)',
+        },
+        success: {
+          iconTheme: {
+            primary: '#C9A84C',
+            secondary: isDark ? '#111111' : '#FFFFFF',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#f87171',
+            secondary: isDark ? '#111111' : '#FFFFFF',
+          },
+        },
+      }}
+    />
+  )
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -19,6 +61,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       allowNestedScroll: true,
     })
 
+    ;(window as Window & { __lenis?: Lenis }).__lenis = lenis
+
     let frameId = 0
     function raf(time: number) {
       lenis.raf(time)
@@ -27,35 +71,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     frameId = requestAnimationFrame(raf)
     return () => {
       cancelAnimationFrame(frameId)
+      delete (window as Window & { __lenis?: Lenis }).__lenis
       lenis.destroy()
     }
   }, [isAdmin])
 
   return (
-    <>
+    <ThemeProvider>
       {children}
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          style: {
-            background: '#111111',
-            color: '#f0ebe4',
-            border: '0.5px solid rgba(201,168,76,0.42)',
-            borderRadius: '2px',
-            fontFamily: 'Outfit, sans-serif',
-            fontSize: '12px',
-            fontWeight: '300',
-            letterSpacing: '0.5px',
-            padding: '12px 16px',
-          },
-          success: {
-            iconTheme: { primary: '#C9A84C', secondary: '#111111' },
-          },
-          error: {
-            iconTheme: { primary: '#f87171', secondary: '#111111' },
-          },
-        }}
-      />
-    </>
+      <ThemedToaster />
+    </ThemeProvider>
   )
 }

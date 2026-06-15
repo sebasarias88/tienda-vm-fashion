@@ -22,7 +22,6 @@ import {
   Trash2,
 } from 'lucide-react'
 import {
-  AdminTable,
   AdminTableHead,
   AdminTableHeaderRow,
   AdminTableTh,
@@ -52,9 +51,9 @@ function InfoBanner({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-[2px] border border-[rgba(212,175,55,0.22)] bg-[rgba(212,175,55,0.06)] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(212,175,55,0.08)]">
-      <Icon size={16} className="mt-0.5 shrink-0 text-[#D4AF37]" />
-      <p className="text-[12px] font-light leading-relaxed text-[rgba(248,246,241,0.72)]">
+    <div className="flex items-start gap-3 rounded-[2px] border border-[rgba(201,168,76,0.22)] bg-[rgba(201,168,76,0.06)] px-4 py-3.5 shadow-[inset_0_1px_0_rgba(201,168,76,0.08)]">
+      <Icon size={16} className="mt-0.5 shrink-0 text-[var(--gold-bright)]" />
+      <p className="text-[12px] font-light leading-relaxed text-[var(--text-muted)]">
         {children}
       </p>
     </div>
@@ -71,11 +70,11 @@ function FormSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(212,175,55,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(212,175,55,0.88)]">
+        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
+        <h3 className="shrink-0 text-[10px] font-medium uppercase tracking-[2.5px] text-[var(--gold)]">
           {title}
         </h3>
-        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(212,175,55,0.35)] to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
       </div>
       {children}
     </section>
@@ -169,20 +168,20 @@ export default function ConfiguracionPage() {
   }
 
   const inputInline =
-    'min-w-0 flex-1 rounded-[2px] border border-[rgba(248,246,241,0.15)] bg-[#161616] px-4 py-3 text-[13px] font-light text-[#F8F6F1] placeholder:text-[rgba(248,246,241,0.45)] focus:border-[rgba(212,175,55,0.65)] focus:outline-none transition-colors'
+    'min-w-0 flex-1 rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors'
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
-        <div className="mb-10 flex justify-between border-b border-[rgba(212,175,55,0.16)] pb-8">
+        <div className="mb-10 flex justify-between border-b border-[rgba(201,168,76,0.16)] pb-8">
           <div>
-            <div className="mb-3 h-3 w-20 animate-pulse rounded-[2px] bg-[rgba(248,246,241,0.08)]" />
-            <div className="h-9 w-64 animate-pulse rounded-[2px] bg-[rgba(248,246,241,0.08)]" />
+            <div className="mb-3 h-3 w-20 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
+            <div className="h-9 w-64 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
           </div>
-          <div className="h-9 w-32 animate-pulse rounded-[2px] bg-[rgba(248,246,241,0.08)]" />
+          <div className="h-9 w-32 animate-pulse rounded-[2px] bg-[var(--gold-muted)]" />
         </div>
         <div className="space-y-3">
-          <div className="h-64 w-full animate-pulse rounded-[2px] border border-[rgba(212,175,55,0.1)] bg-[#111111] lg:h-80" />
+          <div className="h-64 w-full animate-pulse rounded-[2px] border border-[rgba(201,168,76,0.1)] bg-[var(--bg-card)] lg:h-80" />
         </div>
       </div>
     )
@@ -191,18 +190,18 @@ export default function ConfiguracionPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
       {/* Header */}
-      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(212,175,55,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#D4AF37]" />
-            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(212,175,55,0.9)]">
+            <div className="h-px w-8 bg-[var(--gold-bright)]" />
+            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
               Gestión
             </p>
           </div>
-          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[#F8F6F1] sm:text-4xl">
+          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
             Configuración
           </h1>
-          <p className="mt-2 text-[13px] font-light text-[rgba(248,246,241,0.55)]">
+          <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
             Ajustes generales de la tienda, envíos y checkout
           </p>
         </div>
@@ -210,7 +209,7 @@ export default function ConfiguracionPage() {
           onClick={handleGuardar}
           loading={saving}
           size="sm"
-          className="self-start sm:self-auto !text-[#0D0D0D] hover:!bg-[#C9A030]"
+          className="self-start sm:self-auto"
         >
           <Save size={13} />
           Guardar cambios
@@ -220,7 +219,7 @@ export default function ConfiguracionPage() {
       {/* Tabs horizontales + panel */}
       <AdminTableShell className="overflow-hidden">
         <div className="flex flex-col">
-          <nav className="grid grid-cols-2 gap-2 border-b border-[rgba(212,175,55,0.14)] p-3 sm:grid-cols-4">
+          <nav className="grid grid-cols-2 gap-2 border-b border-[rgba(201,168,76,0.14)] p-3 sm:grid-cols-4">
             {TABS.map(({ id, label, icon: Icon, desc }) => {
               const activo = tab === id
               return (
@@ -230,38 +229,38 @@ export default function ConfiguracionPage() {
                   onClick={() => setTab(id)}
                   className={`group relative flex items-start gap-2.5 rounded-[2px] border px-3 py-3 text-left transition-all sm:gap-3 sm:px-3.5 sm:py-3.5 ${
                     activo
-                      ? 'border-[rgba(212,175,55,0.42)] bg-[rgba(212,175,55,0.12)] shadow-[0_4px_20px_rgba(0,0,0,0.18)]'
-                      : 'border-[rgba(212,175,55,0.12)] bg-[#161616] hover:border-[rgba(212,175,55,0.28)] hover:bg-[rgba(212,175,55,0.05)]'
+                      ? 'border-[rgba(201,168,76,0.42)] bg-[rgba(201,168,76,0.12)] shadow-[0_4px_20px_rgba(0,0,0,0.18)]'
+                      : 'border-[rgba(201,168,76,0.12)] bg-[var(--bg-muted)] hover:border-[rgba(201,168,76,0.28)] hover:bg-[rgba(201,168,76,0.05)]'
                   }`}
                 >
                   {activo && (
-                    <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#D4AF37] sm:inset-x-3.5" />
+                    <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[var(--gold-bright)] sm:inset-x-3.5" />
                   )}
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border transition-colors sm:h-9 sm:w-9 ${
                       activo
-                        ? 'border-[rgba(212,175,55,0.38)] bg-[rgba(212,175,55,0.18)]'
-                        : 'border-[rgba(212,175,55,0.14)] bg-[rgba(212,175,55,0.06)] group-hover:border-[rgba(212,175,55,0.28)]'
+                        ? 'border-[rgba(201,168,76,0.38)] bg-[rgba(201,168,76,0.18)]'
+                        : 'border-[rgba(201,168,76,0.14)] bg-[rgba(201,168,76,0.06)] group-hover:border-[rgba(201,168,76,0.28)]'
                     }`}
                   >
                     <Icon
                       size={16}
                       className={
                         activo
-                          ? 'text-[#D4AF37]'
-                          : 'text-[rgba(212,175,55,0.55)] group-hover:text-[#D4AF37]'
+                          ? 'text-[var(--gold-bright)]'
+                          : 'text-[rgba(201,168,76,0.55)] group-hover:text-[var(--gold-bright)]'
                       }
                     />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p
                       className={`text-[10px] font-light uppercase tracking-[1.2px] transition-colors sm:text-[11px] sm:tracking-[1.4px] ${
-                        activo ? 'text-[#D4AF37]' : 'text-[#F8F6F1] group-hover:text-[#D4AF37]'
+                        activo ? 'text-[var(--gold-bright)]' : 'text-[var(--text-primary)] group-hover:text-[var(--gold-bright)]'
                       }`}
                     >
                       {label}
                     </p>
-                    <p className="mt-0.5 hidden text-[10px] font-light leading-snug text-[rgba(248,246,241,0.45)] sm:mt-1 sm:block sm:text-[11px]">
+                    <p className="mt-0.5 hidden text-[10px] font-light leading-snug text-[var(--text-subtle)] sm:mt-1 sm:block sm:text-[11px]">
                       {desc}
                     </p>
                   </div>
@@ -349,16 +348,16 @@ export default function ConfiguracionPage() {
 
                   <FormSection title="Tarifas por zona">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div className="rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-[#161616] p-5 transition-colors hover:border-[rgba(212,175,55,0.35)]">
+                      <div className="rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[var(--bg-muted)] p-5 transition-colors hover:border-[rgba(201,168,76,0.35)]">
                         <div className="mb-4 flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-[rgba(212,175,55,0.1)]">
-                            <MapPin size={16} className="text-[#D4AF37]" />
+                          <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.1)]">
+                            <MapPin size={16} className="text-[var(--gold-bright)]" />
                           </div>
                           <div>
-                            <p className="text-[12px] font-light uppercase tracking-[1px] text-[#F8F6F1]">
+                            <p className="text-[12px] font-light uppercase tracking-[1px] text-[var(--text-primary)]">
                               Armenia
                             </p>
-                            <p className="text-[10px] font-light text-[rgba(248,246,241,0.45)]">
+                            <p className="text-[10px] font-light text-[var(--text-subtle)]">
                               Entrega local
                             </p>
                           </div>
@@ -380,16 +379,16 @@ export default function ConfiguracionPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-[#161616] p-5 transition-colors hover:border-[rgba(212,175,55,0.35)]">
+                      <div className="rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[var(--bg-muted)] p-5 transition-colors hover:border-[rgba(201,168,76,0.35)]">
                         <div className="mb-4 flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-[rgba(212,175,55,0.1)]">
-                            <Globe size={16} className="text-[#D4AF37]" />
+                          <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.1)]">
+                            <Globe size={16} className="text-[var(--gold-bright)]" />
                           </div>
                           <div>
-                            <p className="text-[12px] font-light uppercase tracking-[1px] text-[#F8F6F1]">
+                            <p className="text-[12px] font-light uppercase tracking-[1px] text-[var(--text-primary)]">
                               Resto del país
                             </p>
-                            <p className="text-[10px] font-light text-[rgba(248,246,241,0.45)]">
+                            <p className="text-[10px] font-light text-[var(--text-subtle)]">
                               Envío nacional
                             </p>
                           </div>
@@ -415,16 +414,16 @@ export default function ConfiguracionPage() {
                   </FormSection>
 
                   <FormSection title="Promoción de envío">
-                    <div className="rounded-[2px] border border-[rgba(212,175,55,0.25)] bg-[rgba(212,175,55,0.06)] p-5">
+                    <div className="rounded-[2px] border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.06)] p-5">
                       <div className="mb-4 flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(212,175,55,0.25)] bg-[rgba(212,175,55,0.12)]">
-                          <Gift size={16} className="text-[#D4AF37]" />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.12)]">
+                          <Gift size={16} className="text-[var(--gold-bright)]" />
                         </div>
                         <div>
-                          <p className="text-[12px] font-light uppercase tracking-[1px] text-[#F8F6F1]">
+                          <p className="text-[12px] font-light uppercase tracking-[1px] text-[var(--text-primary)]">
                             Envío gratis
                           </p>
-                          <p className="text-[10px] font-light text-[rgba(248,246,241,0.45)]">
+                          <p className="text-[10px] font-light text-[var(--text-subtle)]">
                             Monto mínimo para aplicar
                           </p>
                         </div>
@@ -452,58 +451,60 @@ export default function ConfiguracionPage() {
                   </InfoBanner>
 
                   <FormSection title="Métodos activos">
-                    <AdminTable minWidth="480px">
-                      <AdminTableHead>
-                        <AdminTableHeaderRow>
-                          <AdminTableTh className="w-14">#</AdminTableTh>
-                          <AdminTableTh>Método de pago</AdminTableTh>
-                          <AdminTableTh className="w-28 text-right">Acciones</AdminTableTh>
-                        </AdminTableHeaderRow>
-                      </AdminTableHead>
-                      <AdminTableBody>
-                        {metodosPago.length === 0 ? (
-                          <AdminTableEmpty
-                            colSpan={3}
-                            icon={CreditCard}
-                            title="Sin métodos de pago"
-                            description="Agrega al menos uno usando el formulario de abajo"
-                          />
-                        ) : (
-                          metodosPago.map((metodo, i) => (
-                            <AdminTableRow key={metodo}>
-                              <AdminTableTd>
-                                <span className="inline-flex h-7 w-7 items-center justify-center rounded-[2px] border border-[rgba(248,246,241,0.12)] bg-[#161616] text-[11px] font-light tabular-nums text-[rgba(248,246,241,0.55)]">
-                                  {i + 1}
-                                </span>
-                              </AdminTableTd>
-                              <AdminTableTd>
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-[rgba(212,175,55,0.08)]">
-                                    <CreditCard size={14} className="text-[#D4AF37]" />
+                    <div className="overflow-x-auto rounded-[2px] border border-[var(--border-card)]">
+                      <table className="w-full" style={{ minWidth: '480px' }}>
+                        <AdminTableHead>
+                          <AdminTableHeaderRow>
+                            <AdminTableTh className="w-14">#</AdminTableTh>
+                            <AdminTableTh>Método de pago</AdminTableTh>
+                            <AdminTableTh className="w-28 text-right">Acciones</AdminTableTh>
+                          </AdminTableHeaderRow>
+                        </AdminTableHead>
+                        <AdminTableBody>
+                          {metodosPago.length === 0 ? (
+                            <AdminTableEmpty
+                              colSpan={3}
+                              icon={CreditCard}
+                              title="Sin métodos de pago"
+                              description="Agrega al menos uno usando el formulario de abajo"
+                            />
+                          ) : (
+                            metodosPago.map((metodo, i) => (
+                              <AdminTableRow key={metodo}>
+                                <AdminTableTd>
+                                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[11px] font-light tabular-nums text-[var(--text-muted)]">
+                                    {i + 1}
+                                  </span>
+                                </AdminTableTd>
+                                <AdminTableTd>
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)]">
+                                      <CreditCard size={14} className="text-[var(--gold-bright)]" />
+                                    </div>
+                                    <span className="text-[13px] font-light text-[var(--text-primary)]">
+                                      {metodo}
+                                    </span>
                                   </div>
-                                  <span className="text-[13px] font-light text-[#F8F6F1]">
-                                    {metodo}
-                                  </span>
-                                </div>
-                              </AdminTableTd>
-                              <AdminTableTd className="text-right">
-                                <button
-                                  type="button"
-                                  onClick={() => quitarMetodo(metodo)}
-                                  className="inline-flex items-center gap-1.5 rounded-[2px] border border-transparent px-2.5 py-1.5 text-[rgba(248,246,241,0.55)] transition-all hover:border-[rgba(248,113,113,0.25)] hover:bg-[rgba(248,113,113,0.08)] hover:text-red-400"
-                                  aria-label={`Eliminar ${metodo}`}
-                                >
-                                  <Trash2 size={14} />
-                                  <span className="text-[10px] font-light uppercase tracking-[1px]">
-                                    Quitar
-                                  </span>
-                                </button>
-                              </AdminTableTd>
-                            </AdminTableRow>
-                          ))
-                        )}
-                      </AdminTableBody>
-                    </AdminTable>
+                                </AdminTableTd>
+                                <AdminTableTd className="text-right">
+                                  <button
+                                    type="button"
+                                    onClick={() => quitarMetodo(metodo)}
+                                    className="inline-flex items-center gap-1.5 rounded-[2px] border border-transparent px-2.5 py-1.5 text-[var(--text-muted)] transition-all hover:border-[rgba(248,113,113,0.25)] hover:bg-[rgba(248,113,113,0.08)] hover:text-red-400"
+                                    aria-label={`Eliminar ${metodo}`}
+                                  >
+                                    <Trash2 size={14} />
+                                    <span className="text-[10px] font-light uppercase tracking-[1px]">
+                                      Quitar
+                                    </span>
+                                  </button>
+                                </AdminTableTd>
+                              </AdminTableRow>
+                            ))
+                          )}
+                        </AdminTableBody>
+                      </table>
+                    </div>
                   </FormSection>
 
                   <FormSection title="Agregar método">
@@ -525,7 +526,7 @@ export default function ConfiguracionPage() {
                         type="button"
                         onClick={agregarMetodo}
                         size="sm"
-                        className="shrink-0 !text-[#0D0D0D] sm:w-auto"
+                        className="shrink-0 sm:w-auto"
                       >
                         <Plus size={13} />
                         Agregar
@@ -537,16 +538,16 @@ export default function ConfiguracionPage() {
             </motion.div>
           </AnimatePresence>
 
-            <div className="flex items-center justify-between gap-4 border-t border-[rgba(212,175,55,0.16)] bg-[#161616] px-6 py-4">
-              <div className="flex items-center gap-2 text-[11px] font-light text-[rgba(248,246,241,0.45)]">
-                <Clock size={13} className="shrink-0 text-[rgba(212,175,55,0.55)]" />
+            <div className="flex items-center justify-between gap-4 border-t border-[rgba(201,168,76,0.16)] bg-[var(--bg-muted)] px-6 py-4">
+              <div className="flex items-center gap-2 text-[11px] font-light text-[var(--text-subtle)]">
+                <Clock size={13} className="shrink-0 text-[rgba(201,168,76,0.55)]" />
                 Los cambios se aplican al guardar
               </div>
               <Button
                 onClick={handleGuardar}
                 loading={saving}
                 size="sm"
-                className="!text-[#0D0D0D] hover:!bg-[#C9A030]"
+                className=""
               >
                 <Save size={13} />
                 Guardar

@@ -26,11 +26,11 @@ function FormSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(212,175,55,0.35)] to-transparent" />
-        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(212,175,55,0.88)]">
+        <div className="h-px flex-1 bg-gradient-to-r from-[rgba(201,168,76,0.35)] to-transparent" />
+        <h3 className="shrink-0 text-[10px] font-light uppercase tracking-[2.5px] text-[rgba(201,168,76,0.88)]">
           {title}
         </h3>
-        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(212,175,55,0.35)] to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-l from-[rgba(201,168,76,0.35)] to-transparent" />
       </div>
       {children}
     </section>
@@ -158,7 +158,7 @@ export default function CategoriaForm({
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-[2px] border border-[rgba(248,246,241,0.15)] bg-[#161616] px-4 py-3 text-[13px] font-light text-[#F8F6F1] [color-scheme:dark] focus:border-[rgba(212,175,55,0.65)] focus:outline-none transition-colors`
+  const inputSelect = `w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors`
 
   return (
     <div className="space-y-8">
@@ -183,7 +183,7 @@ export default function CategoriaForm({
       <FormSection title="Clasificación">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[rgba(248,246,241,0.65)]">
+            <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
               Categoría padre
             </label>
             <select
@@ -200,7 +200,7 @@ export default function CategoriaForm({
                   </option>
                 ))}
             </select>
-            <p className="text-[10px] font-light tracking-[0.3px] text-[rgba(248,246,241,0.45)]">
+            <p className="text-[10px] font-light tracking-[0.3px] text-[var(--text-subtle)]">
               Opcional — convierte esta en subcategoría
             </p>
           </div>
@@ -218,7 +218,7 @@ export default function CategoriaForm({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
           {form.imagen_url ? (
             <div className="relative h-[9.5rem] w-[9.5rem] shrink-0">
-              <div className="h-full w-full overflow-hidden rounded-[2px] border border-[rgba(212,175,55,0.2)] bg-white">
+              <div className="h-full w-full overflow-hidden rounded-[2px] border border-[rgba(201,168,76,0.2)] bg-white">
                 <img
                   src={form.imagen_url}
                   alt="Vista previa"
@@ -228,7 +228,7 @@ export default function CategoriaForm({
               <button
                 type="button"
                 onClick={() => setForm(f => ({ ...f, imagen_url: '' }))}
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-[rgba(212,175,55,0.3)] bg-[#111111] text-[rgba(248,246,241,0.65)] transition-colors hover:border-red-400/50 hover:text-red-400"
+                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-[rgba(201,168,76,0.3)] bg-[var(--bg-card)] text-[var(--text-muted)] transition-colors hover:border-red-400/50 hover:text-red-400"
                 aria-label="Quitar imagen"
               >
                 <X size={12} />
@@ -236,18 +236,18 @@ export default function CategoriaForm({
             </div>
           ) : null}
           <label className="flex min-w-0 flex-1 cursor-pointer flex-col">
-            <div className="flex min-h-[9.5rem] flex-1 flex-col items-center justify-center rounded-[2px] border border-dashed border-[rgba(212,175,55,0.35)] bg-[#161616] px-4 py-8 text-center transition-all hover:border-[rgba(212,175,55,0.55)] hover:bg-[rgba(212,175,55,0.06)]">
+            <div className="flex min-h-[9.5rem] flex-1 flex-col items-center justify-center rounded-[2px] border border-dashed border-[rgba(201,168,76,0.35)] bg-[var(--bg-muted)] px-4 py-8 text-center transition-all hover:border-[rgba(201,168,76,0.55)] hover:bg-[rgba(201,168,76,0.06)]">
               {uploadingImg ? (
-                <p className="animate-pulse text-[12px] font-light text-[rgba(248,246,241,0.65)]">
+                <p className="animate-pulse text-[12px] font-light text-[var(--text-muted)]">
                   Subiendo imagen...
                 </p>
               ) : (
                 <>
-                  <ImageIcon size={20} className="mx-auto mb-2 text-[rgba(212,175,55,0.65)]" />
-                  <p className="text-[12px] font-light text-[#F8F6F1]">
+                  <ImageIcon size={20} className="mx-auto mb-2 text-[rgba(201,168,76,0.65)]" />
+                  <p className="text-[12px] font-light text-[var(--text-primary)]">
                     {form.imagen_url ? 'Cambiar imagen' : 'Subir imagen de categoría'}
                   </p>
-                  <p className="mt-1 text-[10px] font-light text-[rgba(248,246,241,0.45)]">
+                  <p className="mt-1 text-[10px] font-light text-[var(--text-subtle)]">
                     JPG, PNG o WebP — opcional
                   </p>
                 </>
@@ -269,10 +269,10 @@ export default function CategoriaForm({
       </FormSection>
 
       <FormSection title="Visibilidad">
-        <div className="flex items-center justify-between rounded-[2px] border border-[rgba(212,175,55,0.18)] bg-[#161616] px-4 py-3.5">
+        <div className="flex items-center justify-between rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5">
           <div className="pr-4">
-            <p className="text-[13px] font-light text-[#F8F6F1]">Categoría activa</p>
-            <p className="mt-0.5 text-[11px] font-light text-[rgba(248,246,241,0.45)]">
+            <p className="text-[13px] font-light text-[var(--text-primary)]">Categoría activa</p>
+            <p className="mt-0.5 text-[11px] font-light text-[var(--text-subtle)]">
               Las inactivas no aparecen en la tienda
             </p>
           </div>
@@ -280,12 +280,12 @@ export default function CategoriaForm({
             type="button"
             onClick={() => setForm(f => ({ ...f, activa: !f.activa }))}
             className={`relative h-5 w-10 shrink-0 rounded-full transition-all duration-300 ${
-              form.activa ? 'bg-[#D4AF37]' : 'bg-[rgba(248,246,241,0.22)]'
+              form.activa ? 'bg-[var(--gold-bright)]' : 'bg-[rgba(248,246,241,0.22)]'
             }`}
             aria-pressed={form.activa}
           >
             <span
-              className={`absolute top-0.5 h-4 w-4 rounded-full bg-[#111111] shadow transition-all duration-300 ${
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--bg-card)] shadow transition-all duration-300 ${
                 form.activa ? 'left-5' : 'left-0.5'
               }`}
             />
@@ -293,7 +293,7 @@ export default function CategoriaForm({
         </div>
       </FormSection>
 
-      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(212,175,55,0.18)] bg-[#111111] px-6 py-4">
+      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(201,168,76,0.18)] bg-[var(--bg-card)] px-6 py-4">
         <Button variant="outline" onClick={onCancel} fullWidth>
           Cancelar
         </Button>
@@ -301,7 +301,7 @@ export default function CategoriaForm({
           onClick={handleGuardar}
           loading={saving}
           fullWidth
-          className="!text-[#0D0D0D] hover:!bg-[#C9A030]"
+          className=""
         >
           {categoria ? 'Guardar cambios' : 'Crear categoría'}
         </Button>

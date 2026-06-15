@@ -82,8 +82,8 @@ const STEPS: { id: Step; label: string }[] = [
 function SectionTitle({ icon: Icon, children }: { icon: typeof User; children: React.ReactNode }) {
   return (
     <div className="mb-5 flex items-center gap-2.5">
-      <Icon size={15} className="text-[rgba(184,146,42,0.77)]" />
-      <h2 className="text-[12px] font-light uppercase tracking-[2px] text-[#B8922A]">{children}</h2>
+      <Icon size={15} className="text-[var(--gold-subtle)]" />
+      <h2 className="text-[12px] font-light uppercase tracking-[2px] text-[var(--gold)]">{children}</h2>
     </div>
   )
 }
@@ -125,9 +125,9 @@ function OrderSummaryPanel({
 }) {
   return (
     <div className="space-y-4">
-      <p className="text-[12px] font-light uppercase tracking-[2px] text-[#B8922A]">Resumen</p>
+      <p className="text-[12px] font-light uppercase tracking-[2px] text-[var(--gold)]">Resumen</p>
 
-      <div className="space-y-3 border-b border-[rgba(184,146,42,0.18)] pb-4">
+      <div className="space-y-3 border-b border-[var(--border-subtle)] pb-4">
         {items.map((item) => {
           const key = itemLineKey(item)
           const { producto, cantidad, variacionesSeleccionadas } = item
@@ -135,23 +135,23 @@ function OrderSummaryPanel({
 
           return (
           <div key={key} className="flex gap-3">
-            <div className="h-12 w-12 shrink-0 overflow-hidden bg-[#141414]">
+            <div className="h-12 w-12 shrink-0 overflow-hidden bg-[var(--bg-surface)]">
               {producto.imagenes?.[0] ? (
                 <img src={producto.imagenes[0]} alt={producto.nombre} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <ShoppingBag size={14} className="text-[rgba(240,235,228,0.32)]" />
+                  <ShoppingBag size={14} className="text-[var(--text-faint)]" />
                 </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] font-light text-[rgba(240,235,228,0.9)]">{producto.nombre}</p>
+              <p className="truncate text-[12px] font-light text-[var(--text-primary)]">{producto.nombre}</p>
               {vars && (
                 <p className={`truncate ${variacionesCarritoClassName}`}>{vars}</p>
               )}
-              <p className="text-[11px] font-light text-[rgba(240,235,228,0.58)]">× {cantidad}</p>
+              <p className="text-[11px] font-light text-[var(--text-subtle)]">× {cantidad}</p>
             </div>
-            <p className="shrink-0 text-[12px] font-light text-[#B8922A]">
+            <p className="shrink-0 text-[12px] font-light text-[var(--gold)]">
               {(() => {
                 const line = itemLineTotal(item, catalogType)
                 return line != null ? formatPrecio(line) : 'Consultar'
@@ -164,31 +164,31 @@ function OrderSummaryPanel({
 
       <div className="space-y-2">
         <div className="flex justify-between text-[13px] font-light">
-          <span className="text-[rgba(240,235,228,0.72)]">Subtotal</span>
-          <span className="text-[rgba(240,235,228,0.92)]">{formatPrecio(subtotal)}</span>
+          <span className="text-[var(--text-muted)]">Subtotal</span>
+          <span className="text-[var(--text-primary)]">{formatPrecio(subtotal)}</span>
         </div>
         {showEnvio && (
           <>
             <div className="flex justify-between text-[13px] font-light">
-              <span className="text-[rgba(240,235,228,0.72)]">Envío</span>
-              <span className="text-[rgba(240,235,228,0.92)]">
+              <span className="text-[var(--text-muted)]">Envío</span>
+              <span className="text-[var(--text-primary)]">
                 {envioGratis ? 'Gratis' : envio === 0 ? 'A convenir' : formatPrecio(envio ?? 0)}
               </span>
             </div>
             {tiempoEntrega && (
               <div className="flex justify-between text-[13px] font-light">
-                <span className="text-[rgba(240,235,228,0.72)]">Entrega</span>
-                <span className="text-[rgba(240,235,228,0.92)]">{tiempoEntrega}</span>
+                <span className="text-[var(--text-muted)]">Entrega</span>
+                <span className="text-[var(--text-primary)]">{tiempoEntrega}</span>
               </div>
             )}
           </>
         )}
         {total !== undefined && (
-          <div className="flex items-baseline justify-between border-t border-[rgba(184,146,42,0.18)] pt-3">
-            <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.78)]">
+          <div className="flex items-baseline justify-between border-t border-[var(--border-subtle)] pt-3">
+            <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)]">
               Total
             </span>
-            <span className="text-xl font-light text-[#B8922A]">{formatPrecio(total)}</span>
+            <span className="text-xl font-light text-[var(--gold)]">{formatPrecio(total)}</span>
           </div>
         )}
       </div>
@@ -324,10 +324,10 @@ export default function CarritoPage() {
   }
 
   const inputClass = (campo: keyof DatosCliente) =>
-    `w-full border-0 border-b bg-transparent py-3.5 text-[13px] font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] ${
+    `w-full border-0 border-b bg-transparent py-3.5 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-faint)] ${
       errores[campo]
         ? 'border-red-400/50 focus:border-red-400'
-        : 'border-[rgba(240,235,228,0.42)] focus:border-[rgba(184,146,42,0.67)]'
+        : 'border-[var(--border-input)] focus:border-[var(--gold)]'
     }`
 
   if (!mounted) return null
@@ -340,15 +340,15 @@ export default function CarritoPage() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 border-b border-[rgba(184,146,42,0.18)] pb-8"
+          className="mb-8 border-b border-[var(--border-subtle)] pb-8"
         >
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#B8922A]" />
-            <span className="text-[11px] font-light uppercase tracking-[3px] text-[rgba(184,146,42,0.92)]">
+            <div className="h-px w-8 bg-[var(--gold)] opacity-40" />
+            <span className="catalog-eyebrow tracking-[3px]">
               Mi pedido
             </span>
           </div>
-          <h1 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[#F8F6F1] sm:text-[2.125rem]">
+          <h1 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[var(--text-primary)] sm:text-[2.125rem]">
             Tu{' '}
             <span className="gold-shimmer">carrito</span>
           </h1>
@@ -365,19 +365,19 @@ export default function CarritoPage() {
                   disabled={i > stepIndex}
                   className={`relative px-3 py-2 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
                     step === s.id
-                      ? 'text-[#B8922A]'
+                      ? 'text-[var(--gold)]'
                       : i < stepIndex
-                        ? 'text-[rgba(240,235,228,0.82)] hover:text-[#B8922A]'
-                        : 'cursor-default text-[rgba(240,235,228,0.5)]'
+                        ? 'text-[var(--text-secondary)] hover:text-[var(--gold)]'
+                        : 'cursor-default text-[var(--text-faint)]'
                   }`}
                 >
                   {s.label}
                   {step === s.id && (
-                    <span className="absolute inset-x-2 bottom-0 h-px bg-[#B8922A]" />
+                    <span className="absolute inset-x-2 bottom-0 h-px bg-[var(--gold)]" />
                   )}
                 </button>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight size={14} className="mx-1 text-[rgba(240,235,228,0.52)]" />
+                  <ChevronRight size={14} className="mx-1 text-[var(--text-subtle)]" />
                 )}
               </div>
             ))}
@@ -397,19 +397,19 @@ export default function CarritoPage() {
               <div className="min-w-0">
                 {items.length === 0 ? (
                   <div className="flex flex-col items-center py-20 text-center">
-                    <ShoppingBag size={40} className="mb-4 text-[rgba(240,235,228,0.32)]" />
-                    <p className="text-[13px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.58)]">
+                    <ShoppingBag size={40} className="mb-4 text-[var(--text-faint)]" />
+                    <p className="text-[13px] font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
                       Tu carrito está vacío
                     </p>
                     <Link
                       href={productosHref}
-                      className="mt-6 border-b border-[rgba(184,146,42,0.42)] pb-1 text-[11px] font-light uppercase tracking-[2px] text-[#B8922A] transition-colors hover:border-[#B8922A]"
+                      className="mt-6 border-b border-[var(--border)] pb-1 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-colors hover:border-[var(--gold)]"
                     >
                       Ver catálogo →
                     </Link>
                   </div>
                 ) : (
-                  <div className="divide-y divide-[rgba(184,146,42,0.18)]">
+                  <div className="divide-y divide-[var(--border-subtle)]">
                     <AnimatePresence initial={false}>
                       {items.map((item) => {
                         const key = itemLineKey(item)
@@ -427,7 +427,7 @@ export default function CarritoPage() {
                         >
                           <Link
                             href={catalogPath(catalogType, `/productos/${producto.slug}`)}
-                            className="h-20 w-16 shrink-0 overflow-hidden bg-[#141414] sm:h-24 sm:w-20"
+                            className="h-20 w-16 shrink-0 overflow-hidden bg-[var(--bg-surface)] sm:h-24 sm:w-20"
                           >
                             {producto.imagenes?.[0] ? (
                               <img
@@ -437,20 +437,20 @@ export default function CarritoPage() {
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center">
-                                <ShoppingBag size={18} className="text-[rgba(240,235,228,0.32)]" />
+                                <ShoppingBag size={18} className="text-[var(--text-faint)]" />
                               </div>
                             )}
                           </Link>
 
                           <div className="min-w-0 flex-1">
                             {producto.categoria && (
-                              <p className="mb-1 text-[10px] font-light uppercase tracking-[1.5px] text-[rgba(184,146,42,0.87)]">
+                              <p className="mb-1 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold-subtle)]">
                                 {producto.categoria.nombre}
                               </p>
                             )}
                             <Link
                               href={catalogPath(catalogType, `/productos/${producto.slug}`)}
-                              className="mb-1 block truncate text-[14px] font-light text-[#F8F6F1] transition-colors hover:text-[#D4AF37]"
+                              className="mb-1 block truncate text-[14px] font-light text-[var(--text-primary)] transition-colors hover:text-[var(--gold-bright)]"
                             >
                               {producto.nombre}
                             </Link>
@@ -465,18 +465,18 @@ export default function CarritoPage() {
                                 <button
                                   type="button"
                                   onClick={() => actualizarCantidad(key, cantidad - 1)}
-                                  className="flex h-8 w-8 items-center justify-center text-[rgba(240,235,228,0.72)] transition-colors hover:text-[#B8922A]"
+                                  className="flex h-8 w-8 items-center justify-center text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
                                   aria-label="Disminuir cantidad"
                                 >
                                   <Minus size={13} />
                                 </button>
-                                <span className="min-w-[1.5rem] text-center text-[14px] font-light text-[#F8F6F1]">
+                                <span className="min-w-[1.5rem] text-center text-[14px] font-light text-[var(--text-primary)]">
                                   {cantidad}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => actualizarCantidad(key, cantidad + 1)}
-                                  className="flex h-8 w-8 items-center justify-center text-[rgba(240,235,228,0.72)] transition-colors hover:text-[#B8922A]"
+                                  className="flex h-8 w-8 items-center justify-center text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
                                   aria-label="Aumentar cantidad"
                                 >
                                   <Plus size={13} />
@@ -484,7 +484,7 @@ export default function CarritoPage() {
                               </div>
 
                               <div className="flex items-center gap-4">
-                                <span className="text-[15px] font-light text-[#B8922A]">
+                                <span className="text-[15px] font-light text-[var(--gold)]">
                                   {(() => {
                                     const line = itemLineTotal(item, catalogType)
                                     return line != null ? formatPrecio(line) : 'Consultar'
@@ -496,7 +496,7 @@ export default function CarritoPage() {
                                     quitar(key)
                                     toast.success('Producto eliminado')
                                   }}
-                                  className="text-[rgba(240,235,228,0.52)] transition-colors hover:text-red-400"
+                                  className="text-[var(--text-subtle)] transition-colors hover:text-red-400"
                                   aria-label="Eliminar producto"
                                 >
                                   <Trash2 size={15} />
@@ -519,21 +519,21 @@ export default function CarritoPage() {
                     subtotal={subtotal}
                     catalogType={catalogType}
                   />
-                  <p className="text-[12px] font-light text-[rgba(240,235,228,0.58)]">
+                  <p className="text-[12px] font-light text-[var(--text-subtle)]">
                     El envío se calcula en el siguiente paso según tu ciudad.
                   </p>
                   <motion.button
                     type="button"
                     whileTap={{ scale: 0.98 }}
                     onClick={handleContinuar}
-                    className="flex w-full items-center justify-center gap-2 rounded-[2px] bg-[#B8922A] py-4 text-[11px] font-medium uppercase tracking-[2.5px] text-[#1A1A1A] transition-colors hover:bg-[#9A7820]"
+                    className="catalog-gold-cta flex w-full items-center justify-center gap-2 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px]"
                   >
                     Continuar
                     <ChevronRight size={14} />
                   </motion.button>
                   <Link
                     href={productosHref}
-                    className="block text-center text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.65)] transition-colors hover:text-[#B8922A]"
+                    className="block text-center text-[11px] font-light uppercase tracking-[2px] text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
                   >
                     ← Seguir comprando
                   </Link>
@@ -556,7 +556,7 @@ export default function CarritoPage() {
                   <SectionTitle icon={User}>Datos personales</SectionTitle>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.65)]">
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                         Nombre completo *
                       </label>
                       <input
@@ -574,7 +574,7 @@ export default function CarritoPage() {
                       )}
                     </div>
                     <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.65)]">
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                         Celular *
                       </label>
                       <input
@@ -594,11 +594,11 @@ export default function CarritoPage() {
                   </div>
                 </section>
 
-                <section className="border-t border-[rgba(184,146,42,0.18)] pt-10">
+                <section className="border-t border-[var(--border-subtle)] pt-10">
                   <SectionTitle icon={MapPin}>Dirección de entrega</SectionTitle>
                   <div className="space-y-6">
                     <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.65)]">
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                         Ciudad *
                       </label>
                       <input
@@ -618,7 +618,7 @@ export default function CarritoPage() {
                         <motion.p
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="mt-2 flex items-start gap-2 text-[12px] font-light text-[rgba(184,146,42,0.92)]"
+                          className="mt-2 flex items-start gap-2 text-[12px] font-light text-[var(--gold-subtle)]"
                         >
                           <Truck size={13} className="mt-0.5 shrink-0" />
                           {envioGratis
@@ -630,7 +630,7 @@ export default function CarritoPage() {
                       )}
                     </div>
                     <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.65)]">
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                         Dirección completa *
                       </label>
                       <input
@@ -650,16 +650,16 @@ export default function CarritoPage() {
                   </div>
                 </section>
 
-                <section className="border-t border-[rgba(184,146,42,0.18)] pt-10">
+                <section className="border-t border-[var(--border-subtle)] pt-10">
                   <SectionTitle icon={CreditCard}>Método de pago</SectionTitle>
                   {loadingConfig ? (
                     <div className="space-y-3">
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="h-11 animate-pulse border-b border-[rgba(240,235,228,0.28)]" />
+                        <div key={i} className="h-11 animate-pulse border-b border-[var(--border-subtle)]" />
                       ))}
                     </div>
                   ) : (
-                    <div className="divide-y divide-[rgba(184,146,42,0.18)]">
+                    <div className="divide-y divide-[var(--border-subtle)]">
                       {config.metodos_pago.map(metodo => (
                         <button
                           key={metodo}
@@ -670,20 +670,20 @@ export default function CarritoPage() {
                           }}
                           className={`flex w-full items-center justify-between py-4 text-left transition-colors ${
                             datos.metodoPago === metodo
-                              ? 'text-[#B8922A]'
-                              : 'text-[rgba(240,235,228,0.82)] hover:text-[#F8F6F1]'
+                              ? 'text-[var(--gold)]'
+                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                           }`}
                         >
                           <span className="text-[14px] font-light">{metodo}</span>
                           <span
                             className={`h-4 w-4 rounded-full border transition-all ${
                               datos.metodoPago === metodo
-                                ? 'border-[#B8922A] bg-[#B8922A]'
-                                : 'border-[rgba(240,235,228,0.55)]'
+                                ? 'border-[var(--gold)] bg-[var(--gold-light)]'
+                                : 'border-[var(--border-input)]'
                             }`}
                           >
                             {datos.metodoPago === metodo && (
-                              <span className="block h-full w-full scale-[0.4] rounded-full bg-[#0D0D0D]" />
+                              <span className="block h-full w-full scale-[0.4] rounded-full bg-[var(--text-on-gold)]" />
                             )}
                           </span>
                         </button>
@@ -695,23 +695,23 @@ export default function CarritoPage() {
                   )}
                 </section>
 
-                <section className="border-t border-[rgba(184,146,42,0.18)] pt-10">
+                <section className="border-t border-[var(--border-subtle)] pt-10">
                   <SectionTitle icon={FileText}>Notas adicionales</SectionTitle>
-                  <p className="mb-4 text-[12px] font-light text-[rgba(240,235,228,0.58)]">Opcional</p>
+                  <p className="mb-4 text-[12px] font-light text-[var(--text-subtle)]">Opcional</p>
                   <textarea
                     value={datos.notas}
                     onChange={e => setDatos(d => ({ ...d, notas: e.target.value }))}
                     placeholder="Indicaciones especiales para la entrega, referencias, etc."
                     rows={3}
-                    className="w-full resize-none border-0 border-b border-[rgba(240,235,228,0.42)] bg-transparent py-3 text-[13px] font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.5)] focus:border-[rgba(184,146,42,0.67)]"
+                    className="w-full resize-none border-0 border-b border-[var(--border-input)] bg-transparent py-3 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-faint)] focus:border-[var(--gold)]"
                   />
                 </section>
 
-                <div className="flex flex-col gap-3 border-t border-[rgba(184,146,42,0.18)] pt-8 sm:flex-row">
+                <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-8 sm:flex-row">
                   <button
                     type="button"
                     onClick={() => setStep('carrito')}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.72)] transition-colors hover:text-[#B8922A]"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
                   >
                     <ChevronLeft size={14} />
                     Volver
@@ -720,7 +720,7 @@ export default function CarritoPage() {
                     type="button"
                     whileTap={{ scale: 0.98 }}
                     onClick={handleConfirmar}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-[2px] bg-[#B8922A] py-3.5 text-[11px] font-medium uppercase tracking-[2.5px] text-[#1A1A1A] transition-colors hover:bg-[#9A7820]"
+                    className="catalog-gold-cta flex flex-1 items-center justify-center gap-2 rounded-[2px] py-3.5 text-[11px] font-medium uppercase tracking-[2.5px]"
                   >
                     Revisar pedido
                     <ChevronRight size={14} />
@@ -749,12 +749,12 @@ export default function CarritoPage() {
             >
               <div>
                 <div className="mb-6 flex items-center gap-2.5">
-                  <WhatsAppIcon size={16} className="text-[#B8922A]" />
+                  <WhatsAppIcon size={16} className="text-[var(--gold)]" />
                   <div>
-                    <p className="text-[12px] font-light uppercase tracking-[2px] text-[#B8922A]">
+                    <p className="text-[12px] font-light uppercase tracking-[2px] text-[var(--gold)]">
                       Resumen del pedido
                     </p>
-                    <p className="mt-1 text-[12px] font-light text-[rgba(240,235,228,0.65)]">
+                    <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
                       Esto es lo que se enviará por WhatsApp
                     </p>
                   </div>
@@ -762,7 +762,7 @@ export default function CarritoPage() {
 
                 <div className="space-y-8">
                   <section>
-                    <p className="mb-3 text-[11px] font-light uppercase tracking-[2px] text-[rgba(184,146,42,0.87)]">
+                    <p className="mb-3 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
                       Datos del cliente
                     </p>
                     <dl className="space-y-2.5">
@@ -775,15 +775,15 @@ export default function CarritoPage() {
                         ...(datos.notas ? [{ label: 'Notas', value: datos.notas }] : []),
                       ].map(({ label, value }) => (
                         <div key={label} className="flex gap-4 text-[13px] font-light">
-                          <dt className="w-20 shrink-0 text-[rgba(240,235,228,0.58)]">{label}</dt>
-                          <dd className="text-[rgba(240,235,228,0.92)]">{value}</dd>
+                          <dt className="w-20 shrink-0 text-[var(--text-subtle)]">{label}</dt>
+                          <dd className="text-[var(--text-primary)]">{value}</dd>
                         </div>
                       ))}
                     </dl>
                   </section>
 
-                  <section className="border-t border-[rgba(184,146,42,0.18)] pt-8">
-                    <p className="mb-4 text-[11px] font-light uppercase tracking-[2px] text-[rgba(184,146,42,0.87)]">
+                  <section className="border-t border-[var(--border-subtle)] pt-8">
+                    <p className="mb-4 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
                       Productos
                     </p>
                     <div className="space-y-3">
@@ -794,7 +794,7 @@ export default function CarritoPage() {
 
                         return (
                         <div key={key} className="flex items-center gap-3">
-                          <div className="h-11 w-11 shrink-0 overflow-hidden bg-[#141414]">
+                          <div className="h-11 w-11 shrink-0 overflow-hidden bg-[var(--bg-surface)]">
                             {producto.imagenes?.[0] && (
                               <img
                                 src={producto.imagenes[0]}
@@ -804,15 +804,15 @@ export default function CarritoPage() {
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[13px] font-light text-[#F8F6F1]">{producto.nombre}</p>
+                            <p className="truncate text-[13px] font-light text-[var(--text-primary)]">{producto.nombre}</p>
                             {vars && (
                               <p className={`truncate ${variacionesCarritoClassName}`}>
                                 {vars}
                               </p>
                             )}
-                            <p className="text-[11px] font-light text-[rgba(240,235,228,0.58)]">× {cantidad}</p>
+                            <p className="text-[11px] font-light text-[var(--text-subtle)]">× {cantidad}</p>
                           </div>
-                          <p className="shrink-0 text-[13px] font-light text-[#B8922A]">
+                          <p className="shrink-0 text-[13px] font-light text-[var(--gold)]">
                             {(() => {
                               const line = itemLineTotal(item, catalogType)
                               return line != null ? formatPrecio(line) : 'Consultar'
@@ -824,31 +824,31 @@ export default function CarritoPage() {
                     </div>
                   </section>
 
-                  <section className="border-t border-[rgba(184,146,42,0.18)] pt-8">
-                    <p className="mb-4 flex items-center gap-2 text-[11px] font-light uppercase tracking-[2px] text-[rgba(184,146,42,0.87)]">
+                  <section className="border-t border-[var(--border-subtle)] pt-8">
+                    <p className="mb-4 flex items-center gap-2 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
                       <Package size={13} />
                       Resumen de costos
                     </p>
                     <div className="space-y-2.5">
                       <div className="flex justify-between text-[13px] font-light">
-                        <span className="text-[rgba(240,235,228,0.72)]">Subtotal</span>
-                        <span className="text-[rgba(240,235,228,0.92)]">{formatPrecio(subtotal)}</span>
+                        <span className="text-[var(--text-muted)]">Subtotal</span>
+                        <span className="text-[var(--text-primary)]">{formatPrecio(subtotal)}</span>
                       </div>
                       <div className="flex justify-between text-[13px] font-light">
-                        <span className="text-[rgba(240,235,228,0.72)]">Envío</span>
-                        <span className="text-[rgba(240,235,228,0.92)]">
+                        <span className="text-[var(--text-muted)]">Envío</span>
+                        <span className="text-[var(--text-primary)]">
                           {envioGratis ? 'Gratis' : costoEnvio === 0 ? 'A convenir' : formatPrecio(costoEnvio)}
                         </span>
                       </div>
                       <div className="flex justify-between text-[13px] font-light">
-                        <span className="text-[rgba(240,235,228,0.72)]">Entrega</span>
-                        <span className="text-[rgba(240,235,228,0.92)]">{tiempoEntrega}</span>
+                        <span className="text-[var(--text-muted)]">Entrega</span>
+                        <span className="text-[var(--text-primary)]">{tiempoEntrega}</span>
                       </div>
-                      <div className="flex items-baseline justify-between border-t border-[rgba(184,146,42,0.18)] pt-4">
-                        <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[rgba(240,235,228,0.78)]">
+                      <div className="flex items-baseline justify-between border-t border-[var(--border-subtle)] pt-4">
+                        <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)]">
                           Total
                         </span>
-                        <span className="text-2xl font-light text-[#B8922A]">{formatPrecio(totalFinal)}</span>
+                        <span className="text-2xl font-light text-[var(--gold)]">{formatPrecio(totalFinal)}</span>
                       </div>
                     </div>
                   </section>
@@ -859,7 +859,7 @@ export default function CarritoPage() {
                 <button
                   type="button"
                   onClick={() => setStep('datos')}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-light uppercase tracking-[2px] text-[rgba(240,235,228,0.72)] transition-colors hover:text-[#B8922A]"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-muted)] transition-colors hover:text-[var(--gold)]"
                 >
                   <ChevronLeft size={14} />
                   Volver
@@ -885,7 +885,7 @@ export default function CarritoPage() {
                 </motion.button>
               </div>
 
-              <p className="text-center text-[12px] font-light leading-relaxed text-[rgba(240,235,228,0.55)]">
+              <p className="text-center text-[12px] font-light leading-relaxed text-[var(--text-subtle)]">
                 Al confirmar, se abrirá WhatsApp con tu pedido listo para enviar. El pedido no se procesa hasta que
                 lo envíes por WhatsApp.
               </p>

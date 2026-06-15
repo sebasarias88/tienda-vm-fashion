@@ -41,39 +41,37 @@ export default function NosotrosSection({
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
       <SectionGoldDivider />
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="mb-10 border-b border-[rgba(201,168,76,0.18)] pb-8"
+        className="mb-10 border-b border-[var(--border-subtle)] pb-8"
       >
         <div className="mb-4 flex items-center gap-3">
-          <div className="h-px w-8 bg-[#C9A84C]" />
-          <span className="text-[11px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.92)]">
+          <div className="h-px w-8 bg-[var(--gold)]" />
+          <span className="catalog-eyebrow tracking-[3px]">
             Nosotros
           </span>
         </div>
 
-        <h2 className="max-w-2xl text-[1.75rem] font-thin uppercase leading-tight tracking-[1.5px] text-[#f0ebe4] sm:text-[2.125rem]">
+        <h2 className="max-w-2xl text-[1.75rem] font-thin uppercase leading-tight tracking-[1.5px] text-[var(--text-primary)] sm:text-[2.125rem]">
           Tu aliada de{' '}
           <span className="gold-shimmer">belleza</span>
         </h2>
-        <p className="mt-3 max-w-lg text-[14px] font-light leading-relaxed text-[rgba(240,235,228,0.85)]">
+        <p className="mt-3 max-w-lg text-[14px] catalog-lead leading-relaxed">
           {nombreNegocio} — productos profesionales con atención cercana
         </p>
       </motion.div>
 
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16 lg:items-start">
-        {/* Historia */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.05 }}
         >
-          <p className="max-w-xl text-[15px] font-light leading-[1.85] text-[rgba(240,235,228,0.84)]">
+          <p className="max-w-xl text-[15px] catalog-lead leading-[1.85] text-[var(--text-secondary)]">
             {texto || DEFAULT_TEXTO}
           </p>
 
@@ -81,7 +79,7 @@ export default function NosotrosSection({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group mt-8 inline-flex items-center gap-3 rounded-[2px] bg-[#C9A84C] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[2px] text-[#f0ebe4] transition-colors hover:bg-[#D4AF37]"
+            className="catalog-gold-cta group mt-8 inline-flex items-center gap-3 rounded-[2px] px-6 py-3.5 text-[11px] font-medium uppercase tracking-[2px]"
           >
             <MessageCircle size={15} />
             Contáctanos por WhatsApp
@@ -92,15 +90,14 @@ export default function NosotrosSection({
           </a>
         </motion.div>
 
-        {/* Puntos clave */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="lg:border-l lg:border-[rgba(201,168,76,0.18)] lg:pl-12"
+          className="lg:border-l lg:border-[var(--border-subtle)] lg:pl-12"
         >
-          <ul className="divide-y divide-[rgba(201,168,76,0.18)]">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {HIGHLIGHTS.map(({ icon: Icon, title, description }, i) => (
               <motion.li
                 key={title}
@@ -110,14 +107,14 @@ export default function NosotrosSection({
                 transition={{ duration: 0.5, delay: 0.12 + i * 0.06 }}
                 className="flex gap-4 py-5 first:pt-0 last:pb-0"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-[rgba(201,168,76,0.16)]">
-                  <Icon size={17} className="text-[#C9A84C]" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[2px] bg-[var(--gold-muted)]">
+                  <Icon size={17} className="text-[var(--gold)]" />
                 </div>
                 <div className="min-w-0 pt-0.5">
-                  <p className="text-[13px] font-light uppercase tracking-[1.2px] text-[#f0ebe4]">
+                  <p className="text-[13px] font-light uppercase tracking-[1.2px] text-[var(--text-primary)]">
                     {title}
                   </p>
-                  <p className="mt-1.5 text-[13px] font-light leading-relaxed text-[rgba(240,235,228,0.75)]">
+                  <p className="mt-1.5 text-[13px] catalog-lead leading-relaxed">
                     {description}
                   </p>
                 </div>

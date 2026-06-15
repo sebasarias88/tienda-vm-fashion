@@ -10,6 +10,7 @@ import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { Menu, X } from 'lucide-react'
 import CartDrawer from '@/components/catalog/CartDrawer'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
+import ThemeToggle from '@/components/catalog/ThemeToggle'
 
 type NavbarProps = {
   nombreNegocio: string
@@ -91,7 +92,7 @@ export default function Navbar({
                   {nombreNegocio}
                 </span>
                 {isMayoreo && (
-                  <span className="rounded-[2px] border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.12)] px-1.5 py-0.5 text-[8px] font-light uppercase tracking-[1.5px] text-[var(--gold)]">
+                  <span className="rounded-[2px] border border-[var(--border)] bg-[var(--gold-muted)] px-1.5 py-0.5 text-[8px] font-light uppercase tracking-[1.5px] text-[var(--gold)]">
                     Mayoreo
                   </span>
                 )}
@@ -103,7 +104,7 @@ export default function Navbar({
                 <Link
                   key={href}
                   href={href}
-                  className={`text-[12px] tracking-[2.5px] uppercase font-light transition-colors duration-200 ${
+                  className={`text-[12px] tracking-[2.5px] uppercase font-normal transition-colors duration-200 ${
                     isNavActive(href)
                       ? 'text-[var(--gold)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
@@ -114,17 +115,22 @@ export default function Navbar({
               ))}
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+
               <motion.button
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setCartOpen(true)}
-                className="gold-border-glow relative flex items-center gap-2 rounded-[2px] border border-[rgba(201,168,76,0.5)] px-4 py-2 text-[12px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
+                className="navbar-action-btn navbar-action-btn--cart group/cart"
+                aria-label={`Carrito${mounted && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
               >
-                <LuxuryCartIcon size={16} />
+                <span className="flex shrink-0 items-center justify-center text-current">
+                  <LuxuryCartIcon size={17} />
+                </span>
                 <span className="hidden sm:inline">Carrito</span>
                 {mounted && cantidad > 0 && (
-                  <span className="w-4 h-4 bg-[var(--gold)] text-[var(--bg-base)] rounded-full text-[9px] font-medium flex items-center justify-center">
-                    {cantidad}
+                  <span className="cart-count-badge" aria-hidden>
+                    {cantidad > 99 ? '99+' : cantidad}
                   </span>
                 )}
               </motion.button>
@@ -148,6 +154,12 @@ export default function Navbar({
               className="md:hidden border-t border-[var(--border-subtle)] bg-[var(--navbar-bg)] overflow-hidden"
             >
               <div className="px-6 py-4 space-y-1">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3 mb-1">
+                  <span className="text-[10px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
+                    Apariencia
+                  </span>
+                  <ThemeToggle showLabel />
+                </div>
                 {mobileLinks.map(({ href, label }) => (
                   <Link
                     key={href}

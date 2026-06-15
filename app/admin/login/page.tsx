@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Sparkles, Eye, EyeOff, Loader2 } from 'lucide-react'
+import ThemeToggle from '@/components/catalog/ThemeToggle'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -42,22 +43,26 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4">
 
+      <div className="absolute top-5 right-5 z-10">
+        <ThemeToggle showLabel />
+      </div>
+
       {/* Glow de fondo */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(184,146,42,0.27)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[radial-gradient(circle,var(--glow-gold-strong)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="w-full max-w-sm relative">
 
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="h-px w-8 bg-[rgba(184,146,42,0.62)]" />
-            <Sparkles size={14} className="text-[#B8922A]" />
-            <div className="h-px w-8 bg-[rgba(184,146,42,0.62)]" />
+            <div className="h-px w-8 bg-[var(--gold)] opacity-60" />
+            <Sparkles size={14} className="text-[var(--gold)]" />
+            <div className="h-px w-8 bg-[var(--gold)] opacity-60" />
           </div>
           <h1 className="text-3xl tracking-[4px] uppercase font-thin text-[var(--text-primary)] mb-2">
             VM Fashion
           </h1>
-          <p className="text-[12px] tracking-[2.5px] uppercase text-[rgba(240,235,228,0.52)] font-light">
+          <p className="text-[12px] tracking-[2.5px] uppercase text-[var(--text-subtle)] font-light">
             Panel de administración
           </p>
         </div>
@@ -67,7 +72,7 @@ export default function LoginPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-[11px] tracking-[2px] uppercase text-[rgba(240,235,228,0.65)] font-light mb-2">
+            <label className="block text-[11px] tracking-[2px] uppercase text-[var(--text-muted)] font-light mb-2">
               Correo electrónico
             </label>
             <input
@@ -76,13 +81,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="admin@vmfashion.com"
-              className="w-full bg-[var(--bg-card)] border border-[rgba(26,26,26,0.22)] rounded-[2px] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[rgba(240,235,228,0.48)] focus:outline-none focus:border-[rgba(184,146,42,0.65)] transition-colors"
+              className="admin-input w-full rounded-[2px] border px-4 py-3 text-[13px] font-light transition-colors"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-[11px] tracking-[2px] uppercase text-[rgba(240,235,228,0.65)] font-light mb-2">
+            <label className="block text-[11px] tracking-[2px] uppercase text-[var(--text-muted)] font-light mb-2">
               Contraseña
             </label>
             <div className="relative">
@@ -92,12 +97,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full bg-[var(--bg-card)] border border-[rgba(26,26,26,0.22)] rounded-[2px] px-4 py-3 pr-12 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[rgba(240,235,228,0.48)] focus:outline-none focus:border-[rgba(184,146,42,0.65)] transition-colors"
+                className="admin-input w-full rounded-[2px] border px-4 py-3 pr-12 text-[13px] font-light transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(240,235,228,0.52)] hover:text-[#B8922A] transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-subtle)] hover:text-[var(--gold)] transition-colors"
               >
                 {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
@@ -115,7 +120,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 bg-[#B8922A] text-[var(--text-primary)] py-3 rounded-[2px] text-[12px] tracking-[3px] uppercase font-medium hover:bg-[#9A7820] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+            className="admin-gold-cta w-full mt-2 py-3 rounded-[2px] text-[12px] tracking-[3px] uppercase font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -129,7 +134,7 @@ export default function LoginPage() {
         </form>
 
         {/* Footer */}
-        <p className="text-center text-[12px] tracking-[1px] text-[rgba(240,235,228,0.52)] font-light mt-8">
+        <p className="text-center text-[12px] tracking-[1px] text-[var(--text-subtle)] font-light mt-8">
           Tienda VM Fashion © {new Date().getFullYear()}
         </p>
       </div>

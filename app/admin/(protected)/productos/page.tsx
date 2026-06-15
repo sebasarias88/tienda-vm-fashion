@@ -133,22 +133,22 @@ export default function ProductosPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
       {/* Header */}
-      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(212,175,55,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-8 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#D4AF37]" />
-            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(212,175,55,0.9)]">
+            <div className="h-px w-8 bg-[var(--gold-bright)]" />
+            <p className="text-[10px] font-light uppercase tracking-[3px] text-[rgba(201,168,76,0.9)]">
               Gestión
             </p>
           </div>
-          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[#F8F6F1] sm:text-4xl">
+          <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[var(--text-primary)] sm:text-4xl">
             Productos
           </h1>
-          <p className="mt-2 text-[13px] font-light text-[rgba(248,246,241,0.55)]">
+          <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
             Administra el catálogo de la tienda
           </p>
         </div>
-        <Button onClick={abrirCrear} size="sm" className="self-start sm:self-auto !text-[#0D0D0D]">
+        <Button onClick={abrirCrear} size="sm" className="self-start sm:self-auto">
           <Plus size={13} />
           Nuevo producto
         </Button>
@@ -209,7 +209,7 @@ export default function ProductosPage() {
               }
               action={
                 !search && filtroDisponible === 'todos' ? (
-                  <Button onClick={abrirCrear} size="sm" className="!text-[#0D0D0D]">
+                  <Button onClick={abrirCrear} size="sm" className="">
                     <Plus size={13} />
                     Crear producto
                   </Button>
@@ -276,10 +276,10 @@ export default function ProductosPage() {
                       label="Destacado"
                       icon={Star}
                       variant="gold"
-                      iconClassName="fill-[#D4AF37]"
+                      iconClassName="fill-[var(--gold-bright)]"
                     />
                   ) : (
-                    <span className="text-[11px] font-light text-[rgba(248,246,241,0.3)]">—</span>
+                    <span className="text-[11px] font-light text-[var(--text-faint)]">—</span>
                   )}
                 </AdminTableTd>
 
@@ -316,9 +316,9 @@ export default function ProductosPage() {
 
       <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Eliminar producto" size="sm">
         <div className="space-y-5">
-          <p className="text-[13px] font-light leading-relaxed text-[rgba(248,246,241,0.75)]">
+          <p className="text-[13px] font-light leading-relaxed text-[var(--text-secondary)]">
             ¿Estás seguro de eliminar{' '}
-            <span className="text-[#D4AF37]">{selected?.nombre}</span>? También se eliminarán todas
+            <span className="text-[var(--gold-bright)]">{selected?.nombre}</span>? También se eliminarán todas
             sus imágenes. Esta acción no se puede deshacer.
           </p>
           <div className="flex gap-3">

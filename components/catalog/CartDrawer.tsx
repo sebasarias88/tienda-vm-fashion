@@ -13,6 +13,7 @@ import { catalogPath, getProductoPrecios, type CatalogType } from '@/lib/catalog
 import { X, ShoppingBag, Minus, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
+import { useScrollLock } from '@/lib/useScrollLock'
 
 type CartDrawerProps = {
   open: boolean
@@ -37,59 +38,61 @@ export default function CartDrawer({
   const carritoHref = catalogPath(catalogType, '/carrito')
   const subtotal = cartSubtotal(items, catalogType)
 
+  useScrollLock(open)
+
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="fixed inset-0 z-40 bg-[var(--overlay-backdrop)] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
 
-          {/* Drawer */}
           <motion.div
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-[#111111] border-l border-[rgba(201,168,76,0.26)] z-50 flex flex-col"
+            className="fixed right-0 top-0 z-50 flex h-[100dvh] w-full max-w-md min-h-0 flex-col border-l border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-dropdown)]"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[rgba(201,168,76,0.22)]">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-5">
               <div className="flex items-center gap-3">
                 <LuxuryCartIcon size={18} />
-                <h2 className="text-[13px] tracking-[3px] uppercase font-light text-[#f0ebe4]">
+                <h2 className="text-[13px] font-light uppercase tracking-[3px] text-[var(--text-primary)]">
                   Carrito
                 </h2>
                 {items.length > 0 && (
-                  <span className="text-[9px] bg-[rgba(201,168,76,0.14)] text-[#C9A84C] border border-[rgba(201,168,76,0.35)] px-2 py-0.5 rounded-[2px]">
+                  <span className="rounded-[2px] border border-[var(--border)] bg-[var(--gold-muted)] px-2 py-0.5 text-[9px] text-[var(--gold)]">
                     {items.length} {items.length === 1 ? 'item' : 'items'}
                   </span>
                 )}
               </div>
               <button
                 onClick={onClose}
-                className="text-[rgba(240,235,228,0.52)] hover:text-[#f0ebe4] transition-colors"
+                className="text-[var(--text-subtle)] transition-colors hover:text-[var(--text-primary)]"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Items */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4"
+              data-lenis-prevent
+            >
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full gap-4">
-                  <ShoppingBag size={40} className="text-[rgba(240,235,228,0.32)]" />
-                  <p className="text-[13px] tracking-[1px] text-[rgba(240,235,228,0.65)] font-light uppercase">
+                <div className="flex h-full flex-col items-center justify-center gap-4">
+                  <ShoppingBag size={40} className="text-[var(--text-faint)]" />
+                  <p className="text-[13px] font-light uppercase tracking-[1px] text-[var(--text-muted)]">
                     Tu carrito está vacío
                   </p>
                   <button
                     onClick={onClose}
-                    className="text-[10px] tracking-[2px] uppercase text-[#C9A84C] border border-[rgba(201,168,76,0.52)] px-4 py-2 rounded-[2px] hover:bg-[rgba(201,168,76,0.14)] transition-all font-light"
+                    className="rounded-[2px] border border-[var(--border)] px-4 py-2 text-[10px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
                   >
                     Ver catálogo
                   </button>
@@ -102,112 +105,105 @@ export default function CartDrawer({
                     const vars = formatVariacionesResumen(variacionesSeleccionadas)
 
                     return (
-                    <motion.div
-                      key={key}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="flex gap-4 py-4 border-b border-[rgba(201,168,76,0.16)] last:border-0"
-                    >
-                      {/* Imagen */}
-                      <div className="w-16 h-16 flex-shrink-0 rounded-[2px] overflow-hidden border border-[rgba(201,168,76,0.26)] bg-[#141414]">
-                        {producto.imagenes?.[0] ? (
-                          <img
-                            src={producto.imagenes[0]}
-                            alt={producto.nombre}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ShoppingBag size={16} className="text-[rgba(240,235,228,0.38)]" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-light text-[#f0ebe4] leading-tight truncate mb-1">
-                          {producto.nombre}
-                        </p>
-                        {vars && (
-                          <p className={`mb-1 ${variacionesCarritoClassName}`}>
-                            {vars}
-                          </p>
-                        )}
-                        <p className="text-[14px] text-[#C9A84C] font-light mb-3">
-                          {(() => {
-                            const { precio, consultar } = getProductoPrecios(
-                              producto,
-                              catalogType,
-                            )
-                            if (consultar || precio == null) return 'Consultar precio'
-                            return formatPrecio(precio)
-                          })()}
-                        </p>
-
-                        {/* Cantidad */}
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center border border-[rgba(240,235,228,0.22)] rounded-[2px] overflow-hidden">
-                            <button
-                              onClick={() => actualizarCantidad(key, cantidad - 1)}
-                              className="px-2.5 py-1.5 text-[rgba(240,235,228,0.65)] hover:text-[#C9A84C] hover:bg-[rgba(201,168,76,0.14)] transition-all"
-                            >
-                              <Minus size={11} />
-                            </button>
-                            <span className="px-3 text-[12px] font-light text-[#f0ebe4] border-x border-[rgba(201,168,76,0.22)]">
-                              {cantidad}
-                            </span>
-                            <button
-                              onClick={() => actualizarCantidad(key, cantidad + 1)}
-                              className="px-2.5 py-1.5 text-[rgba(240,235,228,0.65)] hover:text-[#C9A84C] hover:bg-[rgba(201,168,76,0.14)] transition-all"
-                            >
-                              <Plus size={11} />
-                            </button>
-                          </div>
-
-                          <button
-                            onClick={() => quitar(key)}
-                            className="text-[rgba(240,235,228,0.55)] hover:text-red-400 transition-colors"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                      <motion.div
+                        key={key}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="flex gap-4 border-b border-[var(--border-subtle)] py-4 last:border-0"
+                      >
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+                          {producto.imagenes?.[0] ? (
+                            <img
+                              src={producto.imagenes[0]}
+                              alt={producto.nombre}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <ShoppingBag size={16} className="text-[var(--text-faint)]" />
+                            </div>
+                          )}
                         </div>
-                      </div>
 
-                      {/* Subtotal */}
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-[12px] font-light text-[rgba(240,235,228,0.78)]">
-                          {(() => {
-                            const line = itemLineTotal(item, catalogType)
-                            return line != null ? formatPrecio(line) : 'Consultar'
-                          })()}
-                        </p>
-                      </div>
-                    </motion.div>
+                        <div className="min-w-0 flex-1">
+                          <p className="mb-1 truncate text-[13px] font-light leading-tight text-[var(--text-primary)]">
+                            {producto.nombre}
+                          </p>
+                          {vars && (
+                            <p className={`mb-1 ${variacionesCarritoClassName}`}>{vars}</p>
+                          )}
+                          <p className="mb-3 text-[14px] font-light text-[var(--gold)]">
+                            {(() => {
+                              const { precio, consultar } = getProductoPrecios(
+                                producto,
+                                catalogType,
+                              )
+                              if (consultar || precio == null) return 'Consultar precio'
+                              return formatPrecio(precio)
+                            })()}
+                          </p>
+
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center overflow-hidden rounded-[2px] border border-[var(--border-input)]">
+                              <button
+                                onClick={() => actualizarCantidad(key, cantidad - 1)}
+                                className="px-2.5 py-1.5 text-[var(--text-muted)] transition-all hover:bg-[var(--gold-muted)] hover:text-[var(--gold)]"
+                              >
+                                <Minus size={11} />
+                              </button>
+                              <span className="border-x border-[var(--border-subtle)] px-3 text-[12px] font-light text-[var(--text-primary)]">
+                                {cantidad}
+                              </span>
+                              <button
+                                onClick={() => actualizarCantidad(key, cantidad + 1)}
+                                className="px-2.5 py-1.5 text-[var(--text-muted)] transition-all hover:bg-[var(--gold-muted)] hover:text-[var(--gold)]"
+                              >
+                                <Plus size={11} />
+                              </button>
+                            </div>
+
+                            <button
+                              onClick={() => quitar(key)}
+                              className="text-[var(--text-subtle)] transition-colors hover:text-red-500"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-[12px] font-light text-[var(--text-secondary)]">
+                            {(() => {
+                              const line = itemLineTotal(item, catalogType)
+                              return line != null ? formatPrecio(line) : 'Consultar'
+                            })()}
+                          </p>
+                        </div>
+                      </motion.div>
                     )
                   })}
                 </AnimatePresence>
               )}
             </div>
 
-            {/* Footer */}
             {items.length > 0 && (
-              <div className="px-6 py-5 border-t border-[rgba(201,168,76,0.22)] space-y-4">
+              <div className="space-y-4 border-t border-[var(--border-subtle)] px-6 py-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] tracking-[1.5px] uppercase text-[rgba(240,235,228,0.65)] font-light">
+                  <span className="text-[13px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
                     Subtotal
                   </span>
-                  <span className="text-[18px] font-light text-[#C9A84C]">
+                  <span className="text-[18px] font-light text-[var(--gold)]">
                     {formatPrecio(subtotal)}
                   </span>
                 </div>
-                <p className="text-[12px] text-[rgba(240,235,228,0.45)] font-light">
+                <p className="text-[12px] font-light text-[var(--text-subtle)]">
                   Envío calculado al finalizar el pedido
                 </p>
                 <Link
                   href={carritoHref}
                   onClick={onClose}
-                  className="block w-full bg-[#C9A84C] text-[#f0ebe4] text-center py-3.5 rounded-[2px] text-[11px] tracking-[3px] uppercase font-medium hover:bg-[#D4AF37] transition-colors"
+                  className="catalog-gold-cta block w-full rounded-[2px] py-3.5 text-center text-[11px] font-medium uppercase tracking-[3px]"
                 >
                   Finalizar pedido
                 </Link>
