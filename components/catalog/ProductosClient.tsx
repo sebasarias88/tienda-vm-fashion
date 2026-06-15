@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, usePathname } from 'next/navigation'
 import { Producto, Categoria } from '@/types'
@@ -8,6 +8,7 @@ import ProductCard from '@/components/catalog/ProductCard'
 import { ProductCardSkeleton } from '@/components/ui/Skeleton'
 import { getPrecioOrden, type CatalogType } from '@/lib/catalog'
 import { Search, X, ChevronDown, Check, Package } from 'lucide-react'
+import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 
 type Props = {
   productos: Producto[]
@@ -51,14 +52,25 @@ export default function ProductosClient({
   const [inputValue, setInputValue] = useState(initialQ)
   const [categoriaActiva, setCategoriaActiva] = useState(initialCategoria)
   const [orden, setOrden] = useState<Orden>('relevancia')
-  const [soloDisponibles, setSoloDisponibles] = useState(false)
   const [ordenOpen, setOrdenOpen] = useState(false)
   const [pagina, setPagina] = useState(1)
   const [mounted, setMounted] = useState(false)
+  const ordenRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 100)
   }, [])
+
+  useEffect(() => {
+    if (!ordenOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (ordenRef.current && !ordenRef.current.contains(e.target as Node)) {
+        setOrdenOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [ordenOpen])
 
   // Sync URL
   useEffect(() => {
@@ -91,11 +103,6 @@ export default function ProductosClient({
       )
     }
 
-    // Filtro disponibles
-    if (soloDisponibles) {
-      result = result.filter(p => p.disponible)
-    }
-
     // Orden
     switch (orden) {
       case 'precio-asc':
@@ -110,7 +117,7 @@ export default function ProductosClient({
     }
 
     return result
-  }, [productos, query, categoriaActiva, soloDisponibles, orden, catalogType, categorias])
+  }, [productos, query, categoriaActiva, orden, catalogType, categorias])
 
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA)
   const productosPagina = productosFiltrados.slice(
@@ -127,12 +134,9 @@ export default function ProductosClient({
     setQuery('')
     setInputValue('')
     setCategoriaActiva('')
-    setSoloDisponibles(false)
     setOrden('relevancia')
     setPagina(1)
   }
-
-  const hayFiltros = query || categoriaActiva || soloDisponibles || orden !== 'relevancia'
 
   const categoriaNombre = useMemo(() => {
     if (!categoriaActiva) return undefined
@@ -169,8 +173,9 @@ export default function ProductosClient({
   }
 
   return (
-    <div className={`min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div className={`relative min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
+      <PageGoldAccent />
+      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* ── Header + filtros ── */}
         <motion.section
@@ -190,8 +195,8 @@ export default function ProductosClient({
                     Explorar
                   </span>
                 </div>
-                <h1 className="text-[2rem] font-thin uppercase tracking-[1.5px] text-[#1A1A1A] sm:text-4xl">
-                  {categoriaNombre || 'Catálogo'}
+                <h1 className="text-[2rem] font-thin uppercase tracking-[1.5px] sm:text-4xl">
+                  <span className="gold-shimmer">{categoriaNombre || 'Catálogo'}</span>
                 </h1>
                 <p className="mt-2 max-w-lg text-[13px] font-light leading-relaxed text-[rgba(240,235,228,0.75)]">
                   {categoriaNombre
@@ -224,7 +229,7 @@ export default function ProductosClient({
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
                   placeholder="Buscar por nombre, SKU o categoría…"
-                  className="w-full border-0 border-b border-[rgba(240,235,228,0.38)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[#1A1A1A] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.58)] focus:border-[rgba(184,146,42,0.62)]"
+                  className="w-full border-0 border-b border-[rgba(240,235,228,0.38)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[#F8F6F1] outline-none transition-colors placeholder:text-[rgba(240,235,228,0.58)] focus:border-[rgba(184,146,42,0.62)]"
                 />
                 <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
                   {inputValue && (
@@ -234,7 +239,7 @@ export default function ProductosClient({
                         setInputValue('')
                         setQuery('')
                       }}
-                      className="rounded-[2px] p-1.5 text-[rgba(240,235,228,0.65)] transition-colors hover:text-[#1A1A1A]"
+                      className="rounded-[2px] p-1.5 text-[rgba(240,235,228,0.65)] transition-colors hover:text-[#F8F6F1]"
                       aria-label="Limpiar búsqueda"
                     >
                       <X size={14} />
@@ -249,35 +254,11 @@ export default function ProductosClient({
                 </div>
               </form>
 
-              <div className="flex shrink-0 items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSoloDisponibles(!soloDisponibles)}
-                  className={`flex items-center gap-2 px-1 py-1 text-[11px] font-light uppercase tracking-[1.2px] transition-all ${
-                    soloDisponibles
-                      ? 'text-[#B8922A]'
-                      : 'text-[rgba(240,235,228,0.78)] hover:text-[rgba(240,235,228,0.92)]'
-                  }`}
-                >
-                  <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-[2px] transition-all ${
-                      soloDisponibles
-                        ? 'bg-[#B8922A]'
-                        : 'ring-1 ring-[rgba(240,235,228,0.48)]'
-                    }`}
-                  >
-                    {soloDisponibles && <Check size={10} className="text-[#1A1A1A]" strokeWidth={3} />}
-                  </span>
-                  En stock
-                </button>
-
-                <div className="h-4 w-px bg-[rgba(240,235,228,0.38)]" />
-
-                <div className="relative z-50">
+              <div ref={ordenRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setOrdenOpen(!ordenOpen)}
-                    className="flex items-center gap-2 px-1 py-1 text-[11px] font-light uppercase tracking-[1.2px] text-[rgba(240,235,228,0.82)] transition-all hover:text-[#1A1A1A]"
+                    className="flex items-center gap-2 px-1 py-1 text-[11px] font-light uppercase tracking-[1.2px] text-[rgba(240,235,228,0.82)] transition-all hover:text-[#F8F6F1]"
                   >
                     {ordenLabels[orden]}
                     <ChevronDown
@@ -292,7 +273,7 @@ export default function ProductosClient({
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 4 }}
-                        className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-[2px] border border-[rgba(184,146,42,0.3)] bg-[#141414] py-1 shadow-2xl shadow-black/60"
+                        className="absolute right-0 top-full z-[100] mt-2 w-52 overflow-hidden rounded-[2px] border border-[rgba(184,146,42,0.3)] bg-[#141414] py-1 shadow-2xl shadow-black/60"
                       >
                         {(Object.keys(ordenLabels) as Orden[]).map(key => (
                           <button
@@ -305,7 +286,7 @@ export default function ProductosClient({
                             className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-[13px] font-light transition-colors ${
                               orden === key
                                 ? 'bg-[rgba(184,146,42,0.18)] text-[#B8922A]'
-                                : 'text-[rgba(240,235,228,0.88)] hover:bg-[#0a0a0a] hover:text-[#1A1A1A]'
+                                : 'text-[rgba(240,235,228,0.88)] hover:bg-[rgba(248,246,241,0.06)] hover:text-[#F8F6F1]'
                             }`}
                           >
                             {ordenLabels[key]}
@@ -316,7 +297,6 @@ export default function ProductosClient({
                     )}
                   </AnimatePresence>
                 </div>
-              </div>
             </div>
           </div>
 
@@ -404,67 +384,6 @@ export default function ProductosClient({
               )}
             </AnimatePresence>
           </div>
-
-          {/* Filtros activos */}
-          <AnimatePresence>
-            {hayFiltros && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden pt-3"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  {query && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,146,42,0.18)] px-3 py-1 text-[11px] font-light text-[rgba(240,235,228,0.92)]">
-                      &ldquo;{query}&rdquo;
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setQuery('')
-                          setInputValue('')
-                        }}
-                        className="text-[rgba(240,235,228,0.65)] hover:text-[#1A1A1A]"
-                      >
-                        <X size={11} />
-                      </button>
-                    </span>
-                  )}
-                  {soloDisponibles && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,146,42,0.18)] px-3 py-1 text-[11px] font-light text-[rgba(240,235,228,0.92)]">
-                      En stock
-                      <button
-                        type="button"
-                        onClick={() => setSoloDisponibles(false)}
-                        className="text-[rgba(240,235,228,0.65)] hover:text-[#1A1A1A]"
-                      >
-                        <X size={11} />
-                      </button>
-                    </span>
-                  )}
-                  {orden !== 'relevancia' && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(184,146,42,0.18)] px-3 py-1 text-[11px] font-light text-[rgba(240,235,228,0.92)]">
-                      {ordenLabels[orden]}
-                      <button
-                        type="button"
-                        onClick={() => setOrden('relevancia')}
-                        className="text-[rgba(240,235,228,0.65)] hover:text-[#1A1A1A]"
-                      >
-                        <X size={11} />
-                      </button>
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={limpiarFiltros}
-                    className="ml-1 text-[10px] font-light uppercase tracking-[1px] text-[rgba(240,235,228,0.58)] transition-colors hover:text-red-400/90"
-                  >
-                    Limpiar todo
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.section>
 
         {/* Grid productos */}
@@ -536,7 +455,7 @@ export default function ProductosClient({
                 className={`w-10 h-10 text-[13px] font-light rounded-[2px] border transition-all ${
                   pagina === i + 1
                     ? 'border-[rgba(184,146,42,0.67)] text-[#B8922A] bg-[rgba(184,146,42,0.22)]'
-                    : 'border-[rgba(240,235,228,0.5)] text-[rgba(240,235,228,0.82)] hover:border-[rgba(184,146,42,0.52)] hover:text-[#1A1A1A]'
+                    : 'border-[rgba(240,235,228,0.5)] text-[rgba(240,235,228,0.82)] hover:border-[rgba(184,146,42,0.52)] hover:text-[#F8F6F1]'
                 }`}
               >
                 {i + 1}
@@ -554,11 +473,6 @@ export default function ProductosClient({
         )}
 
       </div>
-
-      {/* Click fuera del dropdown de orden */}
-      {ordenOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setOrdenOpen(false)} />
-      )}
     </div>
   )
 }

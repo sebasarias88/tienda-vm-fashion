@@ -9,13 +9,14 @@ type ModalProps = {
   onClose: () => void
   title?: string
   children: ReactNode
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 const sizes = {
   sm: 'max-w-sm',
   md: 'max-w-lg',
   lg: 'max-w-2xl',
+  xl: 'max-w-3xl',
 }
 
 export default function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
@@ -52,13 +53,13 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
           >
             {title && (
               <div className="flex flex-shrink-0 items-center justify-between border-b border-[rgba(184,146,42,0.22)] px-6 py-5">
-                <h2 className="text-[13px] tracking-[2px] uppercase font-light text-[#1A1A1A]">
+                <h2 className="text-[13px] font-light uppercase tracking-[2px] text-[#F8F6F1]">
                   {title}
                 </h2>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-[rgba(240,235,228,0.52)] hover:text-[#1A1A1A] transition-colors"
+                  className="text-[rgba(240,235,228,0.52)] transition-colors hover:text-[#F8F6F1]"
                 >
                   <X size={16} />
                 </button>

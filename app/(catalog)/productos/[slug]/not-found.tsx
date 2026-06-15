@@ -6,7 +6,7 @@ export default function ProductoNotFound() {
       <p className="text-[10px] tracking-[4px] uppercase text-[rgba(184,146,42,0.72)] font-light">
         404
       </p>
-      <h1 className="text-3xl font-thin tracking-[2px] uppercase text-[#1A1A1A]">
+      <h1 className="text-3xl font-thin uppercase tracking-[2px] text-[#F8F6F1]">
         Producto no encontrado
       </h1>
       <p className="text-[13px] font-light text-[rgba(240,235,228,0.58)]">

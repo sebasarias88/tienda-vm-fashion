@@ -55,7 +55,7 @@ export default function Footer({
               href={catalogPath(catalogType, '/')}
               className="inline-block transition-opacity hover:opacity-80"
             >
-              <p className="text-[15px] font-thin uppercase tracking-[3px] text-[#C9A84C]">
+              <p className="gold-shimmer text-[15px] font-thin uppercase tracking-[4px]">
                 {nombreNegocio}
               </p>
             </Link>

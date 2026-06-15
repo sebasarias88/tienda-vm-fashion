@@ -7,6 +7,7 @@ import { Producto } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import ProductCard from '@/components/catalog/ProductCard'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
+import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
 export default function ProductosDestacados({
   productos,
@@ -21,6 +22,7 @@ export default function ProductosDestacados({
 
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <SectionGoldDivider />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}

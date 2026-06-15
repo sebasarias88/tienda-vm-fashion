@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Search, ArrowDown, Sparkles, X } from 'lucide-react'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
+import GoldDecorations from '@/components/catalog/GoldDecorations'
 
 const BeautyOrb3D = dynamic(() => import('@/components/catalog/BeautyOrb3D'), {
   ssr: false,
@@ -51,6 +52,8 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
   return (
     <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden">
 
+      <GoldDecorations />
+
       {/* Glow background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-[10%] w-[520px] h-[520px] bg-[radial-gradient(circle,rgba(201,168,76,0.27)_0%,transparent_70%)]" />
@@ -91,7 +94,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
               dangerouslySetInnerHTML={{
                 __html: titulo.replace(
                   /\b(de|ideal|belleza)\b/gi,
-                  '<span style="color:#C9A84C">$1</span>'
+                  '<span class="gold-shimmer">$1</span>'
                 ),
               }}
             />
@@ -113,7 +116,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Buscar shampoo, mascarillas, tintes…"
-                className="w-full border-0 border-b border-[var(--border-input)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
+                className="w-full border-0 border-b border-[rgba(240,235,228,0.2)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
               />
               <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
                 {query && (
