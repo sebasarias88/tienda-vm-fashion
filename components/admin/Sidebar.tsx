@@ -31,7 +31,7 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[var(--bg-card)] border-r border-[rgba(201,168,76,0.26)] flex flex-col z-20">
+    <aside className="fixed left-0 top-0 z-20 hidden h-screen w-64 flex-col border-r border-[rgba(201,168,76,0.26)] bg-[var(--bg-card)] md:flex">
 
       {/* Logo */}
       <div className="px-6 py-7 border-b border-[rgba(201,168,76,0.22)]">
@@ -68,13 +68,8 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Tema */}
-      <div className="px-3 py-4 border-t border-[rgba(201,168,76,0.22)]">
-        <div className="flex items-center justify-between gap-3 rounded-[2px] px-4 py-2">
-          <span className="text-[10px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
-            Apariencia
-          </span>
-          <ThemeToggle showLabel />
-        </div>
+      <div className="flex justify-center border-t border-[rgba(201,168,76,0.22)] px-3 py-4">
+        <ThemeToggle variant="admin" />
       </div>
 
       {/* Logout */}

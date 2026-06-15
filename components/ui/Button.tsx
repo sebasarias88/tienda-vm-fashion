@@ -17,9 +17,9 @@ type ButtonProps = {
 }
 
 const variants = {
-  primary: 'bg-[var(--gold)] text-[var(--text-on-gold)] hover:bg-[var(--gold-hover)] border border-[var(--gold)]',
-  outline: 'bg-transparent text-[var(--gold)] border border-[var(--border)] hover:bg-[var(--gold-muted)]',
-  ghost: 'bg-transparent text-[var(--text-muted)] border border-transparent hover:text-[var(--text-primary)] hover:bg-[var(--bg-base)]',
+  primary: 'ui-btn--primary',
+  outline: 'ui-btn--outline',
+  ghost: 'ui-btn--ghost',
   danger: 'bg-transparent text-red-400 border border-[rgba(248,113,113,0.3)] hover:bg-[rgba(248,113,113,0.06)]',
 }
 
@@ -47,8 +47,8 @@ export default function Button({
       disabled={disabled || loading}
       whileTap={{ scale: 0.98 }}
       className={`
-        inline-flex items-center justify-center gap-2
-        rounded-[2px] font-light uppercase transition-all duration-200
+        ui-btn inline-flex items-center justify-center gap-2
+        rounded-xl font-light uppercase transition-all duration-200 md:rounded-[2px]
         cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
         ${variants[variant]}
         ${sizes[size]}

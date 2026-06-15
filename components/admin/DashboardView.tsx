@@ -15,6 +15,7 @@ import {
   XCircle,
   Sparkles,
 } from 'lucide-react'
+import MobileDashboardView from '@/components/admin/mobile/MobileDashboardView'
 import {
   AdminTable,
   AdminTableHead,
@@ -162,7 +163,17 @@ export default function DashboardView({
   hoy,
 }: DashboardViewProps) {
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10">
+    <>
+    <MobileDashboardView
+      stats={stats}
+      acciones={acciones}
+      destacados={destacados}
+      agotados={agotados}
+      productosAgotados={productosAgotados}
+      productosRecientes={productosRecientes}
+      hoy={hoy}
+    />
+    <div className="hidden min-h-screen bg-[var(--bg-base)] p-6 sm:p-8 lg:p-10 md:block">
       {/* Header */}
       <div className="mb-10 flex flex-col gap-5 border-b border-[rgba(201,168,76,0.16)] pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -400,5 +411,6 @@ export default function DashboardView({
         </div>
       )}
     </div>
+    </>
   )
 }

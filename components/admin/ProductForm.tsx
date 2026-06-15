@@ -7,6 +7,7 @@ import { Input, Textarea } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
+import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
 import toast from 'react-hot-toast'
 
 type ProductFormProps = {
@@ -152,10 +153,21 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     onSuccess()
   }
 
-  const inputSelect = `w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors`
+  const inputSelect = `w-full rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors md:rounded-[2px]`
 
   return (
-    <div className="space-y-8">
+    <AdminFormLayout
+      footer={
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onCancel} fullWidth>
+            Cancelar
+          </Button>
+          <Button onClick={handleGuardar} loading={saving} fullWidth>
+            {producto ? 'Guardar cambios' : 'Crear producto'}
+          </Button>
+        </div>
+      }
+    >
       <FormSection title="Imágenes">
         <ImageUploader
           imagenes={form.imagenes}
@@ -164,7 +176,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Información">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Nombre *"
             value={form.nombre}
@@ -189,7 +201,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Precios — Detal">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Precio (COP) *"
             type="number"
@@ -209,7 +221,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Precios — Mayoreo">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
             label="Precio mayoreo (COP)"
             type="number"
@@ -230,7 +242,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Clasificación">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <label className="block text-[10px] font-light uppercase tracking-[2px] text-[var(--text-muted)]">
               Categoría
@@ -266,7 +278,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Visibilidad">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {[
             {
               key: 'disponible' as const,
@@ -281,7 +293,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           ].map(({ key, label, desc }) => (
             <div
               key={key}
-              className="flex items-center justify-between rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5"
+              className="flex items-center justify-between rounded-xl border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] px-4 py-3.5 md:rounded-[2px]"
             >
               <div className="pr-4">
                 <p className="text-[13px] font-light text-[var(--text-primary)]">{label}</p>
@@ -311,20 +323,6 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       <FormSection title="Variaciones">
         <VariacionesEditor productoId={producto?.id ?? null} />
       </FormSection>
-
-      <div className="sticky bottom-0 -mx-6 flex gap-3 border-t border-[rgba(201,168,76,0.18)] bg-[var(--bg-card)] px-6 py-4">
-        <Button variant="outline" onClick={onCancel} fullWidth>
-          Cancelar
-        </Button>
-        <Button
-          onClick={handleGuardar}
-          loading={saving}
-          fullWidth
-          className=""
-        >
-          {producto ? 'Guardar cambios' : 'Crear producto'}
-        </Button>
-      </div>
-    </div>
+    </AdminFormLayout>
   )
 }

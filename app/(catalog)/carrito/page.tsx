@@ -15,6 +15,7 @@ import {
   variacionesCarritoClassName,
 } from '@/lib/cart'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
+import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
 import {
@@ -332,9 +333,48 @@ export default function CarritoPage() {
 
   if (!mounted) return null
 
+  const mobilePaddingTop =
+    catalogType === 'mayoreo' ? 'max-md:pt-[5.75rem]' : 'max-md:pt-[3.75rem]'
+
   return (
-    <div className="relative min-h-screen pb-16 pt-20 sm:pt-24">
+    <>
       <PageGoldAccent />
+
+      {/* ── Mobile checkout ── */}
+      <div className={`relative min-h-screen md:hidden ${mobilePaddingTop}`}>
+        <CarritoMobile
+          catalogType={catalogType}
+          productosHref={productosHref}
+          step={step}
+          setStep={setStep}
+          stepIndex={stepIndex}
+          items={items}
+          quitar={key => {
+            quitar(key)
+            toast.success('Producto eliminado')
+          }}
+          actualizarCantidad={actualizarCantidad}
+          subtotal={subtotal}
+          datos={datos}
+          setDatos={setDatos}
+          errores={errores}
+          setErrores={setErrores}
+          config={config}
+          loadingConfig={loadingConfig}
+          enviando={enviando}
+          costoEnvio={costoEnvio}
+          envioGratis={envioGratis}
+          tiempoEntrega={tiempoEntrega}
+          totalFinal={totalFinal}
+          handleContinuar={handleContinuar}
+          handleConfirmar={handleConfirmar}
+          handleEnviarWhatsApp={handleEnviarWhatsApp}
+          inputClass={inputClass}
+        />
+      </div>
+
+      {/* ── Desktop (sin cambios) ── */}
+      <div className="relative hidden min-h-screen pb-16 pt-20 sm:pt-24 md:block">
       <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -894,5 +934,6 @@ export default function CarritoPage() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   )
 }

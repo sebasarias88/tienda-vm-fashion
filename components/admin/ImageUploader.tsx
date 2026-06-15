@@ -83,9 +83,9 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
         <span className="ml-2 text-[var(--text-subtle)]">({imagenes.length}/6)</span>
       </label>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+      <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
         {imagenes.length > 0 && (
-          <div className="grid shrink-0 grid-cols-3 gap-2 sm:w-[9.75rem] sm:grid-cols-2 sm:content-start">
+          <div className="grid shrink-0 grid-cols-3 gap-2 sm:grid-cols-4 md:w-[9.75rem] md:grid-cols-2 md:content-start">
             <AnimatePresence>
               {imagenes.map((url, i) => (
                 <motion.div
@@ -98,21 +98,21 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
                   <img
                     src={url}
                     alt={`Imagen ${i + 1}`}
-                    className="h-full w-full rounded-[2px] border border-[rgba(201,168,76,0.28)] bg-white object-cover"
+                    className="h-full w-full rounded-lg border border-[rgba(201,168,76,0.28)] bg-white object-cover md:rounded-[2px]"
                   />
 
                   {i === 0 && (
-                    <span className="absolute left-1.5 top-1.5 rounded-[2px] bg-[var(--gold-bright)] px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-[1px] text-[var(--text-on-gold)]">
+                    <span className="absolute left-1.5 top-1.5 rounded-md bg-[var(--gold-bright)] px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-[1px] text-[var(--text-on-gold)]">
                       Principal
                     </span>
                   )}
 
-                  <div className="absolute inset-0 flex items-center justify-center gap-1.5 rounded-[2px] bg-black/55 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="absolute inset-0 flex items-center justify-center gap-1.5 rounded-lg bg-black/55 opacity-100 md:rounded-[2px] md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
                     {i > 0 && (
                       <button
                         type="button"
                         onClick={() => moverImagen(i, i - 1)}
-                        className="rounded-[2px] bg-[rgba(201,168,76,0.92)] p-1.5 text-[var(--text-on-gold)] transition-colors hover:bg-[var(--gold-bright)]"
+                        className="rounded-lg bg-[rgba(201,168,76,0.92)] p-1.5 text-[var(--text-on-gold)] transition-colors hover:bg-[var(--gold-bright)] md:rounded-[2px]"
                         title="Mover a principal"
                       >
                         <GripVertical size={12} />
@@ -121,7 +121,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
                     <button
                       type="button"
                       onClick={() => eliminarImagen(url)}
-                      className="rounded-[2px] bg-[rgba(248,113,113,0.92)] p-1.5 text-white transition-colors hover:bg-red-500"
+                      className="rounded-lg bg-[rgba(248,113,113,0.92)] p-1.5 text-white transition-colors hover:bg-red-500 md:rounded-[2px]"
                     >
                       <X size={12} />
                     </button>
@@ -140,7 +140,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
             }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
-            className={`flex min-h-[9.5rem] min-w-0 flex-1 cursor-pointer flex-col items-center justify-center rounded-[2px] border border-dashed px-4 py-8 text-center transition-all duration-200 ${
+            className={`flex min-h-[10rem] min-w-0 flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-8 text-center transition-all duration-200 md:min-h-[9.5rem] md:rounded-[2px] ${
               dragOver
                 ? 'border-[var(--gold-bright)] bg-[rgba(201,168,76,0.1)]'
                 : 'border-[rgba(201,168,76,0.35)] bg-[var(--bg-muted)] hover:border-[rgba(201,168,76,0.55)] hover:bg-[rgba(201,168,76,0.06)]'

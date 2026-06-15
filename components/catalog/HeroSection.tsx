@@ -68,8 +68,10 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
 
       <motion.div
         style={{ y, opacity }}
-        className={`relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-24 w-full ${
-          catalogType === 'mayoreo' ? 'pt-36 sm:pt-40' : 'pt-28 sm:pt-32'
+        className={`relative max-w-7xl mx-auto px-4 max-md:px-4 sm:px-6 lg:px-8 pb-24 w-full ${
+          catalogType === 'mayoreo'
+            ? 'max-md:pt-[6.25rem] pt-36 sm:pt-40'
+            : 'max-md:pt-[4.5rem] pt-28 sm:pt-32'
         }`}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 items-center">
@@ -123,7 +125,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                   <button
                     type="button"
                     onClick={() => setQuery('')}
-                    className="rounded-[2px] p-1.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                    className="rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] md:rounded-[2px]"
                     aria-label="Limpiar búsqueda"
                   >
                     <X size={14} />
@@ -131,7 +133,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 )}
                 <button
                   type="submit"
-                  className="rounded-[2px] px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)]"
+                  className="rounded-lg px-3 py-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)] md:rounded-[2px]"
                 >
                   Buscar
                 </button>
@@ -200,7 +202,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
                 opacity: { delay: 1, duration: 0.6 },
                 y: { delay: 1.6, duration: 3, repeat: Infinity, ease: 'easeInOut' },
               }}
-              className="absolute bottom-8 left-6 z-10 rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-glass)] px-5 py-4 backdrop-blur-md shadow-[var(--shadow-card)]"
+              className="absolute bottom-8 left-6 z-10 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-glass)] px-5 py-4 shadow-[var(--shadow-card)] backdrop-blur-md md:rounded-[2px]"
             >
               <div className="flex items-center gap-3">
                 <Sparkles size={16} className="text-[var(--gold)]" />

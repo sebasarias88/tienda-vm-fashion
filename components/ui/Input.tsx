@@ -15,7 +15,7 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 }
 
 const baseInput = `
-  admin-input w-full rounded-[2px] border px-4 py-3 text-[13px] font-light
+  admin-input w-full rounded-xl border px-4 py-3 text-[13px] font-light md:rounded-[2px]
   transition-colors duration-200 disabled:opacity-40
 `
 

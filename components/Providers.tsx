@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 import Lenis from 'lenis'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider, useTheme } from '@/components/ThemeProvider'
@@ -12,34 +11,42 @@ function ThemedToaster() {
 
   return (
     <Toaster
-      position="bottom-right"
+      position="top-center"
+      reverseOrder={false}
+      gutter={10}
+      containerClassName="app-toast-container"
       toastOptions={{
+        className: 'app-toast',
+        duration: 3800,
         style: {
-          background: isDark ? '#111111' : '#FFFFFF',
-          color: isDark ? '#f0ebe4' : '#1A1612',
+          background: isDark ? 'var(--bg-card)' : '#FFFFFF',
+          color: 'var(--text-primary)',
           border: isDark
-            ? '0.5px solid rgba(201,168,76,0.42)'
-            : '0.5px solid rgba(154,115,48,0.32)',
-          borderRadius: '2px',
-          fontFamily: 'Outfit, sans-serif',
-          fontSize: '12px',
+            ? '1px solid rgba(201,168,76,0.28)'
+            : '1px solid rgba(154,115,48,0.22)',
+          borderRadius: '0.75rem',
+          fontFamily: 'var(--font-outfit), Outfit, sans-serif',
+          fontSize: '13px',
           fontWeight: '300',
-          letterSpacing: '0.5px',
-          padding: '12px 16px',
+          letterSpacing: '0.02em',
+          lineHeight: '1.45',
+          padding: '0.875rem 1rem',
           boxShadow: isDark
-            ? '0 12px 40px rgba(0,0,0,0.5)'
-            : '0 8px 32px rgba(26,22,18,0.1)',
+            ? '0 10px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,168,76,0.06)'
+            : '0 8px 28px rgba(26,22,18,0.1), 0 0 0 1px rgba(154,115,48,0.06)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
         },
         success: {
           iconTheme: {
             primary: '#C9A84C',
-            secondary: isDark ? '#111111' : '#FFFFFF',
+            secondary: isDark ? 'var(--bg-card)' : '#FFFFFF',
           },
         },
         error: {
           iconTheme: {
             primary: '#f87171',
-            secondary: isDark ? '#111111' : '#FFFFFF',
+            secondary: isDark ? 'var(--bg-card)' : '#FFFFFF',
           },
         },
       }}
@@ -48,12 +55,7 @@ function ThemedToaster() {
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const isAdmin = pathname.startsWith('/admin')
-
   useEffect(() => {
-    if (isAdmin) return
-
     const lenis = new Lenis({
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -74,7 +76,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       delete (window as Window & { __lenis?: Lenis }).__lenis
       lenis.destroy()
     }
-  }, [isAdmin])
+  }, [])
 
   return (
     <ThemeProvider>

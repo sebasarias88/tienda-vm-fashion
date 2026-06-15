@@ -29,7 +29,7 @@ export function formatVariacionesResumen(
 }
 
 /** Clases para la línea de variaciones en carrito / drawer. */
-export const variacionesCarritoClassName = 'text-[10px] text-[#A09890]'
+export const variacionesCarritoClassName = 'text-[10px] leading-snug text-[var(--text-subtle)]'
 
 export function itemLineTotal(
   item: ItemCarrito,

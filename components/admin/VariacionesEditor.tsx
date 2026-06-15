@@ -18,7 +18,7 @@ type NuevaOpcionState = {
 }
 
 const inputClass =
-  'w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-muted)] px-3 py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors'
+  'w-full rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] px-3 py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:border-[rgba(201,168,76,0.65)] focus:outline-none transition-colors md:rounded-[2px]'
 
 function colorSwatchStyle(value: string | null | undefined): React.CSSProperties | undefined {
   const v = value?.trim()
@@ -204,7 +204,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
 
   if (!productoId) {
     return (
-      <div className="rounded-[2px] border border-dashed border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.06)] px-4 py-5 text-center">
+      <div className="rounded-xl border border-dashed border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.06)] px-4 py-5 text-center md:rounded-[2px]">
         <p className="text-[13px] font-light text-[var(--text-muted)]">
           Guarda el producto primero para agregar variaciones
         </p>
@@ -222,7 +222,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
           <Loader2 size={20} className="animate-spin text-[var(--gold-bright)]" />
         </div>
       ) : tipos.length === 0 ? (
-        <p className="rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[var(--bg-muted)] py-4 text-center text-[12px] font-light text-[var(--text-muted)]">
+        <p className="rounded-xl border border-[rgba(201,168,76,0.12)] bg-[var(--bg-muted)] py-4 text-center text-[12px] font-light text-[var(--text-muted)] md:rounded-[2px]">
           Aún no hay tipos de variación. Agrega el primero abajo.
         </p>
       ) : (
@@ -230,7 +230,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
           {tipos.map(tipo => (
             <div
               key={tipo.id}
-              className="rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] p-4"
+              className="rounded-xl border border-[rgba(201,168,76,0.18)] bg-[var(--bg-muted)] p-4 md:rounded-[2px]"
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 {editingTipoId === tipo.id ? (
@@ -248,7 +248,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                     <button
                       type="button"
                       onClick={() => handleGuardarNombreTipo(tipo.id)}
-                      className="rounded-[2px] p-2 text-[var(--gold-bright)] hover:bg-[rgba(201,168,76,0.12)]"
+                      className="rounded-lg p-2 text-[var(--gold-bright)] hover:bg-[rgba(201,168,76,0.12)]"
                       aria-label="Guardar nombre"
                     >
                       <Check size={14} />
@@ -266,7 +266,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                       setEditingTipoId(tipo.id)
                       setEditTipoNombre(tipo.nombre)
                     }}
-                    className="rounded-[2px] p-2 text-[var(--text-muted)] hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
+                    className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
                     aria-label="Editar tipo"
                   >
                     <Pencil size={14} />
@@ -274,7 +274,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                   <button
                     type="button"
                     onClick={() => handleEliminarTipo(tipo)}
-                    className="rounded-[2px] p-2 text-[var(--text-muted)] hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
+                    className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
                     aria-label="Eliminar tipo"
                   >
                     <Trash2 size={14} />
@@ -287,7 +287,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                   tipo.opciones.map(opcion => (
                     <div
                       key={opcion.id}
-                      className={`inline-flex items-center gap-2 rounded-[2px] border px-2.5 py-1.5 ${
+                      className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${
                         opcion.disponible
                           ? 'border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.08)]'
                           : 'border-[var(--border-subtle)] bg-[rgba(248,246,241,0.04)] opacity-60'
@@ -330,7 +330,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                 )}
               </div>
 
-              <div className="mt-3 flex flex-col gap-2 rounded-[2px] border border-dashed border-[rgba(201,168,76,0.25)] bg-[var(--bg-card)] p-3 sm:flex-row sm:items-end">
+              <div className="mt-3 flex flex-col gap-2 rounded-xl border border-dashed border-[rgba(201,168,76,0.25)] bg-[var(--bg-card)] p-3 md:flex-row md:items-end md:rounded-[2px]">
                 <div className="min-w-0 flex-1 space-y-1">
                   <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
                     Nombre de la opción
@@ -349,7 +349,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                     className={inputClass}
                   />
                 </div>
-                <div className="w-full space-y-1 sm:w-36">
+                <div className="w-full space-y-1 md:w-36">
                   <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
                     Color hex (opcional)
                   </label>
@@ -384,11 +384,11 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
         </div>
       )}
 
-      <div className="rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-4">
+      <div className="rounded-xl border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-4 md:rounded-[2px]">
         <p className="mb-3 text-[10px] font-light uppercase tracking-[1.5px] text-[rgba(201,168,76,0.85)]">
           Nuevo tipo de variación
         </p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="min-w-0 flex-1 space-y-1.5">
             <label className="block text-[9px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
               Nombre del tipo

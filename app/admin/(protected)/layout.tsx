@@ -1,6 +1,7 @@
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import AdminSidebar from '@/components/admin/Sidebar'
+import MobileAdminShell from '@/components/admin/mobile/MobileAdminShell'
 
 export default async function AdminProtectedLayout({
   children,
@@ -13,11 +14,11 @@ export default async function AdminProtectedLayout({
   if (!user) redirect('/admin/login')
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg-base)]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <AdminSidebar />
-      <main className="flex-1 ml-64 min-h-screen">
-        {children}
-      </main>
+      <MobileAdminShell>
+        <main className="min-h-screen md:ml-64">{children}</main>
+      </MobileAdminShell>
     </div>
   )
 }

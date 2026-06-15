@@ -5,6 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, usePathname } from 'next/navigation'
 import { Producto, Categoria } from '@/types'
 import ProductCard from '@/components/catalog/ProductCard'
+import ProductCardMobile from '@/components/catalog/mobile/ProductCardMobile'
+import { ProductGridMobile } from '@/components/catalog/mobile/ResponsiveProductCard'
+import MobileCatalogToolbar from '@/components/catalog/mobile/MobileCatalogToolbar'
+import MobileFiltersDrawer from '@/components/catalog/mobile/MobileFiltersDrawer'
 import { ProductCardSkeleton } from '@/components/ui/Skeleton'
 import { getPrecioOrden, type CatalogType } from '@/lib/catalog'
 import { Search, X, ChevronDown, Check, Package } from 'lucide-react'
@@ -55,6 +59,7 @@ export default function ProductosClient({
   const [ordenOpen, setOrdenOpen] = useState(false)
   const [pagina, setPagina] = useState(1)
   const [mounted, setMounted] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const ordenRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -172,16 +177,67 @@ export default function ProductosClient({
     nombre: 'Nombre A-Z',
   }
 
-  return (
-    <div className={`relative min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
-      <PageGoldAccent />
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+  const activeFiltersCount =
+    (categoriaActiva ? 1 : 0) + (orden !== 'relevancia' ? 1 : 0)
 
-        {/* ── Header + filtros ── */}
+  return (
+    <div
+      className={`mobile-catalog-page relative min-h-screen ${
+        catalogType === 'mayoreo'
+          ? 'max-md:pt-[5.75rem] pt-28 sm:pt-32'
+          : 'max-md:pt-[3.75rem] pt-20 sm:pt-24'
+      }`}
+    >
+      <PageGoldAccent />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 max-md:px-4 sm:px-6 lg:px-8">
+
+        {/* ── Mobile: toolbar + filtros drawer ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative mb-6 md:hidden"
+        >
+          <div className="mb-5">
+            <div className="mb-2 flex items-center gap-2">
+              <div className="h-px w-6 bg-[var(--gold)]" />
+              <span className="catalog-eyebrow text-[10px] tracking-[2.5px]">Explorar</span>
+            </div>
+            <h1 className="text-[1.625rem] font-thin uppercase leading-tight tracking-[1px]">
+              <span className="gold-shimmer">{categoriaNombre || 'Catálogo'}</span>
+            </h1>
+          </div>
+
+          <MobileCatalogToolbar
+            inputValue={inputValue}
+            onInputChange={setInputValue}
+            onSearch={() => setQuery(inputValue)}
+            onClearSearch={() => {
+              setInputValue('')
+              setQuery('')
+            }}
+            onOpenFilters={() => setFiltersOpen(true)}
+            activeFiltersCount={activeFiltersCount}
+          />
+
+          <MobileFiltersDrawer
+            open={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+            categorias={categorias}
+            categoriaActiva={categoriaActiva}
+            onCategoriaChange={setCategoriaActiva}
+            subcategorias={subcategoriasVisibles}
+            orden={orden}
+            onOrdenChange={setOrden}
+            onLimpiar={limpiarFiltros}
+            resultCount={productosFiltrados.length}
+          />
+        </motion.section>
+
+        {/* ── Desktop: header + filtros (sin cambios) ── */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative mb-8 overflow-visible"
+          className="relative mb-8 hidden overflow-visible md:block"
         >
           <div className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 bg-[radial-gradient(circle,var(--glow-gold)_0%,transparent_70%)]" />
 
@@ -386,9 +442,55 @@ export default function ProductosClient({
           </div>
         </motion.section>
 
-        {/* Grid productos */}
+        {/* Grid productos — mobile */}
         {!mounted ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px mt-3 mb-10">
+          <ProductGridMobile>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </ProductGridMobile>
+        ) : productosPagina.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center gap-4 py-16 md:hidden"
+          >
+            <Search size={36} className="text-[var(--text-faint)]" />
+            <p className="text-center text-[12px] font-light uppercase tracking-[1px] text-[var(--text-secondary)]">
+              No se encontraron productos
+            </p>
+            <button
+              onClick={limpiarFiltros}
+              className="catalog-gold-cta min-h-[44px] rounded-xl px-5 text-[11px] font-medium uppercase tracking-[1.5px]"
+            >
+              Limpiar filtros
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div layout className="mb-8 max-md:pb-24 md:hidden">
+            <ProductGridMobile>
+              <AnimatePresence mode="popLayout">
+                {productosPagina.map((producto, i) => (
+                  <motion.div
+                    key={producto.id}
+                    layout
+                    className="h-full"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ delay: i * 0.03, duration: 0.25 }}
+                  >
+                    <ProductCardMobile producto={producto} catalogType={catalogType} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </ProductGridMobile>
+          </motion.div>
+        )}
+
+        {/* Grid productos — desktop (sin cambios) */}
+        {!mounted ? (
+          <div className="mt-3 mb-10 hidden grid-cols-2 gap-px sm:grid-cols-3 md:grid lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
@@ -397,7 +499,7 @@ export default function ProductosClient({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-20 gap-4"
+            className="hidden flex-col items-center justify-center gap-4 py-20 md:flex"
           >
             <Search size={40} className="text-[var(--text-faint)]" />
             <p className="text-sm tracking-[0.5px] uppercase text-[var(--text-secondary)] font-light">
@@ -413,7 +515,7 @@ export default function ProductosClient({
         ) : (
           <motion.div
             layout
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px mt-3 mb-10"
+            className="mt-3 mb-10 hidden grid-cols-2 gap-px sm:grid-cols-3 md:grid lg:grid-cols-4"
           >
             <AnimatePresence mode="popLayout">
               {productosPagina.map((producto, i) => (
@@ -438,12 +540,12 @@ export default function ProductosClient({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-center gap-2 pb-12 pt-2"
+            className="flex items-center justify-center gap-2 overflow-x-auto pb-12 pt-2 scrollbar-hide max-md:px-1"
           >
             <button
               onClick={() => { setPagina(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               disabled={pagina === 1}
-              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-xl md:rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
               ← Anterior
             </button>
@@ -452,7 +554,7 @@ export default function ProductosClient({
               <button
                 key={i}
                 onClick={() => { setPagina(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className={`w-10 h-10 text-[13px] font-light rounded-[2px] border transition-all ${
+                className={`w-10 h-10 text-[13px] font-light rounded-xl md:rounded-[2px] border transition-all ${
                   pagina === i + 1
                     ? 'border-[var(--border)] text-[var(--gold)] bg-[var(--gold-muted)]'
                     : 'border-[var(--border-input)] text-[var(--text-secondary)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
@@ -465,7 +567,7 @@ export default function ProductosClient({
             <button
               onClick={() => { setPagina(p => Math.min(totalPaginas, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               disabled={pagina === totalPaginas}
-              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-xl md:rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
               Siguiente →
             </button>

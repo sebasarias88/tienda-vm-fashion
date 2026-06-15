@@ -11,6 +11,7 @@ import { Menu, X } from 'lucide-react'
 import CartDrawer from '@/components/catalog/CartDrawer'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
 import ThemeToggle from '@/components/catalog/ThemeToggle'
+import MobileHeader from '@/components/catalog/mobile/MobileHeader'
 
 type NavbarProps = {
   nombreNegocio: string
@@ -68,8 +69,17 @@ export default function Navbar({
 
   return (
     <>
+      <div className="md:hidden">
+        <MobileHeader
+          nombreNegocio={nombreNegocio}
+          categorias={categorias}
+          catalogType={catalogType}
+          scrolled={scrolled}
+        />
+      </div>
+
       <motion.header
-        className={`fixed left-0 right-0 z-30 transition-all duration-500 ${
+        className={`fixed left-0 right-0 z-30 hidden transition-all duration-500 md:block ${
           isMayoreo ? 'top-9' : 'top-0'
         } ${
           scrolled
@@ -154,12 +164,6 @@ export default function Navbar({
               className="md:hidden border-t border-[var(--border-subtle)] bg-[var(--navbar-bg)] overflow-hidden"
             >
               <div className="px-6 py-4 space-y-1">
-                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3 mb-1">
-                  <span className="text-[10px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
-                    Apariencia
-                  </span>
-                  <ThemeToggle showLabel />
-                </div>
                 {mobileLinks.map(({ href, label }) => (
                   <Link
                     key={href}
@@ -175,11 +179,13 @@ export default function Navbar({
         </AnimatePresence>
       </motion.header>
 
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        catalogType={catalogType}
-      />
+      <div className="hidden md:block">
+        <CartDrawer
+          open={cartOpen}
+          onClose={() => setCartOpen(false)}
+          catalogType={catalogType}
+        />
+      </div>
     </>
   )
 }
