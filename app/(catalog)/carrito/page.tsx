@@ -15,6 +15,7 @@ import {
   variacionesCarritoClassName,
 } from '@/lib/cart'
 import { parseCopValue } from '@/lib/currency'
+import { catalogPath, type CatalogType } from '@/lib/catalog'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
