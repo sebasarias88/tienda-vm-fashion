@@ -1,8 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LucideIcon, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X } from 'lucide-react'
-import { ReactNode, useState, useRef, useEffect } from 'react'
+import { LucideIcon, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ReactNode, useState, useRef, useEffect, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
+import {
+  getPaginationBounds,
+  getPaginationRange,
+  getTotalPages,
+} from '@/lib/pagination'
 
 /* ── Wrapper ── */
 
@@ -28,10 +34,12 @@ export function AdminTable({
   children,
   minWidth = '920px',
   fixed = false,
+  footer,
 }: {
   children: ReactNode
   minWidth?: string
   fixed?: boolean
+  footer?: ReactNode
 }) {
   return (
     <AdminTableShell>
@@ -43,6 +51,7 @@ export function AdminTable({
           {children}
         </table>
       </div>
+      {footer}
     </AdminTableShell>
   )
 }
@@ -492,14 +501,65 @@ export function AdminTableActions({
   deleteLabel?: string
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const [menuCoords, setMenuCoords] = useState<{ top: number; left: number } | null>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const updateMenuPosition = () => {
+    const trigger = buttonRef.current
+    const menu = menuRef.current
+    if (!trigger || !menu) return
+
+    const rect = trigger.getBoundingClientRect()
+    const menuHeight = menu.offsetHeight
+    const menuWidth = menu.offsetWidth
+    const gap = 6
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUp = spaceBelow < menuHeight + gap
+
+    let top = openUp ? rect.top - menuHeight - gap : rect.bottom + gap
+    let left = rect.right - menuWidth
+
+    const padding = 8
+    left = Math.max(padding, Math.min(left, window.innerWidth - menuWidth - padding))
+    top = Math.max(padding, Math.min(top, window.innerHeight - menuHeight - padding))
+
+    setMenuCoords({ top, left })
+  }
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setMenuCoords(null)
+      return
+    }
+
+    updateMenuPosition()
+
+    window.addEventListener('scroll', updateMenuPosition, true)
+    window.addEventListener('resize', updateMenuPosition)
+    return () => {
+      window.removeEventListener('scroll', updateMenuPosition, true)
+      window.removeEventListener('resize', updateMenuPosition)
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open) return
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
+      const target = e.target as Node
+      if (
+        rootRef.current?.contains(target) ||
+        menuRef.current?.contains(target)
+      ) {
+        return
       }
+      setOpen(false)
     }
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false)
@@ -512,9 +572,51 @@ export function AdminTableActions({
     }
   }, [open])
 
-  return (
-    <div className="relative inline-flex" ref={ref}>
+  const menu = open && mounted ? (
+    <div
+      ref={menuRef}
+      role="menu"
+      style={{
+        position: 'fixed',
+        top: menuCoords?.top ?? -9999,
+        left: menuCoords?.left ?? -9999,
+        visibility: menuCoords ? 'visible' : 'hidden',
+        zIndex: 9999,
+      }}
+      className="min-w-[10.5rem] overflow-hidden rounded-[2px] border border-[rgba(201,168,76,0.22)] bg-[var(--bg-muted)] py-1 shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+    >
       <button
+        type="button"
+        role="menuitem"
+        onClick={() => {
+          setOpen(false)
+          onEdit()
+        }}
+        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
+      >
+        <Pencil size={14} className="shrink-0 text-[rgba(201,168,76,0.65)]" />
+        {editLabel}
+      </button>
+      <div className="mx-3 h-px bg-[rgba(201,168,76,0.1)]" />
+      <button
+        type="button"
+        role="menuitem"
+        onClick={() => {
+          setOpen(false)
+          onDelete()
+        }}
+        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
+      >
+        <Trash2 size={14} className="shrink-0 text-red-400/70" />
+        {deleteLabel}
+      </button>
+    </div>
+  ) : null
+
+  return (
+    <div className="relative inline-flex" ref={rootRef}>
+      <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen(v => !v)}
         className={`flex h-9 w-9 items-center justify-center rounded-full border transition-all ${
@@ -529,38 +631,7 @@ export function AdminTableActions({
         <MoreVertical size={16} strokeWidth={1.5} />
       </button>
 
-      {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full z-50 mt-1.5 min-w-[10.5rem] overflow-hidden rounded-[2px] border border-[rgba(201,168,76,0.22)] bg-[var(--bg-muted)] py-1 shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
-        >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onEdit()
-            }}
-            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)]"
-          >
-            <Pencil size={14} className="shrink-0 text-[rgba(201,168,76,0.65)]" />
-            {editLabel}
-          </button>
-          <div className="mx-3 h-px bg-[rgba(201,168,76,0.1)]" />
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false)
-              onDelete()
-            }}
-            className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[12px] text-[var(--text-primary)] transition-colors hover:bg-[rgba(248,113,113,0.1)] hover:text-red-400"
-          >
-            <Trash2 size={14} className="shrink-0 text-red-400/70" />
-            {deleteLabel}
-          </button>
-        </div>
-      )}
+      {menu && createPortal(menu, document.body)}
     </div>
   )
 }
@@ -577,5 +648,112 @@ export function AdminTableSkeletonRow({ cols }: { cols: number }) {
         </td>
       ))}
     </tr>
+  )
+}
+
+export function AdminTablePagination({
+  page,
+  pageSize,
+  totalItems,
+  onPageChange,
+  compact = false,
+}: {
+  page: number
+  pageSize: number
+  totalItems: number
+  onPageChange: (page: number) => void
+  compact?: boolean
+}) {
+  const totalPages = getTotalPages(totalItems, pageSize)
+  if (totalItems === 0 || totalPages <= 1) return null
+
+  const { start, end } = getPaginationBounds(page, pageSize, totalItems)
+  const pages = getPaginationRange(page, totalPages)
+
+  const goTo = (next: number) => {
+    onPageChange(Math.min(Math.max(1, next), totalPages))
+  }
+
+  const navBtnClass =
+    'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 text-[10px] uppercase tracking-[1.4px] text-[var(--text-muted)] transition-all hover:border-[rgba(201,168,76,0.4)] hover:bg-[rgba(201,168,76,0.1)] hover:text-[var(--gold-bright)] hover:shadow-[0_0_16px_rgba(201,168,76,0.08)] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[var(--border-subtle)] disabled:hover:bg-[var(--bg-muted)] disabled:hover:text-[var(--text-muted)] disabled:hover:shadow-none'
+
+  const pageBtnClass = (active: boolean) =>
+    `inline-flex h-9 min-w-9 items-center justify-center rounded-[2px] border px-2 text-[12px] tabular-nums transition-all ${
+      active
+        ? 'border-[rgba(201,168,76,0.5)] bg-gradient-to-b from-[rgba(201,168,76,0.18)] to-[rgba(201,168,76,0.08)] text-[var(--gold-bright)] shadow-[0_0_0_1px_rgba(201,168,76,0.12),0_4px_16px_rgba(201,168,76,0.12)]'
+        : 'border-transparent text-[var(--text-muted)] hover:border-[rgba(201,168,76,0.28)] hover:bg-[rgba(201,168,76,0.08)] hover:text-[var(--gold-bright)]'
+    }`
+
+  return (
+    <nav
+      className={
+        compact
+          ? 'flex flex-col items-center gap-3 pt-3'
+          : 'flex flex-col gap-4 border-t border-[rgba(201,168,76,0.16)] bg-[rgba(201,168,76,0.04)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6'
+      }
+      aria-label="Paginación de tabla"
+    >
+      <p
+        className={`text-[12px] font-light tracking-[0.02em] text-[var(--text-muted)] ${
+          compact ? 'w-full text-center text-[11px]' : ''
+        }`}
+      >
+        Mostrando{' '}
+        <span className="font-normal text-[var(--text-primary)]">
+          {start}–{end}
+        </span>{' '}
+        de <span className="font-normal text-[var(--gold-bright)]">{totalItems}</span>
+      </p>
+
+      <div className={`flex items-center gap-1.5 ${compact ? 'justify-center' : ''}`}>
+        <button
+          type="button"
+          onClick={() => goTo(page - 1)}
+          disabled={page <= 1}
+          className={navBtnClass}
+          aria-label="Página anterior"
+        >
+          <ChevronLeft size={16} strokeWidth={1.75} />
+          {!compact && <span>Anterior</span>}
+        </button>
+
+        <div className="flex items-center gap-1 px-0.5" role="list">
+          {pages.map((item, index) =>
+            item === 'ellipsis' ? (
+              <span
+                key={`ellipsis-${index}`}
+                className="inline-flex h-9 min-w-7 items-center justify-center text-[13px] text-[var(--text-faint)] select-none"
+                aria-hidden
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                role="listitem"
+                onClick={() => goTo(item)}
+                aria-label={`Página ${item}`}
+                aria-current={item === page ? 'page' : undefined}
+                className={pageBtnClass(item === page)}
+              >
+                {item}
+              </button>
+            ),
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => goTo(page + 1)}
+          disabled={page >= totalPages}
+          className={navBtnClass}
+          aria-label="Página siguiente"
+        >
+          {!compact && <span>Siguiente</span>}
+          <ChevronRight size={16} strokeWidth={1.75} />
+        </button>
+      </div>
+    </nav>
   )
 }

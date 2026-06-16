@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto } from '@/types'
 import Modal from '@/components/ui/Modal'
@@ -25,7 +25,13 @@ import {
   AdminTableSkeletonRow,
   AdminListToolbar,
   AdminListMeta,
+  AdminTablePagination,
 } from '@/components/admin/AdminTable'
+import {
+  ADMIN_TABLE_PAGE_SIZE,
+  clampPage,
+  paginateItems,
+} from '@/lib/pagination'
 import toast from 'react-hot-toast'
 import {
   Plus,
@@ -47,6 +53,7 @@ export default function ProductosPage() {
   const [deleting, setDeleting] = useState(false)
   const [search, setSearch] = useState('')
   const [filtroDisponible, setFiltroDisponible] = useState<'todos' | 'disponible' | 'agotado'>('todos')
+  const [page, setPage] = useState(1)
 
   const fetchProductos = useCallback(async () => {
     setLoading(true)
@@ -72,6 +79,17 @@ export default function ProductosPage() {
     p =>
       p.nombre.toLowerCase().includes(search.toLowerCase()) ||
       p.sku?.toLowerCase().includes(search.toLowerCase()),
+  )
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, filtroDisponible])
+
+  const currentPage = clampPage(page, productosFiltrados.length, ADMIN_TABLE_PAGE_SIZE)
+
+  const productosPaginados = useMemo(
+    () => paginateItems(productosFiltrados, currentPage, ADMIN_TABLE_PAGE_SIZE),
+    [productosFiltrados, currentPage],
   )
 
   const abrirCrear = () => {
@@ -179,7 +197,18 @@ export default function ProductosPage() {
       />
 
       {/* Tabla */}
-      <AdminTable minWidth="1040px" fixed>
+      <AdminTable
+        minWidth="1040px"
+        fixed
+        footer={
+          <AdminTablePagination
+            page={currentPage}
+            pageSize={ADMIN_TABLE_PAGE_SIZE}
+            totalItems={productosFiltrados.length}
+            onPageChange={setPage}
+          />
+        }
+      >
         <AdminTableHead>
           <AdminTableHeaderRow>
             <AdminTableTh className="w-[7rem]">Imagen</AdminTableTh>
@@ -221,7 +250,7 @@ export default function ProductosPage() {
               }
             />
           ) : (
-            productosFiltrados.map((p, i) => (
+            productosPaginados.map((p, i) => (
               <AdminTableRow key={p.id} index={i}>
                 <AdminTableTd>
                   <AdminTableImage src={p.imagenes?.[0]} alt={p.nombre} />
@@ -359,7 +388,7 @@ export default function ProductosPage() {
         />
       ) : (
         <div className="space-y-3">
-          {productosFiltrados.map(p => (
+          {productosPaginados.map(p => (
             <MobileProductCard
               key={p.id}
               producto={p}
@@ -374,6 +403,14 @@ export default function ProductosPage() {
           ))}
         </div>
       )}
+
+      <AdminTablePagination
+        page={currentPage}
+        pageSize={ADMIN_TABLE_PAGE_SIZE}
+        totalItems={productosFiltrados.length}
+        onPageChange={setPage}
+        compact
+      />
 
       <button
         type="button"

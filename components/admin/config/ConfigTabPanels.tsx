@@ -1,6 +1,7 @@
 'use client'
 
 import { Input, Textarea } from '@/components/ui/Input'
+import { CopInput } from '@/components/ui/CopInput'
 import {
   Truck,
   CreditCard,
@@ -165,12 +166,11 @@ export default function ConfigTabPanels({
           <div className={`grid grid-cols-1 gap-4 ${mobile ? '' : 'sm:grid-cols-2'}`}>
             <ZoneCard icon={MapPin} title="Armenia" subtitle="Entrega local" mobile={mobile}>
               <div className="space-y-4">
-                <Input
+                <CopInput
                   label="Costo (COP)"
-                  type="number"
                   value={config['envio_armenia'] || ''}
-                  onChange={e => updateConfig('envio_armenia', e.target.value)}
-                  placeholder="5000"
+                  onChange={value => updateConfig('envio_armenia', value)}
+                  placeholder="5.000"
                 />
                 <Input
                   label="Tiempo de entrega"
@@ -182,11 +182,10 @@ export default function ConfigTabPanels({
             </ZoneCard>
             <ZoneCard icon={Globe} title="Resto del país" subtitle="Envío nacional" mobile={mobile}>
               <div className="space-y-4">
-                <Input
+                <CopInput
                   label="Costo (COP)"
-                  type="number"
                   value={config['envio_nacional'] || ''}
-                  onChange={e => updateConfig('envio_nacional', e.target.value)}
+                  onChange={value => updateConfig('envio_nacional', value)}
                   placeholder="0"
                   hint="0 = A convenir con el cliente"
                 />
@@ -215,13 +214,12 @@ export default function ConfigTabPanels({
                 </p>
               </div>
             </div>
-            <Input
+            <CopInput
               label="Aplicar envío gratis desde (COP)"
-              type="number"
               value={config['envio_gratis_desde'] || ''}
-              onChange={e => updateConfig('envio_gratis_desde', e.target.value)}
+              onChange={value => updateConfig('envio_gratis_desde', value)}
               placeholder="0"
-              hint="0 = Desactivado. Ej: 100000"
+              hint="0 = Desactivado. Ej: 100.000"
             />
           </div>
         </FormSection>

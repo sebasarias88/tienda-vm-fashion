@@ -24,7 +24,13 @@ import {
   AdminTableSkeletonRow,
   AdminListToolbar,
   AdminListMeta,
+  AdminTablePagination,
 } from '@/components/admin/AdminTable'
+import {
+  ADMIN_TABLE_PAGE_SIZE,
+  clampPage,
+  paginateItems,
+} from '@/lib/pagination'
 import toast from 'react-hot-toast'
 import {
   Plus,
@@ -46,6 +52,7 @@ export default function CategoriasPage() {
   const [deleting, setDeleting] = useState(false)
   const [search, setSearch] = useState('')
   const [filtroEstado, setFiltroEstado] = useState<'todas' | 'activas' | 'inactivas'>('todas')
+  const [page, setPage] = useState(1)
 
   type CategoriaFila = Categoria & { esSubcategoria: boolean }
 
@@ -92,6 +99,17 @@ export default function CategoriasPage() {
       return matchSearch && matchEstado
     })
   }, [categoriasAplanadas, search, filtroEstado])
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, filtroEstado])
+
+  const currentPage = clampPage(page, categoriasFiltradas.length, ADMIN_TABLE_PAGE_SIZE)
+
+  const categoriasPaginadas = useMemo(
+    () => paginateItems(categoriasFiltradas, currentPage, ADMIN_TABLE_PAGE_SIZE),
+    [categoriasFiltradas, currentPage],
+  )
 
   const abrirCrear = () => {
     setSelected(null)
@@ -183,7 +201,17 @@ export default function CategoriasPage() {
       />
 
       {/* Tabla */}
-      <AdminTable fixed>
+      <AdminTable
+        fixed
+        footer={
+          <AdminTablePagination
+            page={currentPage}
+            pageSize={ADMIN_TABLE_PAGE_SIZE}
+            totalItems={categoriasFiltradas.length}
+            onPageChange={setPage}
+          />
+        }
+      >
         <AdminTableHead>
           <AdminTableHeaderRow>
             <AdminTableTh className="w-[5.5rem] px-3" />
@@ -223,7 +251,7 @@ export default function CategoriasPage() {
               }
             />
           ) : (
-            categoriasFiltradas.map((cat, i) => (
+            categoriasPaginadas.map((cat, i) => (
               <AdminTableRow key={cat.id} index={i}>
                 <AdminTableTd className="px-3">
                   <div className="flex items-center gap-2">
@@ -333,7 +361,7 @@ export default function CategoriasPage() {
         />
       ) : (
         <div className="space-y-3">
-          {categoriasFiltradas.map(cat => (
+          {categoriasPaginadas.map(cat => (
             <MobileCategoriaCard
               key={cat.id}
               categoria={cat}
@@ -347,6 +375,14 @@ export default function CategoriasPage() {
           ))}
         </div>
       )}
+
+      <AdminTablePagination
+        page={currentPage}
+        pageSize={ADMIN_TABLE_PAGE_SIZE}
+        totalItems={categoriasFiltradas.length}
+        onPageChange={setPage}
+        compact
+      />
 
       <button
         type="button"

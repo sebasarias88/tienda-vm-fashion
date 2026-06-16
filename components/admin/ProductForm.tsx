@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto, Categoria } from '@/types'
 import { Input, Textarea, adminSelectClass } from '@/components/ui/Input'
+import { CopInput } from '@/components/ui/CopInput'
+import { formatCopInput, parseCopInput } from '@/lib/currency'
 import Button from '@/components/ui/Button'
 import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
@@ -69,10 +71,11 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         nombre: producto.nombre,
         slug: producto.slug,
         descripcion: producto.descripcion || '',
-        precio: producto.precio.toString(),
-        precio_antes: producto.precio_antes?.toString() || '',
-        precio_mayoreo: producto.precio_mayoreo?.toString() || '',
-        precio_antes_mayoreo: producto.precio_antes_mayoreo?.toString() || '',
+        precio: formatCopInput(producto.precio),
+        precio_antes: producto.precio_antes != null ? formatCopInput(producto.precio_antes) : '',
+        precio_mayoreo: producto.precio_mayoreo != null ? formatCopInput(producto.precio_mayoreo) : '',
+        precio_antes_mayoreo:
+          producto.precio_antes_mayoreo != null ? formatCopInput(producto.precio_antes_mayoreo) : '',
         disponible: producto.disponible,
         destacado: producto.destacado,
         categoria_id: producto.categoria_id || '',
@@ -105,7 +108,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       toast.error('El nombre es requerido')
       return
     }
-    if (!form.precio || isNaN(Number(form.precio))) {
+    const precio = parseCopInput(form.precio)
+    if (precio === null) {
       toast.error('El precio es requerido')
       return
     }
@@ -115,10 +119,10 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       nombre: form.nombre.trim(),
       slug: form.slug.trim(),
       descripcion: form.descripcion.trim() || null,
-      precio: Number(form.precio),
-      precio_antes: form.precio_antes ? Number(form.precio_antes) : null,
-      precio_mayoreo: form.precio_mayoreo ? Number(form.precio_mayoreo) : null,
-      precio_antes_mayoreo: form.precio_antes_mayoreo ? Number(form.precio_antes_mayoreo) : null,
+      precio,
+      precio_antes: parseCopInput(form.precio_antes),
+      precio_mayoreo: parseCopInput(form.precio_mayoreo),
+      precio_antes_mayoreo: parseCopInput(form.precio_antes_mayoreo),
       disponible: form.disponible,
       destacado: form.destacado,
       categoria_id: form.categoria_id || null,
@@ -200,19 +204,17 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
 
       <FormSection title="Precios — Detal">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Input
+          <CopInput
             label="Precio (COP) *"
-            type="number"
             value={form.precio}
-            onChange={e => setForm(f => ({ ...f, precio: e.target.value }))}
-            placeholder="45000"
+            onChange={precio => setForm(f => ({ ...f, precio }))}
+            placeholder="45.000"
           />
-          <Input
+          <CopInput
             label="Precio anterior (tachado)"
-            type="number"
             value={form.precio_antes}
-            onChange={e => setForm(f => ({ ...f, precio_antes: e.target.value }))}
-            placeholder="60000"
+            onChange={precio_antes => setForm(f => ({ ...f, precio_antes }))}
+            placeholder="60.000"
             hint="Opcional — para mostrar descuento"
           />
         </div>
@@ -220,20 +222,18 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
 
       <FormSection title="Precios — Mayoreo">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Input
+          <CopInput
             label="Precio mayoreo (COP)"
-            type="number"
             value={form.precio_mayoreo}
-            onChange={e => setForm(f => ({ ...f, precio_mayoreo: e.target.value }))}
-            placeholder="38000"
+            onChange={precio_mayoreo => setForm(f => ({ ...f, precio_mayoreo }))}
+            placeholder="38.000"
             hint="Catálogo al por mayor"
           />
-          <Input
+          <CopInput
             label="Precio mayoreo anterior"
-            type="number"
             value={form.precio_antes_mayoreo}
-            onChange={e => setForm(f => ({ ...f, precio_antes_mayoreo: e.target.value }))}
-            placeholder="50000"
+            onChange={precio_antes_mayoreo => setForm(f => ({ ...f, precio_antes_mayoreo }))}
+            placeholder="50.000"
             hint="Opcional — precio tachado en mayoreo"
           />
         </div>

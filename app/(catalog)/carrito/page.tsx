@@ -14,7 +14,7 @@ import {
   itemLineTotal,
   variacionesCarritoClassName,
 } from '@/lib/cart'
-import { catalogPath, type CatalogType } from '@/lib/catalog'
+import { parseCopValue } from '@/lib/currency'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
@@ -264,10 +264,14 @@ export default function CarritoPage() {
     () => cartSubtotal(items, catalogType),
     [items, catalogType],
   )
-  const envioGratisDesde = Number(config.envio_gratis_desde)
+  const envioGratisDesde = parseCopValue(config.envio_gratis_desde)
   const envioGratis = envioGratisDesde > 0 && subtotal >= envioGratisDesde
 
-  const costoEnvio = envioGratis ? 0 : esArmenia ? Number(config.envio_armenia) : Number(config.envio_nacional)
+  const costoEnvio = envioGratis
+    ? 0
+    : esArmenia
+      ? parseCopValue(config.envio_armenia)
+      : parseCopValue(config.envio_nacional)
 
   const tiempoEntrega = esArmenia ? config.tiempo_entrega_armenia : config.tiempo_entrega_nacional
 
