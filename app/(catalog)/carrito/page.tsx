@@ -15,7 +15,7 @@ import {
   variacionesCarritoClassName,
 } from '@/lib/cart'
 import { parseCopValue } from '@/lib/currency'
-import { catalogPath, type CatalogType } from '@/lib/catalog'
+import { catalogPath, MAYOREO_MIN_COMPRA, type CatalogType } from '@/lib/catalog'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
@@ -244,8 +244,12 @@ export default function CarritoPage() {
         tiempo_entrega_armenia: map['tiempo_entrega_armenia'] || 'El mismo día',
         tiempo_entrega_nacional: map['tiempo_entrega_nacional'] || '2 a 3 días hábiles',
         metodos_pago: (() => {
+          const key =
+            catalogType === 'mayoreo' ? 'metodos_pago_mayoreo' : 'metodos_pago_detal'
+          const raw = map[key] ?? map['metodos_pago']
           try {
-            return JSON.parse(map['metodos_pago'] || '[]')
+            const parsed = JSON.parse(raw || '[]')
+            return Array.isArray(parsed) ? parsed : []
           } catch {
             return []
           }
@@ -253,7 +257,7 @@ export default function CarritoPage() {
       })
     }
     setLoadingConfig(false)
-  }, [])
+  }, [catalogType])
 
   useEffect(() => {
     setMounted(true)
@@ -280,6 +284,10 @@ export default function CarritoPage() {
   const stepIndex = STEPS.findIndex(s => s.id === step)
   const stickyTop = catalogType === 'mayoreo' ? 100 : 96
 
+  const minimoMayoreo = catalogType === 'mayoreo' ? MAYOREO_MIN_COMPRA : 0
+  const cumpleMinimo = subtotal >= minimoMayoreo
+  const faltaParaMinimo = Math.max(0, minimoMayoreo - subtotal)
+
   const validar = () => {
     const e: Partial<DatosCliente> = {}
     if (!datos.nombre.trim()) e.nombre = 'El nombre es requerido'
@@ -297,6 +305,12 @@ export default function CarritoPage() {
   const handleContinuar = () => {
     if (items.length === 0) {
       toast.error('Tu carrito está vacío')
+      return
+    }
+    if (catalogType === 'mayoreo' && !cumpleMinimo) {
+      toast.error(
+        `La compra mínima al por mayor es ${formatPrecio(minimoMayoreo)}`,
+      )
       return
     }
     setStep('datos')
@@ -360,6 +374,9 @@ export default function CarritoPage() {
           }}
           actualizarCantidad={actualizarCantidad}
           subtotal={subtotal}
+          minimoMayoreo={minimoMayoreo}
+          cumpleMinimo={cumpleMinimo}
+          faltaParaMinimo={faltaParaMinimo}
           datos={datos}
           setDatos={setDatos}
           errores={errores}
@@ -564,14 +581,33 @@ export default function CarritoPage() {
                     subtotal={subtotal}
                     catalogType={catalogType}
                   />
+                  {catalogType === 'mayoreo' && !cumpleMinimo && (
+                    <div className="rounded-[2px] border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] p-4">
+                      <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
+                        Compra mínima al por mayor
+                      </p>
+                      <p className="mt-1.5 text-[12px] font-light leading-relaxed text-[var(--text-secondary)]">
+                        El pedido mínimo es {formatPrecio(minimoMayoreo)}. Te faltan{' '}
+                        <span className="font-medium text-[var(--gold)]">
+                          {formatPrecio(faltaParaMinimo)}
+                        </span>{' '}
+                        para continuar.
+                      </p>
+                    </div>
+                  )}
                   <p className="text-[12px] font-light text-[var(--text-subtle)]">
                     El envío se calcula en el siguiente paso según tu ciudad.
                   </p>
                   <motion.button
                     type="button"
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={catalogType === 'mayoreo' && !cumpleMinimo ? undefined : { scale: 0.98 }}
                     onClick={handleContinuar}
-                    className="catalog-gold-cta flex w-full items-center justify-center gap-2 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px]"
+                    disabled={catalogType === 'mayoreo' && !cumpleMinimo}
+                    className={`catalog-gold-cta flex w-full items-center justify-center gap-2 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px] ${
+                      catalogType === 'mayoreo' && !cumpleMinimo
+                        ? 'cursor-not-allowed opacity-50'
+                        : ''
+                    }`}
                   >
                     Continuar
                     <ChevronRight size={14} />

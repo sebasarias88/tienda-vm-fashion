@@ -35,8 +35,6 @@ import {
 import toast from 'react-hot-toast'
 import {
   Plus,
-  CheckCircle2,
-  XCircle,
   Star,
   Package,
 } from 'lucide-react'
@@ -134,6 +132,30 @@ export default function ProductosPage() {
     if (error) toast.error('Error al actualizar')
     else {
       toast.success(p.disponible ? 'Marcado como agotado' : 'Marcado como disponible')
+      fetchProductos()
+    }
+  }
+
+  const toggleCatalogo = async (
+    p: Producto,
+    campo: 'disponible_detal' | 'disponible_mayoreo',
+  ) => {
+    const nuevoValor = !p[campo]
+    const detal = campo === 'disponible_detal' ? nuevoValor : p.disponible_detal
+    const mayoreo = campo === 'disponible_mayoreo' ? nuevoValor : p.disponible_mayoreo
+
+    const { error } = await supabase
+      .from('productos')
+      .update({
+        [campo]: nuevoValor,
+        disponible: detal || mayoreo,
+      })
+      .eq('id', p.id)
+
+    if (error) toast.error('Error al actualizar')
+    else {
+      const etiqueta = campo === 'disponible_detal' ? 'Detal' : 'Mayoreo'
+      toast.success(`${etiqueta} ${nuevoValor ? 'activado' : 'desactivado'}`)
       fetchProductos()
     }
   }
@@ -294,13 +316,32 @@ export default function ProductosPage() {
                 </AdminTableTd>
 
                 <AdminTableTd>
-                  <AdminTableStatus
-                    label={p.disponible ? 'Disponible' : 'Agotado'}
-                    icon={p.disponible ? CheckCircle2 : XCircle}
-                    variant={p.disponible ? 'success' : 'danger'}
-                    onClick={() => toggleDisponible(p)}
-                    title={p.disponible ? 'Marcar como agotado' : 'Marcar como disponible'}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleCatalogo(p, 'disponible_detal')}
+                      title={p.disponible_detal ? 'Ocultar en detal' : 'Mostrar en detal'}
+                      className={`rounded-[2px] px-2 py-0.5 text-[9px] uppercase tracking-[1px] transition-colors ${
+                        p.disponible_detal
+                          ? 'border border-[rgba(52,211,153,0.2)] bg-[rgba(52,211,153,0.08)] text-emerald-400'
+                          : 'border border-[rgba(248,246,241,0.06)] bg-transparent text-[rgba(248,246,241,0.2)]'
+                      }`}
+                    >
+                      Detal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}
+                      title={p.disponible_mayoreo ? 'Ocultar en mayoreo' : 'Mostrar en mayoreo'}
+                      className={`rounded-[2px] px-2 py-0.5 text-[9px] uppercase tracking-[1px] transition-colors ${
+                        p.disponible_mayoreo
+                          ? 'border border-[rgba(96,165,250,0.2)] bg-[rgba(96,165,250,0.08)] text-blue-400'
+                          : 'border border-[rgba(248,246,241,0.06)] bg-transparent text-[rgba(248,246,241,0.2)]'
+                      }`}
+                    >
+                      Mayoreo
+                    </button>
+                  </div>
                 </AdminTableTd>
 
                 <AdminTableTd>

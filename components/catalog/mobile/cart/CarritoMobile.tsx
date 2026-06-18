@@ -50,6 +50,9 @@ type CarritoMobileProps = {
   quitar: (key: string) => void
   actualizarCantidad: (key: string, cantidad: number) => void
   subtotal: number
+  minimoMayoreo: number
+  cumpleMinimo: boolean
+  faltaParaMinimo: number
   datos: DatosCliente
   setDatos: React.Dispatch<React.SetStateAction<DatosCliente>>
   errores: Partial<DatosCliente>
@@ -104,6 +107,9 @@ export default function CarritoMobile({
   quitar,
   actualizarCantidad,
   subtotal,
+  minimoMayoreo,
+  cumpleMinimo,
+  faltaParaMinimo,
   datos,
   setDatos,
   errores,
@@ -215,6 +221,20 @@ export default function CarritoMobile({
                     catalogType={catalogType}
                     compact
                   />
+                  {catalogType === 'mayoreo' && !cumpleMinimo && (
+                    <div className="mt-4 rounded-xl border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] p-4 md:rounded-[2px]">
+                      <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
+                        Compra mínima al por mayor
+                      </p>
+                      <p className="mt-1.5 text-[12px] font-light leading-relaxed text-[var(--text-secondary)]">
+                        El pedido mínimo es {formatPrecio(minimoMayoreo)}. Te faltan{' '}
+                        <span className="font-medium text-[var(--gold)]">
+                          {formatPrecio(faltaParaMinimo)}
+                        </span>
+                        .
+                      </p>
+                    </div>
+                  )}
                   <p className="mt-3 text-center text-[11px] font-light leading-relaxed text-[var(--text-subtle)]">
                     El envío se calcula en el siguiente paso según tu ciudad.
                   </p>
@@ -233,7 +253,12 @@ export default function CarritoMobile({
                   totalValue={formatPrecio(subtotal)}
                   primaryLabel="Continuar"
                   onPrimary={handleContinuar}
-                  hint={`${items.length} producto${items.length !== 1 ? 's' : ''} en tu carrito`}
+                  primaryDisabled={catalogType === 'mayoreo' && !cumpleMinimo}
+                  hint={
+                    catalogType === 'mayoreo' && !cumpleMinimo
+                      ? `Mínimo ${formatPrecio(minimoMayoreo)} — faltan ${formatPrecio(faltaParaMinimo)}`
+                      : `${items.length} producto${items.length !== 1 ? 's' : ''} en tu carrito`
+                  }
                 />
               </>
             )}

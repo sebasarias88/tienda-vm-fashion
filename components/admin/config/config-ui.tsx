@@ -11,6 +11,14 @@ export type Config = Record<string, string>
 
 export type TabId = 'negocio' | 'contenido' | 'envios' | 'pagos'
 
+export type PaymentMethodsControls = {
+  metodos: string[]
+  nuevo: string
+  setNuevo: (value: string) => void
+  agregar: () => void
+  quitar: (metodo: string) => void
+}
+
 export const CONFIG_TABS: { id: TabId; label: string; icon: LucideIcon; desc: string }[] = [
   { id: 'negocio', label: 'Negocio', icon: Store, desc: 'Nombre y WhatsApp' },
   { id: 'contenido', label: 'Contenido', icon: Type, desc: 'Textos del inicio' },

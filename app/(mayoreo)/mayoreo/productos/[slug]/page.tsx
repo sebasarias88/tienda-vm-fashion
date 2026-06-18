@@ -7,7 +7,7 @@ import ProductPageSeo from '@/components/seo/ProductPageSeo'
 import { normalizarVariacionesProducto } from '@/lib/variaciones'
 import { buildProductMetadata } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
-import { VariacionTipo } from '@/types'
+import { ProductoSeccion, VariacionTipo } from '@/types'
 
 export async function generateMetadata({
   params,
@@ -43,6 +43,7 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
     .single()
 
   if (error || !producto) notFound()
+  if (producto.disponible_mayoreo === false) notFound()
 
   const { data: relacionados } = await supabase
     .from('productos')
@@ -62,6 +63,12 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
     (variacionesRaw || []) as VariacionTipo[],
   )
 
+  const { data: secciones } = await supabase
+    .from('producto_secciones')
+    .select('*')
+    .eq('producto_id', producto.id)
+    .order('orden', { ascending: true })
+
   return (
     <>
       <ProductPageSeo config={config} producto={producto} catalogType="mayoreo" />
@@ -69,6 +76,7 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
         producto={producto}
         catalogType="mayoreo"
         variaciones={variaciones}
+        secciones={(secciones || []) as ProductoSeccion[]}
       />
       {relacionados && relacionados.length > 0 && (
         <ProductosRelacionados productos={relacionados} catalogType="mayoreo" />

@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Categoria } from '@/types'
-import { Input, adminSelectClass } from '@/components/ui/Input'
+import { Input } from '@/components/ui/Input'
+import { AdminSelect } from '@/components/ui/AdminSelect'
 import Button from '@/components/ui/Button'
 import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
 import toast from 'react-hot-toast'
-import { ImageIcon, X } from 'lucide-react'
+import { ImageIcon, X, Layers, CornerDownRight } from 'lucide-react'
 
 type CategoriaFormProps = {
   categoria?: Categoria | null
@@ -56,6 +57,7 @@ export default function CategoriaForm({
 }: CategoriaFormProps) {
   const [saving, setSaving] = useState(false)
   const [uploadingImg, setUploadingImg] = useState(false)
+  const [tipo, setTipo] = useState<'principal' | 'subcategoria'>('principal')
   const [form, setForm] = useState({
     nombre: '',
     slug: '',
@@ -75,6 +77,7 @@ export default function CategoriaForm({
         activa: categoria.activa,
         padre_id: categoria.padre_id || '',
       })
+      setTipo(categoria.padre_id ? 'subcategoria' : 'principal')
     } else {
       setForm({
         nombre: '',
@@ -84,8 +87,16 @@ export default function CategoriaForm({
         activa: true,
         padre_id: '',
       })
+      setTipo('principal')
     }
   }, [categoria, ordenDefault])
+
+  const seleccionarTipo = (nuevoTipo: 'principal' | 'subcategoria') => {
+    setTipo(nuevoTipo)
+    if (nuevoTipo === 'principal') {
+      setForm(f => ({ ...f, padre_id: '' }))
+    }
+  }
 
   const handleNombreChange = (nombre: string) => {
     setForm(f => ({
@@ -119,6 +130,10 @@ export default function CategoriaForm({
       toast.error('El nombre es requerido')
       return
     }
+    if (tipo === 'subcategoria' && !form.padre_id) {
+      toast.error('Elige dentro de qué categoría va esta subcategoría')
+      return
+    }
 
     setSaving(true)
     const payload = {
@@ -127,7 +142,7 @@ export default function CategoriaForm({
       imagen_url: form.imagen_url || null,
       orden: form.orden,
       activa: form.activa,
-      padre_id: form.padre_id || null,
+      padre_id: tipo === 'subcategoria' ? form.padre_id || null : null,
     }
 
     if (categoria) {
@@ -190,26 +205,94 @@ export default function CategoriaForm({
         </div>
       </FormSection>
 
-      <FormSection title="Clasificación">
+      <FormSection title="Tipo">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => seleccionarTipo('principal')}
+            aria-pressed={tipo === 'principal'}
+            className={`flex flex-col gap-2 rounded-xl border p-4 text-left transition-all md:rounded-[2px] ${
+              tipo === 'principal'
+                ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.1)] shadow-[inset_0_1px_0_rgba(201,168,76,0.12)]'
+                : 'border-[var(--border-input)] bg-[var(--bg-card)] hover:border-[rgba(201,168,76,0.3)]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border ${
+                  tipo === 'principal'
+                    ? 'border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.18)] text-[var(--gold-bright)]'
+                    : 'border-[var(--border-input)] text-[var(--text-muted)]'
+                }`}
+              >
+                <Layers size={15} />
+              </span>
+              <span
+                className={`text-[12px] font-medium uppercase tracking-[1px] ${
+                  tipo === 'principal' ? 'text-[var(--gold-bright)]' : 'text-[var(--text-primary)]'
+                }`}
+              >
+                Categoría principal
+              </span>
+            </div>
+            <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+              Aparece como una sección principal de la tienda. Puede agrupar
+              subcategorías dentro.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => seleccionarTipo('subcategoria')}
+            aria-pressed={tipo === 'subcategoria'}
+            className={`flex flex-col gap-2 rounded-xl border p-4 text-left transition-all md:rounded-[2px] ${
+              tipo === 'subcategoria'
+                ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.1)] shadow-[inset_0_1px_0_rgba(201,168,76,0.12)]'
+                : 'border-[var(--border-input)] bg-[var(--bg-card)] hover:border-[rgba(201,168,76,0.3)]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border ${
+                  tipo === 'subcategoria'
+                    ? 'border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.18)] text-[var(--gold-bright)]'
+                    : 'border-[var(--border-input)] text-[var(--text-muted)]'
+                }`}
+              >
+                <CornerDownRight size={15} />
+              </span>
+              <span
+                className={`text-[12px] font-medium uppercase tracking-[1px] ${
+                  tipo === 'subcategoria' ? 'text-[var(--gold-bright)]' : 'text-[var(--text-primary)]'
+                }`}
+              >
+                Subcategoría
+              </span>
+            </div>
+            <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+              Va agrupada dentro de una categoría principal (ej: “Shampoo”
+              dentro de “Cabello”).
+            </p>
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-1.5">
-            <label className="admin-form-label">Categoría padre</label>
-            <select
-              value={form.padre_id}
-              onChange={e => setForm(f => ({ ...f, padre_id: e.target.value }))}
-              className={adminSelectClass}
-            >
-              <option value="">Ninguna — categoría raíz</option>
-              {categoriasRaiz
-                .filter(c => c.id !== categoria?.id)
-                .map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.nombre}
-                  </option>
-                ))}
-            </select>
-            <p className="admin-form-hint">Opcional — convierte esta en subcategoría</p>
-          </div>
+          {tipo === 'subcategoria' && (
+            <div className="space-y-1.5">
+              <label className="admin-form-label">Dentro de la categoría *</label>
+              <AdminSelect
+                value={form.padre_id}
+                onChange={padre_id => setForm(f => ({ ...f, padre_id }))}
+                options={categoriasRaiz
+                  .filter(c => c.id !== categoria?.id)
+                  .map(c => ({ value: c.id, label: c.nombre }))}
+                placeholder="Selecciona la categoría principal"
+              />
+              <p className="admin-form-hint">
+                Esta subcategoría aparecerá agrupada aquí
+              </p>
+            </div>
+          )}
           <Input
             label="Orden de aparición"
             type="number"

@@ -7,7 +7,7 @@ import ProductPageSeo from '@/components/seo/ProductPageSeo'
 import { normalizarVariacionesProducto } from '@/lib/variaciones'
 import { buildProductMetadata } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
-import { VariacionTipo } from '@/types'
+import { ProductoSeccion, VariacionTipo } from '@/types'
 
 export async function generateMetadata({
   params,
@@ -43,6 +43,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     .single()
 
   if (error || !producto) notFound()
+  if (producto.disponible_detal === false) notFound()
 
   const { data: relacionados } = await supabase
     .from('productos')
@@ -62,10 +63,20 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     (variacionesRaw || []) as VariacionTipo[],
   )
 
+  const { data: secciones } = await supabase
+    .from('producto_secciones')
+    .select('*')
+    .eq('producto_id', producto.id)
+    .order('orden', { ascending: true })
+
   return (
     <>
       <ProductPageSeo config={config} producto={producto} />
-      <ProductoDetalle producto={producto} variaciones={variaciones} />
+      <ProductoDetalle
+        producto={producto}
+        variaciones={variaciones}
+        secciones={(secciones || []) as ProductoSeccion[]}
+      />
       {relacionados && relacionados.length > 0 && (
         <ProductosRelacionados productos={relacionados} />
       )}

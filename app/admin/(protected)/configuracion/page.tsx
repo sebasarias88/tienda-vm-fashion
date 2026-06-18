@@ -14,8 +14,10 @@ export default function ConfiguracionPage() {
   const [config, setConfig] = useState<Config>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [metodosPago, setMetodosPago] = useState<string[]>([])
-  const [nuevoMetodo, setNuevoMetodo] = useState('')
+  const [metodosPagoDetal, setMetodosPagoDetal] = useState<string[]>([])
+  const [metodosPagoMayoreo, setMetodosPagoMayoreo] = useState<string[]>([])
+  const [nuevoMetodoDetal, setNuevoMetodoDetal] = useState('')
+  const [nuevoMetodoMayoreo, setNuevoMetodoMayoreo] = useState('')
   const [tab, setTab] = useState<TabId>('negocio')
 
   const fetchConfig = useCallback(async () => {
@@ -33,12 +35,26 @@ export default function ConfiguracionPage() {
     })
     setConfig(map)
 
-    try {
-      const metodos = JSON.parse(map['metodos_pago'] || '[]')
-      setMetodosPago(Array.isArray(metodos) ? metodos : [])
-    } catch {
-      setMetodosPago([])
+    const parseMetodos = (raw: string | undefined): string[] => {
+      try {
+        const parsed = JSON.parse(raw || '[]')
+        return Array.isArray(parsed) ? parsed : []
+      } catch {
+        return []
+      }
     }
+
+    // Migración suave desde la clave antigua `metodos_pago`
+    const legacy = parseMetodos(map['metodos_pago'])
+    const detal = map['metodos_pago_detal'] !== undefined
+      ? parseMetodos(map['metodos_pago_detal'])
+      : legacy
+    const mayoreo = map['metodos_pago_mayoreo'] !== undefined
+      ? parseMetodos(map['metodos_pago_mayoreo'])
+      : legacy
+
+    setMetodosPagoDetal(detal)
+    setMetodosPagoMayoreo(mayoreo)
 
     setLoading(false)
   }, [])
@@ -51,19 +67,34 @@ export default function ConfiguracionPage() {
     setConfig(prev => ({ ...prev, [clave]: valor }))
   }
 
-  const agregarMetodo = () => {
-    const m = nuevoMetodo.trim()
+  const agregarMetodoDetal = () => {
+    const m = nuevoMetodoDetal.trim()
     if (!m) return
-    if (metodosPago.includes(m)) {
+    if (metodosPagoDetal.includes(m)) {
       toast.error('Este método ya existe')
       return
     }
-    setMetodosPago(prev => [...prev, m])
-    setNuevoMetodo('')
+    setMetodosPagoDetal(prev => [...prev, m])
+    setNuevoMetodoDetal('')
   }
 
-  const quitarMetodo = (metodo: string) => {
-    setMetodosPago(prev => prev.filter(m => m !== metodo))
+  const quitarMetodoDetal = (metodo: string) => {
+    setMetodosPagoDetal(prev => prev.filter(m => m !== metodo))
+  }
+
+  const agregarMetodoMayoreo = () => {
+    const m = nuevoMetodoMayoreo.trim()
+    if (!m) return
+    if (metodosPagoMayoreo.includes(m)) {
+      toast.error('Este método ya existe')
+      return
+    }
+    setMetodosPagoMayoreo(prev => [...prev, m])
+    setNuevoMetodoMayoreo('')
+  }
+
+  const quitarMetodoMayoreo = (metodo: string) => {
+    setMetodosPagoMayoreo(prev => prev.filter(m => m !== metodo))
   }
 
   const handleGuardar = async () => {
@@ -71,23 +102,30 @@ export default function ConfiguracionPage() {
       toast.error('El número de WhatsApp es requerido')
       return
     }
-    if (metodosPago.length === 0) {
-      toast.error('Agrega al menos un método de pago')
+    if (metodosPagoDetal.length === 0) {
+      toast.error('Agrega al menos un método de pago para Detal')
+      return
+    }
+    if (metodosPagoMayoreo.length === 0) {
+      toast.error('Agrega al menos un método de pago para Mayoreo')
       return
     }
 
     setSaving(true)
 
-    const updates = {
-      ...config,
-      metodos_pago: JSON.stringify(metodosPago),
-    }
-
-    const results = await Promise.all(
-      Object.entries(updates).map(([clave, valor]) =>
+    const results = await Promise.all([
+      ...Object.entries(config).map(([clave, valor]) =>
         supabase.from('configuracion').update({ valor }).eq('clave', clave),
       ),
-    )
+      supabase.from('configuracion').upsert(
+        { clave: 'metodos_pago_detal', valor: JSON.stringify(metodosPagoDetal) },
+        { onConflict: 'clave' },
+      ),
+      supabase.from('configuracion').upsert(
+        { clave: 'metodos_pago_mayoreo', valor: JSON.stringify(metodosPagoMayoreo) },
+        { onConflict: 'clave' },
+      ),
+    ])
 
     const hasError = results.some(r => r.error)
     if (hasError) toast.error('Error al guardar algunos campos')
@@ -99,11 +137,20 @@ export default function ConfiguracionPage() {
   const panelProps = {
     config,
     updateConfig,
-    metodosPago,
-    nuevoMetodo,
-    setNuevoMetodo,
-    agregarMetodo,
-    quitarMetodo,
+    pagoDetal: {
+      metodos: metodosPagoDetal,
+      nuevo: nuevoMetodoDetal,
+      setNuevo: setNuevoMetodoDetal,
+      agregar: agregarMetodoDetal,
+      quitar: quitarMetodoDetal,
+    },
+    pagoMayoreo: {
+      metodos: metodosPagoMayoreo,
+      nuevo: nuevoMetodoMayoreo,
+      setNuevo: setNuevoMetodoMayoreo,
+      agregar: agregarMetodoMayoreo,
+      quitar: quitarMetodoMayoreo,
+    },
   }
 
   if (loading) {

@@ -3,6 +3,7 @@ import { createSupabaseServer } from '@/lib/supabase-server'
 import ProductosClient from '@/components/catalog/ProductosClient'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteName } from '@/lib/site-config'
+import { withProductoCategorias } from '@/lib/producto-categorias'
 
 export async function generateMetadata({
   searchParams,
@@ -56,13 +57,16 @@ export default async function ProductosPage({
       .order('orden'),
     supabase
       .from('productos')
-      .select('*, categoria:categorias(id,nombre,slug,padre_id)')
+      .select(
+        '*, categoria:categorias(id,nombre,slug,padre_id), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id))',
+      )
+      .eq('disponible_detal', true)
       .order('orden', { ascending: true }),
   ])
 
   return (
     <ProductosClient
-      productos={productos || []}
+      productos={withProductoCategorias(productos)}
       categorias={categorias || []}
       initialQ={q || ''}
       initialCategoria={categoria || ''}

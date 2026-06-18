@@ -2,6 +2,9 @@ import { Producto } from '@/types'
 
 export type CatalogType = 'detal' | 'mayoreo'
 
+/** Monto mínimo de compra para el catálogo al por mayor (COP). */
+export const MAYOREO_MIN_COMPRA = 180000
+
 export function catalogBasePath(catalogType: CatalogType = 'detal'): string {
   return catalogType === 'mayoreo' ? '/mayoreo' : ''
 }

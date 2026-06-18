@@ -2,6 +2,7 @@ import { createSupabaseServer } from '@/lib/supabase-server'
 import Navbar from '@/components/catalog/Navbar'
 import Footer from '@/components/catalog/Footer'
 import PageTransition from '@/components/catalog/PageTransition'
+import { formatPrecio, MAYOREO_MIN_COMPRA } from '@/lib/catalog'
 
 export default async function MayoreoLayout({
   children,
@@ -25,8 +26,12 @@ export default async function MayoreoLayout({
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <div className="fixed top-0 left-0 right-0 z-40 bg-[#B8922A] py-1.5 text-center text-[11px] font-light uppercase tracking-[2px] text-white">
-        CATÁLOGO AL POR MAYOR — TIENDA VM FASHION
+      <div className="fixed left-0 right-0 top-0 z-40 flex h-9 items-center justify-center gap-2 bg-[#B8922A] text-[11px] font-light uppercase tracking-[2px] text-white">
+        <span>Catálogo al por mayor</span>
+        <span aria-hidden className="opacity-50">·</span>
+        <span className="font-medium">
+          Compra mínima {formatPrecio(MAYOREO_MIN_COMPRA)}
+        </span>
       </div>
       <Navbar
         nombreNegocio={config['nombre_negocio'] || 'Tienda VM Fashion'}
