@@ -11,6 +11,7 @@ import MobileCatalogToolbar from '@/components/catalog/mobile/MobileCatalogToolb
 import MobileFiltersDrawer from '@/components/catalog/mobile/MobileFiltersDrawer'
 import { ProductCardSkeleton } from '@/components/ui/Skeleton'
 import { getPrecioOrden, type CatalogType } from '@/lib/catalog'
+import { getProductoCategoriaSlugs } from '@/lib/producto-categorias'
 import { Search, X, ChevronDown, Check, Package } from 'lucide-react'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 
@@ -31,15 +32,19 @@ function productoCoincideCategoria(
   categoriaActiva: string,
   categoriasRaiz: Categoria[],
 ): boolean {
-  const cat = producto.categoria
-  if (!cat) return false
+  const cats: Categoria[] = []
+  if (producto.categoria) cats.push(producto.categoria)
+  if (producto.categorias?.length) cats.push(...producto.categorias)
+  if (cats.length === 0) return false
 
   const raiz = categoriasRaiz.find(r => r.slug === categoriaActiva)
-  if (raiz) {
-    return cat.slug === raiz.slug || cat.padre_id === raiz.id
-  }
 
-  return cat.slug === categoriaActiva
+  return cats.some(cat => {
+    if (raiz) {
+      return cat.slug === raiz.slug || cat.padre_id === raiz.id
+    }
+    return cat.slug === categoriaActiva
+  })
 }
 
 export default function ProductosClient({
@@ -86,6 +91,18 @@ export default function ProductosClient({
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false })
     setPagina(1)
   }, [query, categoriaActiva])
+
+  const conteoCategorias = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const producto of productos) {
+      for (const slug of getProductoCategoriaSlugs(producto)) {
+        counts[slug] = (counts[slug] || 0) + 1
+      }
+    }
+    return counts
+  }, [productos])
+
+  const getCategoryCount = (catSlug: string) => conteoCategorias[catSlug] || 0
 
   const productosFiltrados = useMemo(() => {
     let result = [...productos]
@@ -394,13 +411,22 @@ export default function ProductosClient({
                       )
                     }
                     title={cat.nombre}
-                    className={`relative max-w-[9.5rem] shrink-0 truncate px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors sm:max-w-none ${
+                    className={`relative flex max-w-[11rem] shrink-0 items-center gap-1.5 px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors sm:max-w-none ${
                       raizActiva
                         ? 'text-[var(--gold)]'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    {cat.nombre}
+                    <span className="truncate">{cat.nombre}</span>
+                    <span
+                      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-normal tabular-nums tracking-normal transition-colors ${
+                        raizActiva
+                          ? 'bg-[var(--gold-muted)] text-[var(--gold)]'
+                          : 'bg-[var(--bg-surface)] text-[var(--text-subtle)]'
+                      }`}
+                    >
+                      {getCategoryCount(cat.slug)}
+                    </span>
                     {categoriaActiva === cat.slug && (
                       <motion.span
                         layoutId="cat-tab"
@@ -426,13 +452,22 @@ export default function ProductosClient({
                         key={sub.id}
                         type="button"
                         onClick={() => setCategoriaActiva(sub.slug)}
-                        className={`shrink-0 rounded-[2px] border border-dashed px-3 py-1.5 text-[10px] font-light uppercase tracking-[1px] transition-colors ${
+                        className={`flex shrink-0 items-center gap-1.5 rounded-[2px] border border-dashed px-3 py-1.5 text-[10px] font-light uppercase tracking-[1px] transition-colors ${
                           categoriaActiva === sub.slug
                             ? 'border-[var(--border)] bg-[var(--gold-muted)] text-[var(--gold)]'
                             : 'border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {sub.nombre}
+                        <span
+                          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-normal tabular-nums tracking-normal ${
+                            categoriaActiva === sub.slug
+                              ? 'bg-[rgba(201,168,76,0.22)] text-[var(--gold)]'
+                              : 'bg-[var(--bg-surface)] text-[var(--text-subtle)]'
+                          }`}
+                        >
+                          {getCategoryCount(sub.slug)}
+                        </span>
                       </button>
                     ))}
                   </div>

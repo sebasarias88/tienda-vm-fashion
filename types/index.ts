@@ -8,6 +8,9 @@ export type Categoria = {
   padre_id: string | null
   subcategorias?: Categoria[]
   created_at: string
+  total_productos?: number
+  total_detal?: number
+  total_mayoreo?: number
 }
 
 export type VariacionOpcion = {
@@ -27,6 +30,14 @@ export type VariacionTipo = {
   opciones?: VariacionOpcion[]
 }
 
+export type ProductoSeccion = {
+  id: string
+  producto_id: string
+  titulo: string
+  descripcion: string
+  orden: number
+}
+
 export type Producto = {
   id: string
   nombre: string
@@ -37,9 +48,13 @@ export type Producto = {
   precio_mayoreo: number | null
   precio_antes_mayoreo: number | null
   disponible: boolean
+  disponible_detal: boolean
+  disponible_mayoreo: boolean
   destacado: boolean
   categoria_id: string | null
   categoria?: Categoria
+  categorias?: Categoria[]
+  secciones?: ProductoSeccion[]
   imagenes: string[]
   sku: string | null
   orden: number

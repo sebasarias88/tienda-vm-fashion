@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto, Categoria } from '@/types'
-import { Input, Textarea, adminSelectClass } from '@/components/ui/Input'
+import { Input, Textarea } from '@/components/ui/Input'
+import { AdminMultiSelect } from '@/components/ui/AdminSelect'
 import { CopInput } from '@/components/ui/CopInput'
 import { formatCopInput, parseCopInput } from '@/lib/currency'
 import Button from '@/components/ui/Button'
 import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
+import SeccionesEditor from '@/components/admin/SeccionesEditor'
 import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
 import toast from 'react-hot-toast'
 
@@ -50,13 +52,14 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     precio_antes: '',
     precio_mayoreo: '',
     precio_antes_mayoreo: '',
-    disponible: true,
+    disponible_detal: true,
+    disponible_mayoreo: true,
     destacado: false,
-    categoria_id: '',
     imagenes: [] as string[],
     sku: '',
     orden: 0,
   })
+  const [categorias_ids, setCategorias_ids] = useState<string[]>([])
 
   useEffect(() => {
     supabase
@@ -76,13 +79,26 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         precio_mayoreo: producto.precio_mayoreo != null ? formatCopInput(producto.precio_mayoreo) : '',
         precio_antes_mayoreo:
           producto.precio_antes_mayoreo != null ? formatCopInput(producto.precio_antes_mayoreo) : '',
-        disponible: producto.disponible,
+        disponible_detal: producto.disponible_detal ?? producto.disponible,
+        disponible_mayoreo: producto.disponible_mayoreo ?? producto.disponible,
         destacado: producto.destacado,
-        categoria_id: producto.categoria_id || '',
         imagenes: producto.imagenes || [],
         sku: producto.sku || '',
         orden: producto.orden,
       })
+
+      supabase
+        .from('producto_categorias')
+        .select('categoria_id')
+        .eq('producto_id', producto.id)
+        .then(({ data }) => {
+          const ids = (data || []).map(row => row.categoria_id as string)
+          if (ids.length > 0) {
+            setCategorias_ids(ids)
+          } else if (producto.categoria_id) {
+            setCategorias_ids([producto.categoria_id])
+          }
+        })
     }
   }, [producto])
 
@@ -115,6 +131,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     }
 
     setSaving(true)
+    const mainCatId = categorias_ids[0] || null
     const payload = {
       nombre: form.nombre.trim(),
       slug: form.slug.trim(),
@@ -123,13 +140,17 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       precio_antes: parseCopInput(form.precio_antes),
       precio_mayoreo: parseCopInput(form.precio_mayoreo),
       precio_antes_mayoreo: parseCopInput(form.precio_antes_mayoreo),
-      disponible: form.disponible,
+      disponible_detal: form.disponible_detal,
+      disponible_mayoreo: form.disponible_mayoreo,
+      disponible: form.disponible_detal || form.disponible_mayoreo,
       destacado: form.destacado,
-      categoria_id: form.categoria_id || null,
+      categoria_id: mainCatId,
       imagenes: form.imagenes,
       sku: form.sku.trim() || null,
       orden: form.orden,
     }
+
+    let savedProductId = producto?.id ?? null
 
     if (producto) {
       const { error } = await supabase.from('productos').update(payload).eq('id', producto.id)
@@ -140,9 +161,14 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         setSaving(false)
         return
       }
+      savedProductId = producto.id
       toast.success('Producto actualizado')
     } else {
-      const { error } = await supabase.from('productos').insert([payload])
+      const { data, error } = await supabase
+        .from('productos')
+        .insert([payload])
+        .select('id')
+        .single()
 
       if (error) {
         if (error.code === '23505') toast.error('Ya existe un producto con ese slug')
@@ -150,7 +176,24 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         setSaving(false)
         return
       }
+      savedProductId = data?.id ?? null
       toast.success('Producto creado')
+    }
+
+    if (savedProductId) {
+      await supabase
+        .from('producto_categorias')
+        .delete()
+        .eq('producto_id', savedProductId)
+
+      if (categorias_ids.length > 0) {
+        await supabase.from('producto_categorias').insert(
+          categorias_ids.map(cat_id => ({
+            producto_id: savedProductId,
+            categoria_id: cat_id,
+          })),
+        )
+      }
     }
 
     setSaving(false)
@@ -242,19 +285,17 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       <FormSection title="Clasificación">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="admin-form-label">Categoría</label>
-            <select
-              value={form.categoria_id}
-              onChange={e => setForm(f => ({ ...f, categoria_id: e.target.value }))}
-              className={adminSelectClass}
-            >
-              <option value="">Sin categoría</option>
-              {categorias.map(cat => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nombre}
-                </option>
-              ))}
-            </select>
+            <label className="admin-form-label">Categorías *</label>
+            <AdminMultiSelect
+              values={categorias_ids}
+              onChange={setCategorias_ids}
+              options={categorias.map(cat => ({ value: cat.id, label: cat.nombre }))}
+              placeholder="+ Agregar categoría"
+              emptyLabel="No hay más categorías"
+            />
+            <p className="admin-form-hint">
+              Puedes agregar el producto a múltiples categorías
+            </p>
           </div>
           <Input
             label="SKU"
@@ -274,17 +315,17 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Visibilidad">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3">
           {[
             {
-              key: 'disponible' as const,
-              label: 'Producto disponible',
-              desc: 'Si está desactivado aparece como agotado',
+              key: 'disponible_detal' as const,
+              label: 'Disponible en Detal',
+              desc: 'Visible en el catálogo al detal',
             },
             {
-              key: 'destacado' as const,
-              label: 'Producto destacado',
-              desc: 'Aparece en la sección de inicio',
+              key: 'disponible_mayoreo' as const,
+              label: 'Disponible en Mayoreo',
+              desc: 'Visible en el catálogo al por mayor',
             },
           ].map(({ key, label, desc }) => (
             <div
@@ -306,10 +347,29 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
             </div>
           ))}
         </div>
+
+        <div className="admin-form-panel mt-3 flex items-center justify-between px-4 py-3.5">
+          <div className="pr-4">
+            <p className="admin-form-panel__title">Producto destacado</p>
+            <p className="admin-form-panel__desc">Aparece en la sección de inicio</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setForm(f => ({ ...f, destacado: !f.destacado }))}
+            className={`admin-toggle ${form.destacado ? 'admin-toggle--on' : 'admin-toggle--off'}`}
+            aria-pressed={form.destacado}
+          >
+            <span className="admin-toggle__thumb" />
+          </button>
+        </div>
       </FormSection>
 
       <FormSection title="Variaciones">
         <VariacionesEditor productoId={producto?.id ?? null} />
+      </FormSection>
+
+      <FormSection title="Secciones de información">
+        <SeccionesEditor productoId={producto?.id ?? null} />
       </FormSection>
     </AdminFormLayout>
   )

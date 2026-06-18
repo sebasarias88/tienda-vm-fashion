@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
-import { Producto, VariacionTipo } from '@/types'
+import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 import { getLineKey } from '@/lib/cart'
 import {
   buildVariacionesSeleccionadas,
@@ -14,6 +14,7 @@ import {
   Plus,
   Minus,
   ChevronLeft,
+  ChevronDown,
   ZoomIn,
   Check,
   Share2,
@@ -39,14 +40,73 @@ const ENVIO_INFO = [
   { icon: MessageCircle, text: 'Pedido finalizado por WhatsApp' },
 ] as const
 
+function SeccionAcordeon({
+  seccion,
+  defaultOpen = false,
+}: {
+  seccion: ProductoSeccion
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="border-b border-[var(--border-subtle)]">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="group flex w-full items-center justify-between gap-4 py-5 text-left"
+        aria-expanded={open}
+      >
+        <span
+          className={`text-[14px] font-light tracking-[0.5px] transition-colors ${
+            open ? 'text-[var(--gold)]' : 'text-[var(--text-primary)] group-hover:text-[var(--gold)]'
+          }`}
+        >
+          {seccion.titulo}
+        </span>
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors ${
+            open
+              ? 'border-[var(--gold)] text-[var(--gold)]'
+              : 'border-[var(--border-input)] text-[var(--text-muted)] group-hover:border-[var(--gold)] group-hover:text-[var(--gold)]'
+          }`}
+        >
+          <ChevronDown
+            size={15}
+            className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          />
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <p className="whitespace-pre-line pb-5 text-[14px] font-light leading-[1.8] text-[var(--text-muted)]">
+              {seccion.descripcion}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export default function ProductoDetalle({
   producto,
   catalogType = 'detal',
   variaciones = [],
+  secciones = [],
 }: {
   producto: Producto
   catalogType?: 'detal' | 'mayoreo'
   variaciones?: VariacionTipo[]
+  secciones?: ProductoSeccion[]
 }) {
   const agregar = useCarrito(s => s.agregar)
   const items = useCarrito(s => s.items)
@@ -467,6 +527,33 @@ export default function ProductoDetalle({
             </button>
           </motion.div>
         </div>
+
+        {/* Secciones de información (estilo marketplace) */}
+        {secciones.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.5 }}
+            className="mt-14 sm:mt-20"
+          >
+            <div className="mb-6 flex items-center gap-3">
+              <div className="h-px w-8 bg-[var(--gold)] opacity-40" />
+              <h2 className="catalog-eyebrow tracking-[3px]">
+                Información del producto
+              </h2>
+            </div>
+            <div className="max-w-3xl border-t border-[var(--border-subtle)]">
+              {secciones.map((seccion, i) => (
+                <SeccionAcordeon
+                  key={seccion.id}
+                  seccion={seccion}
+                  defaultOpen={i === 0}
+                />
+              ))}
+            </div>
+          </motion.section>
+        )}
       </div>
 
       {/* Modal zoom */}

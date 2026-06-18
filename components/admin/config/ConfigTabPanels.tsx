@@ -15,17 +15,20 @@ import {
 import MobilePaymentMethodCard from '@/components/admin/mobile/MobilePaymentMethodCard'
 import ConfigPaymentMethodsDesktop from '@/components/admin/config/ConfigPaymentMethodsDesktop'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
-import { Config, FormSection, InfoBanner, TabId } from '@/components/admin/config/config-ui'
+import {
+  Config,
+  FormSection,
+  InfoBanner,
+  PaymentMethodsControls,
+  TabId,
+} from '@/components/admin/config/config-ui'
 
 export type ConfigTabPanelsProps = {
   tab: TabId
   config: Config
   updateConfig: (clave: string, valor: string) => void
-  metodosPago: string[]
-  nuevoMetodo: string
-  setNuevoMetodo: (value: string) => void
-  agregarMetodo: () => void
-  quitarMetodo: (metodo: string) => void
+  pagoDetal: PaymentMethodsControls
+  pagoMayoreo: PaymentMethodsControls
   variant?: 'desktop' | 'mobile'
 }
 
@@ -62,15 +65,73 @@ function ZoneCard({
   )
 }
 
+function MobilePaymentGroup({
+  label,
+  controls,
+}: {
+  label: string
+  controls: PaymentMethodsControls
+}) {
+  return (
+    <>
+      <FormSection title={`${label} — Métodos activos`}>
+        {controls.metodos.length === 0 ? (
+          <MobileEmptyState
+            icon={CreditCard}
+            title="Sin métodos de pago"
+            description="Agrega al menos uno abajo"
+          />
+        ) : (
+          <div className="space-y-2.5">
+            {controls.metodos.map(metodo => (
+              <MobilePaymentMethodCard
+                key={metodo}
+                metodo={metodo}
+                onRemove={() => controls.quitar(metodo)}
+              />
+            ))}
+          </div>
+        )}
+      </FormSection>
+
+      <FormSection title={`${label} — Agregar método`}>
+        <div className="pb-6">
+          <div className="flex items-center gap-2 rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] py-1.5 pl-4 pr-1.5">
+            <input
+              type="text"
+              value={controls.nuevo}
+              onChange={e => controls.setNuevo(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  controls.agregar()
+                }
+              }}
+              placeholder="Ej: Nequi, Bancolombia, Efectivo..."
+              className="mobile-config-add-input min-h-[2.75rem] min-w-0 flex-1 border-0 bg-transparent py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={controls.agregar}
+              disabled={!controls.nuevo.trim()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[var(--gold-bright)] text-[var(--bg-base)] transition-opacity disabled:opacity-35"
+              aria-label="Agregar método"
+            >
+              <Plus size={17} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+      </FormSection>
+    </>
+  )
+}
+
 export default function ConfigTabPanels({
   tab,
   config,
   updateConfig,
-  metodosPago,
-  nuevoMetodo,
-  setNuevoMetodo,
-  agregarMetodo,
-  quitarMetodo,
+  pagoDetal,
+  pagoMayoreo,
   variant = 'desktop',
 }: ConfigTabPanelsProps) {
   const mobile = variant === 'mobile'
@@ -230,68 +291,24 @@ export default function ConfigTabPanels({
   return (
     <>
       <InfoBanner icon={CreditCard} compact={mobile}>
-        Opciones en el paso de pago del carrito. Agrega al menos uno.
+        Opciones en el paso de pago del carrito. Configura cada catálogo por
+        separado y agrega al menos uno en cada uno.
       </InfoBanner>
 
       {mobile ? (
         <>
-          <FormSection title="Métodos activos">
-            {metodosPago.length === 0 ? (
-              <MobileEmptyState
-                icon={CreditCard}
-                title="Sin métodos de pago"
-                description="Agrega al menos uno abajo"
-              />
-            ) : (
-              <div className="space-y-2.5">
-                {metodosPago.map(metodo => (
-                  <MobilePaymentMethodCard
-                    key={metodo}
-                    metodo={metodo}
-                    onRemove={() => quitarMetodo(metodo)}
-                  />
-                ))}
-              </div>
-            )}
-          </FormSection>
-
-          <FormSection title="Agregar método">
-            <div className="pb-6">
-              <div className="flex items-center gap-2 rounded-xl border border-[var(--border-input)] bg-[var(--bg-muted)] py-1.5 pl-4 pr-1.5">
-                <input
-                  type="text"
-                  value={nuevoMetodo}
-                  onChange={e => setNuevoMetodo(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      agregarMetodo()
-                    }
-                  }}
-                  placeholder="Ej: Nequi, Bancolombia, Efectivo..."
-                  className="mobile-config-add-input min-h-[2.75rem] min-w-0 flex-1 border-0 bg-transparent py-2 text-[13px] font-light text-[var(--text-primary)] placeholder:text-[var(--text-subtle)] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={agregarMetodo}
-                  disabled={!nuevoMetodo.trim()}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[var(--gold-bright)] text-[var(--bg-base)] transition-opacity disabled:opacity-35"
-                  aria-label="Agregar método"
-                >
-                  <Plus size={17} strokeWidth={2} />
-                </button>
-              </div>
-            </div>
-          </FormSection>
+          <MobilePaymentGroup label="Detal" controls={pagoDetal} />
+          <MobilePaymentGroup label="Mayoreo" controls={pagoMayoreo} />
         </>
       ) : (
-        <ConfigPaymentMethodsDesktop
-          metodosPago={metodosPago}
-          nuevoMetodo={nuevoMetodo}
-          setNuevoMetodo={setNuevoMetodo}
-          agregarMetodo={agregarMetodo}
-          quitarMetodo={quitarMetodo}
-        />
+        <div className="space-y-10">
+          <FormSection title="Métodos de pago — Detal">
+            <ConfigPaymentMethodsDesktop controls={pagoDetal} />
+          </FormSection>
+          <FormSection title="Métodos de pago — Mayoreo">
+            <ConfigPaymentMethodsDesktop controls={pagoMayoreo} />
+          </FormSection>
+        </div>
       )}
     </>
   )

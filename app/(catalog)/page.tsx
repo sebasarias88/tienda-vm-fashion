@@ -26,16 +26,36 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const supabase = await createSupabaseServer()
 
-  const [{ data: configData }, { data: categorias }, { data: destacados }] =
+  const [{ data: configData }, { data: categorias }, { data: destacados }, { data: conteoData }] =
     await Promise.all([
       supabase.from('configuracion').select('clave, valor'),
       supabase.from('categorias').select('*').eq('activa', true).order('orden').limit(8),
       supabase.from('productos').select('*, categoria:categorias(id,nombre,slug)')
         .eq('disponible', true).eq('destacado', true).order('orden').limit(8),
+      supabase
+        .from('productos')
+        .select('categoria:categorias(slug), producto_categorias(categoria:categorias(slug))')
+        .eq('disponible_detal', true),
     ])
 
   const config: Record<string, string> = {}
   configData?.forEach(row => { config[row.clave] = row.valor })
+
+  const conteos: Record<string, number> = {}
+  type ConteoRow = {
+    categoria?: { slug?: string | null } | null
+    producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
+  }
+  ;(conteoData as ConteoRow[] | null)?.forEach(row => {
+    const slugs = new Set<string>()
+    if (row.categoria?.slug) slugs.add(row.categoria.slug)
+    row.producto_categorias?.forEach(pc => {
+      if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
+    })
+    slugs.forEach(slug => {
+      conteos[slug] = (conteos[slug] || 0) + 1
+    })
+  })
 
   return (
     <>
@@ -44,7 +64,7 @@ export default async function HomePage() {
         subtitulo={config['hero_subtitulo'] || 'Productos profesionales para cada tipo de cabello y piel.'}
         categorias={categorias || []}
       />
-      <CategoriasSection categorias={categorias || []} />
+      <CategoriasSection categorias={categorias || []} conteos={conteos} />
       <ProductosDestacados productos={destacados || []} />
       <NosotrosSection
         texto={config['texto_nosotros'] || ''}

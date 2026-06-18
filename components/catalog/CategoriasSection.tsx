@@ -11,9 +11,11 @@ import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
 export default function CategoriasSection({
   categorias,
+  conteos,
   catalogType = 'detal',
 }: {
   categorias: Categoria[]
+  conteos?: Record<string, number>
   catalogType?: CatalogType
 }) {
   const categoriasRaiz = useMemo(
@@ -102,6 +104,9 @@ export default function CategoriasSection({
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <p className="text-[13px] font-light uppercase tracking-[1.5px] text-[var(--text-inverse)] transition-colors group-hover:text-[var(--gold-bright)]">
                   {cat.nombre}
+                </p>
+                <p className="mt-1 text-[10px] font-light text-[rgba(248,246,241,0.5)]">
+                  {conteos?.[cat.slug] || 0} productos
                 </p>
                 <div className="mt-1.5 h-px w-0 bg-[var(--gold-bright)] transition-all duration-300 group-hover:w-full" />
               </div>

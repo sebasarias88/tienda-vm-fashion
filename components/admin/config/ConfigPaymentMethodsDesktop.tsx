@@ -2,22 +2,22 @@
 
 import { CreditCard, Plus, Trash2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
+import { PaymentMethodsControls } from '@/components/admin/config/config-ui'
 
 type ConfigPaymentMethodsDesktopProps = {
-  metodosPago: string[]
-  nuevoMetodo: string
-  setNuevoMetodo: (value: string) => void
-  agregarMetodo: () => void
-  quitarMetodo: (metodo: string) => void
+  controls: PaymentMethodsControls
 }
 
 export default function ConfigPaymentMethodsDesktop({
-  metodosPago,
-  nuevoMetodo,
-  setNuevoMetodo,
-  agregarMetodo,
-  quitarMetodo,
+  controls,
 }: ConfigPaymentMethodsDesktopProps) {
+  const {
+    metodos: metodosPago,
+    nuevo: nuevoMetodo,
+    setNuevo: setNuevoMetodo,
+    agregar: agregarMetodo,
+    quitar: quitarMetodo,
+  } = controls
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()

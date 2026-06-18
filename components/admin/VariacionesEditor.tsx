@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { VariacionTipo } from '@/types'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
-import { Plus, Pencil, Trash2, X, Loader2, Check } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Loader2, Check, Tag } from 'lucide-react'
 
 type VariacionesEditorProps = {
   productoId: string | null
@@ -378,13 +378,19 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
         </div>
       )}
 
-      <div className="admin-form-panel p-4">
-        <p className="admin-form-section-title mb-3">Nuevo tipo de variación</p>
-        <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <label className="admin-form-label text-[9px] tracking-[0.1em]">
-              Nombre del tipo
-            </label>
+      <div className="admin-form-panel p-4 sm:p-5">
+        <div className="mb-4 flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] border border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)]">
+            <Plus size={15} />
+          </span>
+          <p className="admin-form-section-title">Nuevo tipo de variación</p>
+        </div>
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch">
+          <div className="relative min-w-0 flex-1">
+            <Tag
+              size={15}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-subtle)]"
+            />
             <input
               id="nuevo-tipo-variacion"
               type="text"
@@ -393,24 +399,22 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
               onKeyDown={e => {
                 if (e.key === 'Enter') handleAgregarTipo()
               }}
-              placeholder="Ej: Color, Tono, Tamaño"
-              className={inputClass}
+              placeholder="Nombre del tipo — ej: Color, Tono, Tamaño"
+              className="admin-input w-full rounded-xl py-2.5 pl-9 pr-3 text-[13px] md:rounded-[2px]"
             />
           </div>
           <Button
             type="button"
-            size="sm"
             onClick={handleAgregarTipo}
             loading={addingTipo}
-            className=""
+            className="shrink-0 sm:px-6"
           >
-            <Plus size={13} />
+            <Plus size={14} />
             Agregar tipo
           </Button>
         </div>
-        <p className="admin-form-hint mt-2">
-          Solo escribe el nombre del tipo y las opciones en texto. El color hex es opcional y sirve
-          para mostrar un círculo de muestra en la tienda.
+        <p className="admin-form-hint mt-3">
+          El color hex es opcional y sirve para mostrar un círculo de muestra en la tienda.
         </p>
       </div>
     </div>
