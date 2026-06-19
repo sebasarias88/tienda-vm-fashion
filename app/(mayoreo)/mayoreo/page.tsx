@@ -6,6 +6,7 @@ import ProductosDestacados from '@/components/catalog/ProductosDestacados'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
+import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
@@ -21,9 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default async function MayoreoHomePage() {
-  const supabase = await createSupabaseServer()
+type ConteoRow = {
+  categoria?: { slug?: string | null } | null
+  producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
+}
 
+async function getMayoreoData() {
+  const supabase = await createSupabaseServer()
   const [{ data: configData }, { data: categorias }, { data: destacados }, { data: conteoData }] =
     await Promise.all([
       supabase.from('configuracion').select('clave, valor'),
@@ -36,24 +41,39 @@ export default async function MayoreoHomePage() {
         .eq('disponible_mayoreo', true),
     ])
 
-  const config: Record<string, string> = {}
-  configData?.forEach(row => { config[row.clave] = row.valor })
-
-  const conteos: Record<string, number> = {}
-  type ConteoRow = {
-    categoria?: { slug?: string | null } | null
-    producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
+  return {
+    configData,
+    categorias: categorias ?? [],
+    destacados: destacados ?? [],
+    conteoData,
   }
-  ;(conteoData as ConteoRow[] | null)?.forEach(row => {
-    const slugs = new Set<string>()
-    if (row.categoria?.slug) slugs.add(row.categoria.slug)
-    row.producto_categorias?.forEach(pc => {
-      if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
+}
+
+export default async function MayoreoHomePage() {
+  const config: Record<string, string> = {}
+  const conteos: Record<string, number> = {}
+  let categorias: Awaited<ReturnType<typeof getMayoreoData>>['categorias'] = []
+  let destacados: Awaited<ReturnType<typeof getMayoreoData>>['destacados'] = []
+
+  try {
+    const data = await getMayoreoData()
+    data.configData?.forEach(row => { config[row.clave] = row.valor })
+    categorias = data.categorias
+    destacados = data.destacados
+    ;(data.conteoData as ConteoRow[] | null)?.forEach(row => {
+      const slugs = new Set<string>()
+      if (row.categoria?.slug) slugs.add(row.categoria.slug)
+      row.producto_categorias?.forEach(pc => {
+        if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
+      })
+      slugs.forEach(slug => {
+        conteos[slug] = (conteos[slug] || 0) + 1
+      })
     })
-    slugs.forEach(slug => {
-      conteos[slug] = (conteos[slug] || 0) + 1
-    })
-  })
+  } catch (error) {
+    rethrowIfNextControlFlowError(error)
+    console.error('[MayoreoHomePage] Error cargando datos:', error)
+  }
 
   return (
     <>

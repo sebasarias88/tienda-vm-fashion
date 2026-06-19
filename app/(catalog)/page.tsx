@@ -7,6 +7,7 @@ import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
+import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
@@ -23,9 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default async function HomePage() {
-  const supabase = await createSupabaseServer()
+type ConteoRow = {
+  categoria?: { slug?: string | null } | null
+  producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
+}
 
+async function getHomeData() {
+  const supabase = await createSupabaseServer()
   const [{ data: configData }, { data: categorias }, { data: destacados }, { data: conteoData }] =
     await Promise.all([
       supabase.from('configuracion').select('clave, valor'),
@@ -38,24 +43,41 @@ export default async function HomePage() {
         .eq('disponible_detal', true),
     ])
 
-  const config: Record<string, string> = {}
-  configData?.forEach(row => { config[row.clave] = row.valor })
-
-  const conteos: Record<string, number> = {}
-  type ConteoRow = {
-    categoria?: { slug?: string | null } | null
-    producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
+  return {
+    configData,
+    categorias: categorias ?? [],
+    destacados: destacados ?? [],
+    conteoData,
   }
-  ;(conteoData as ConteoRow[] | null)?.forEach(row => {
-    const slugs = new Set<string>()
-    if (row.categoria?.slug) slugs.add(row.categoria.slug)
-    row.producto_categorias?.forEach(pc => {
-      if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
+}
+
+export default async function HomePage() {
+  const config: Record<string, string> = {}
+  const conteos: Record<string, number> = {}
+  let categorias: Awaited<ReturnType<typeof getHomeData>>['categorias'] = []
+  let destacados: Awaited<ReturnType<typeof getHomeData>>['destacados'] = []
+
+  try {
+    const data = await getHomeData()
+    data.configData?.forEach(row => { config[row.clave] = row.valor })
+    categorias = data.categorias
+    destacados = data.destacados
+    ;(data.conteoData as ConteoRow[] | null)?.forEach(row => {
+      const slugs = new Set<string>()
+      if (row.categoria?.slug) slugs.add(row.categoria.slug)
+      row.producto_categorias?.forEach(pc => {
+        if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
+      })
+      slugs.forEach(slug => {
+        conteos[slug] = (conteos[slug] || 0) + 1
+      })
     })
-    slugs.forEach(slug => {
-      conteos[slug] = (conteos[slug] || 0) + 1
-    })
-  })
+  } catch (error) {
+    rethrowIfNextControlFlowError(error)
+    // Si falla la conexión con el backend, renderizamos la estructura con datos vacíos
+    // en lugar de romper todo el árbol (la UI sigue visible con estados vacíos).
+    console.error('[HomePage] Error cargando datos:', error)
+  }
 
   return (
     <>

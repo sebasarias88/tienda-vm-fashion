@@ -5,6 +5,8 @@ import { buildMetadata } from '@/lib/seo'
 import { catalogPath } from '@/lib/catalog'
 import { getSiteConfig, getSiteName } from '@/lib/site-config'
 import { withProductoCategorias } from '@/lib/producto-categorias'
+import type { Categoria, Producto } from '@/types'
+import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 
 export async function generateMetadata({
   searchParams,
@@ -48,28 +50,39 @@ export default async function MayoreoProductosPage({
   searchParams: Promise<{ q?: string; categoria?: string }>
 }) {
   const { q, categoria } = await searchParams
-  const supabase = await createSupabaseServer()
 
-  const [{ data: categorias }, { data: productos }] = await Promise.all([
-    supabase
-      .from('categorias')
-      .select('*, subcategorias:categorias!padre_id(*)')
-      .is('padre_id', null)
-      .eq('activa', true)
-      .order('orden'),
-    supabase
-      .from('productos')
-      .select(
-        '*, categoria:categorias(id,nombre,slug,padre_id), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id))',
-      )
-      .eq('disponible_mayoreo', true)
-      .order('orden', { ascending: true }),
-  ])
+  let categorias: Categoria[] = []
+  let productos: (Producto & { producto_categorias?: { categoria_id?: string; categoria?: Categoria | null }[] })[] = []
+
+  try {
+    const supabase = await createSupabaseServer()
+    const [cat, prod] = await Promise.all([
+      supabase
+        .from('categorias')
+        .select('*, subcategorias:categorias!padre_id(*)')
+        .is('padre_id', null)
+        .eq('activa', true)
+        .order('orden'),
+      supabase
+        .from('productos')
+        .select(
+          '*, categoria:categorias(id,nombre,slug,padre_id), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id))',
+        )
+        .eq('disponible_mayoreo', true)
+        .order('orden', { ascending: true })
+        .order('created_at', { ascending: false }),
+    ])
+    categorias = (cat.data as Categoria[] | null) ?? []
+    productos = (prod.data as typeof productos | null) ?? []
+  } catch (error) {
+    rethrowIfNextControlFlowError(error)
+    console.error('[MayoreoProductosPage] Error cargando datos:', error)
+  }
 
   return (
     <ProductosClient
       productos={withProductoCategorias(productos)}
-      categorias={categorias || []}
+      categorias={categorias}
       initialQ={q || ''}
       initialCategoria={categoria || ''}
       catalogType="mayoreo"

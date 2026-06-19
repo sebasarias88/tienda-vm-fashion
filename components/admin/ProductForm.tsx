@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto, Categoria } from '@/types'
 import { Input, Textarea } from '@/components/ui/Input'
@@ -101,6 +101,27 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         })
     }
   }, [producto])
+
+  const categoriaGrupos = useMemo(() => {
+    const nombrePadre = (id: string | null) =>
+      categorias.find(c => c.id === id)?.nombre
+    const raices = categorias.filter(c => !c.padre_id)
+    const subs = categorias.filter(c => c.padre_id)
+    return [
+      {
+        label: 'Categorías',
+        options: raices.map(c => ({ value: c.id, label: c.nombre })),
+      },
+      {
+        label: 'Subcategorías',
+        options: subs.map(c => ({
+          value: c.id,
+          label: c.nombre,
+          hint: nombrePadre(c.padre_id),
+        })),
+      },
+    ]
+  }, [categorias])
 
   const generarSlug = (nombre: string) =>
     nombre
@@ -289,7 +310,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
             <AdminMultiSelect
               values={categorias_ids}
               onChange={setCategorias_ids}
-              options={categorias.map(cat => ({ value: cat.id, label: cat.nombre }))}
+              groups={categoriaGrupos}
               placeholder="+ Agregar categoría"
               emptyLabel="No hay más categorías"
             />

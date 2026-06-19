@@ -283,9 +283,14 @@ export default function CategoriaForm({
               <AdminSelect
                 value={form.padre_id}
                 onChange={padre_id => setForm(f => ({ ...f, padre_id }))}
-                options={categoriasRaiz
-                  .filter(c => c.id !== categoria?.id)
-                  .map(c => ({ value: c.id, label: c.nombre }))}
+                groups={[
+                  {
+                    label: 'Categorías principales',
+                    options: categoriasRaiz
+                      .filter(c => c.id !== categoria?.id)
+                      .map(c => ({ value: c.id, label: c.nombre })),
+                  },
+                ]}
                 placeholder="Selecciona la categoría principal"
               />
               <p className="admin-form-hint">

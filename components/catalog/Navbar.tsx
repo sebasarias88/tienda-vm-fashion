@@ -101,11 +101,6 @@ export default function Navbar({
                 <span className="gold-shimmer text-[15px] font-thin uppercase tracking-[4px]">
                   {nombreNegocio}
                 </span>
-                {isMayoreo && (
-                  <span className="rounded-[2px] border border-[var(--border)] bg-[var(--gold-muted)] px-1.5 py-0.5 text-[8px] font-light uppercase tracking-[1.5px] text-[var(--gold)]">
-                    Mayoreo
-                  </span>
-                )}
               </motion.div>
             </Link>
 

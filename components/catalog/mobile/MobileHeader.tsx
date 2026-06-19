@@ -71,11 +71,6 @@ export default function MobileHeader({
             <span className="gold-shimmer block truncate text-[13px] font-thin uppercase tracking-[2.5px]">
               {nombreNegocio}
             </span>
-            {isMayoreo && (
-              <span className="mt-0.5 block text-[8px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
-                Mayoreo
-              </span>
-            )}
           </Link>
 
           <div className="flex shrink-0 items-center gap-1">
@@ -97,7 +92,7 @@ export default function MobileHeader({
               <LuxuryCartIcon size={20} />
               {mounted && cantidad > 0 && (
                 <span
-                  className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-[var(--bg-card)] bg-[var(--gold)] px-1 text-[9px] font-bold leading-none text-[var(--text-on-gold)]"
+                  className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--gold)] px-1 text-[9px] font-bold leading-none text-[var(--text-on-gold)]"
                   aria-hidden
                 >
                   {cantidad > 99 ? '99+' : cantidad}

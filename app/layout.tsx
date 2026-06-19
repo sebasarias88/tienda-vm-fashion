@@ -3,6 +3,8 @@ import { Outfit } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
 import ThemeScript from '@/components/ThemeScript'
+import ScrollToTop from '@/components/ScrollToTop'
+import ConnectionStatus from '@/components/ConnectionStatus'
 import { getSiteUrl } from '@/lib/seo'
 
 const outfit = Outfit({
@@ -68,6 +70,8 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body className="min-h-screen antialiased">
+        <ScrollToTop />
+        <ConnectionStatus />
         <Providers>{children}</Providers>
       </body>
     </html>

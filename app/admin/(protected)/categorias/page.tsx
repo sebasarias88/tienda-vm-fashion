@@ -7,45 +7,27 @@ import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import CategoriaForm from '@/components/admin/CategoriaForm'
 import {
-  AdminTable,
-  AdminTableHead,
-  AdminTableHeaderRow,
-  AdminTableTh,
-  AdminTableBody,
-  AdminTableRow,
-  AdminTableTd,
-  AdminTableEmpty,
-  AdminTableImage,
-  AdminTablePrimary,
-  AdminTableSlug,
-  AdminTableNumber,
-  AdminTableStatus,
-  AdminTableActions,
-  AdminTableSkeletonRow,
   AdminListToolbar,
-  AdminListMeta,
   AdminTablePagination,
 } from '@/components/admin/AdminTable'
+import CategoriaGrupoCard, {
+  CategoriaGrupoCardSkeleton,
+} from '@/components/admin/CategoriaGrupoCard'
+import AdminLoadError from '@/components/admin/AdminLoadError'
 import {
   ADMIN_TABLE_PAGE_SIZE,
   clampPage,
   paginateItems,
 } from '@/lib/pagination'
 import toast from 'react-hot-toast'
-import {
-  Plus,
-  GripVertical,
-  Tag,
-  CheckCircle2,
-  XCircle,
-} from 'lucide-react'
+import { Plus, Tag } from 'lucide-react'
 import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
-import MobileCategoriaCard from '@/components/admin/mobile/MobileCategoriaCard'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
 
 export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteModal, setDeleteModal] = useState(false)
   const [selected, setSelected] = useState<Categoria | null>(null)
@@ -54,19 +36,7 @@ export default function CategoriasPage() {
   const [filtroEstado, setFiltroEstado] = useState<'todas' | 'activas' | 'inactivas'>('todas')
   const [page, setPage] = useState(1)
 
-  type CategoriaFila = Categoria & { esSubcategoria: boolean }
-
-  const flattenCategorias = (roots: Categoria[]): CategoriaFila[] => {
-    const rows: CategoriaFila[] = []
-    for (const root of roots) {
-      rows.push({ ...root, esSubcategoria: false })
-      const subs = [...(root.subcategorias || [])].sort((a, b) => a.orden - b.orden)
-      for (const sub of subs) {
-        rows.push({ ...sub, esSubcategoria: true })
-      }
-    }
-    return rows
-  }
+  type GrupoCategoria = { root: Categoria; subs: Categoria[] }
 
   const fetchCategorias = async () => {
     setLoading(true)
@@ -76,8 +46,13 @@ export default function CategoriasPage() {
       .is('padre_id', null)
       .order('orden', { ascending: true })
 
-    if (error) toast.error('Error al cargar categorías')
-    else setCategorias(data || [])
+    if (error) {
+      toast.error('Error al cargar categorías')
+      setLoadError(true)
+    } else {
+      setCategorias(data || [])
+      setLoadError(false)
+    }
     setLoading(false)
   }
 
@@ -85,30 +60,53 @@ export default function CategoriasPage() {
     fetchCategorias()
   }, [])
 
-  const categoriasAplanadas = useMemo(() => flattenCategorias(categorias), [categorias])
+  const gruposFiltrados = useMemo<GrupoCategoria[]>(() => {
+    const term = search.trim().toLowerCase()
+    const estadoOk = (c: Categoria) =>
+      filtroEstado === 'todas' ||
+      (filtroEstado === 'activas' && c.activa) ||
+      (filtroEstado === 'inactivas' && !c.activa)
+    const textOk = (c: Categoria) =>
+      !term ||
+      c.nombre.toLowerCase().includes(term) ||
+      c.slug.toLowerCase().includes(term)
 
-  const categoriasFiltradas = useMemo(() => {
-    return categoriasAplanadas.filter(cat => {
-      const matchSearch =
-        cat.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        cat.slug.toLowerCase().includes(search.toLowerCase())
-      const matchEstado =
-        filtroEstado === 'todas' ||
-        (filtroEstado === 'activas' && cat.activa) ||
-        (filtroEstado === 'inactivas' && !cat.activa)
-      return matchSearch && matchEstado
-    })
-  }, [categoriasAplanadas, search, filtroEstado])
+    const grupos: GrupoCategoria[] = []
+    for (const root of categorias) {
+      const subs = [...(root.subcategorias || [])].sort((a, b) => a.orden - b.orden)
+      const rootCoincide = estadoOk(root) && textOk(root)
+      const subsCoinciden = subs.filter(s => estadoOk(s) && textOk(s))
+      if (rootCoincide) {
+        grupos.push({ root, subs: subs.filter(estadoOk) })
+      } else if (subsCoinciden.length > 0) {
+        grupos.push({ root, subs: subsCoinciden })
+      }
+    }
+    return grupos
+  }, [categorias, search, filtroEstado])
+
+  const totalCategorias = useMemo(
+    () => gruposFiltrados.reduce((n, g) => n + 1 + g.subs.length, 0),
+    [gruposFiltrados],
+  )
+
+  const conteos = useMemo(
+    () => ({
+      principales: gruposFiltrados.length,
+      subs: gruposFiltrados.reduce((n, g) => n + g.subs.length, 0),
+    }),
+    [gruposFiltrados],
+  )
 
   useEffect(() => {
     setPage(1)
   }, [search, filtroEstado])
 
-  const currentPage = clampPage(page, categoriasFiltradas.length, ADMIN_TABLE_PAGE_SIZE)
+  const currentPage = clampPage(page, gruposFiltrados.length, ADMIN_TABLE_PAGE_SIZE)
 
-  const categoriasPaginadas = useMemo(
-    () => paginateItems(categoriasFiltradas, currentPage, ADMIN_TABLE_PAGE_SIZE),
-    [categoriasFiltradas, currentPage],
+  const gruposPaginados = useMemo(
+    () => paginateItems(gruposFiltrados, currentPage, ADMIN_TABLE_PAGE_SIZE),
+    [gruposFiltrados, currentPage],
   )
 
   const abrirCrear = () => {
@@ -193,116 +191,86 @@ export default function CategoriasPage() {
         onFilterChange={setFiltroEstado}
       />
 
-      <AdminListMeta
-        count={categoriasFiltradas.length}
-        noun="categoría"
-        search={search || undefined}
-        activeFilterLabel={filtroEstado !== 'todas' ? filtroLabels[filtroEstado] : undefined}
-      />
-
-      {/* Tabla */}
-      <AdminTable
-        fixed
-        footer={
-          <AdminTablePagination
-            page={currentPage}
-            pageSize={ADMIN_TABLE_PAGE_SIZE}
-            totalItems={categoriasFiltradas.length}
-            onPageChange={setPage}
-          />
-        }
-      >
-        <AdminTableHead>
-          <AdminTableHeaderRow>
-            <AdminTableTh className="w-[5.5rem] px-3" />
-            <AdminTableTh className="w-[32%]">Categoría</AdminTableTh>
-            <AdminTableTh className="w-[28%]">Slug</AdminTableTh>
-            <AdminTableTh className="w-[4.5rem]">Orden</AdminTableTh>
-            <AdminTableTh className="w-[8rem]">Estado</AdminTableTh>
-            <AdminTableTh className="w-[5.5rem] text-center">Acciones</AdminTableTh>
-          </AdminTableHeaderRow>
-        </AdminTableHead>
-        <AdminTableBody>
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={6} />)
-          ) : categoriasFiltradas.length === 0 ? (
-            <AdminTableEmpty
-              colSpan={6}
-              icon={Tag}
-              title={
-                search
-                  ? 'No se encontraron categorías con esa búsqueda'
-                  : filtroEstado !== 'todas'
-                    ? `No hay categorías ${filtroLabels[filtroEstado].toLowerCase()}`
-                    : 'Aún no hay categorías creadas'
-              }
-              description={
-                search || filtroEstado !== 'todas'
-                  ? 'Prueba con otros filtros o términos de búsqueda'
-                  : 'Crea la primera categoría para organizar tus productos'
-              }
-              action={
-                !search && filtroEstado === 'todas' ? (
-                  <Button onClick={abrirCrear} size="sm" className="">
-                    <Plus size={13} />
-                    Crear categoría
-                  </Button>
-                ) : undefined
-              }
-            />
-          ) : (
-            categoriasPaginadas.map((cat, i) => (
-              <AdminTableRow key={cat.id} index={i}>
-                <AdminTableTd className="px-3">
-                  <div className="flex items-center gap-2">
-                    <GripVertical
-                      size={15}
-                      className="shrink-0 text-[rgba(248,246,241,0.2)] transition-colors group-hover:text-[rgba(201,168,76,0.45)]"
-                    />
-                    <AdminTableImage src={cat.imagen_url} alt={cat.nombre} size="sm" />
-                  </div>
-                </AdminTableTd>
-
-                <AdminTableTd className="max-w-0">
-                  <AdminTablePrimary
-                    title={cat.nombre}
-                    subtitle={cat.esSubcategoria ? 'Subcategoría' : undefined}
-                    indent={cat.esSubcategoria}
-                  />
-                </AdminTableTd>
-
-                <AdminTableTd className="max-w-0">
-                  <AdminTableSlug slug={cat.slug} className="max-w-full" />
-                </AdminTableTd>
-
-                <AdminTableTd className="px-3">
-                  <AdminTableNumber value={cat.orden} />
-                </AdminTableTd>
-
-                <AdminTableTd className="px-3">
-                  <AdminTableStatus
-                    label={cat.activa ? 'Activa' : 'Inactiva'}
-                    icon={cat.activa ? CheckCircle2 : XCircle}
-                    variant={cat.activa ? 'success' : 'neutral'}
-                    onClick={() => toggleActiva(cat)}
-                    title={cat.activa ? 'Desactivar categoría' : 'Activar categoría'}
-                  />
-                </AdminTableTd>
-
-                <AdminTableTd className="px-3 text-center">
-                  <AdminTableActions
-                    onEdit={() => abrirEditar(cat)}
-                    onDelete={() => {
-                      setSelected(cat)
-                      setDeleteModal(true)
-                    }}
-                  />
-                </AdminTableTd>
-              </AdminTableRow>
-            ))
+      <div className="mb-4 flex items-center justify-between border-b border-[rgba(201,168,76,0.12)] pb-3">
+        <p className="text-[12px] uppercase tracking-[1px] text-[var(--text-muted)]">
+          {conteos.principales} categoría{conteos.principales !== 1 ? 's' : ''}
+          {conteos.subs > 0 && (
+            <>
+              {' · '}
+              {conteos.subs} subcategoría{conteos.subs !== 1 ? 's' : ''}
+            </>
           )}
-        </AdminTableBody>
-      </AdminTable>
+          {search ? ` para "${search}"` : ''}
+        </p>
+        {filtroEstado !== 'todas' && (
+          <span className="text-[11px] text-[var(--gold-bright)]">
+            Filtro: {filtroLabels[filtroEstado]}
+          </span>
+        )}
+      </div>
+
+      {/* Tarjetas agrupadas por familia */}
+      {loading ? (
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <CategoriaGrupoCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : loadError ? (
+        <AdminLoadError
+          onRetry={fetchCategorias}
+          title="No se pudieron cargar las categorías"
+        />
+      ) : gruposFiltrados.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border-card)] bg-[var(--bg-card)] px-6 py-20 text-center">
+          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.08)] text-[var(--gold)]">
+            <Tag size={22} />
+          </span>
+          <p className="text-[14px] font-light text-[var(--text-primary)]">
+            {search
+              ? 'No se encontraron categorías con esa búsqueda'
+              : filtroEstado !== 'todas'
+                ? `No hay categorías ${filtroLabels[filtroEstado].toLowerCase()}`
+                : 'Aún no hay categorías creadas'}
+          </p>
+          <p className="mt-1.5 max-w-sm text-[12px] font-light text-[var(--text-muted)]">
+            {search || filtroEstado !== 'todas'
+              ? 'Prueba con otros filtros o términos de búsqueda'
+              : 'Crea la primera categoría para organizar tus productos'}
+          </p>
+          {!search && filtroEstado === 'todas' && (
+            <Button onClick={abrirCrear} size="sm" className="mt-6">
+              <Plus size={13} />
+              Crear categoría
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
+          {gruposPaginados.map((grupo, i) => (
+            <CategoriaGrupoCard
+              key={grupo.root.id}
+              grupo={grupo}
+              index={i}
+              onEdit={abrirEditar}
+              onDelete={cat => {
+                setSelected(cat)
+                setDeleteModal(true)
+              }}
+              onToggleActiva={toggleActiva}
+            />
+          ))}
+        </div>
+      )}
+
+      {!loading && gruposFiltrados.length > 0 && (
+        <AdminTablePagination
+          page={currentPage}
+          pageSize={ADMIN_TABLE_PAGE_SIZE}
+          totalItems={gruposFiltrados.length}
+          onPageChange={setPage}
+        />
+      )}
     </div>
 
     <div className="mobile-admin-page px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] md:hidden">
@@ -324,18 +292,26 @@ export default function CategoriasPage() {
       />
 
       <p className="mb-3 text-[11px] text-[var(--text-subtle)]">
-        {categoriasFiltradas.length} categoría{categoriasFiltradas.length !== 1 ? 's' : ''}
+        {conteos.principales} categoría{conteos.principales !== 1 ? 's' : ''}
+        {conteos.subs > 0
+          ? ` · ${conteos.subs} subcategoría${conteos.subs !== 1 ? 's' : ''}`
+          : ''}
         {search ? ` · "${search}"` : ''}
         {filtroEstado !== 'todas' ? ` · ${filtroLabels[filtroEstado]}` : ''}
       </p>
 
       {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-[2px] bg-[var(--bg-card)]" />
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <CategoriaGrupoCardSkeleton key={i} />
           ))}
         </div>
-      ) : categoriasFiltradas.length === 0 ? (
+      ) : loadError ? (
+        <AdminLoadError
+          onRetry={fetchCategorias}
+          title="No se pudieron cargar las categorías"
+        />
+      ) : gruposFiltrados.length === 0 ? (
         <MobileEmptyState
           icon={Tag}
           title={
@@ -360,17 +336,18 @@ export default function CategoriasPage() {
           }
         />
       ) : (
-        <div className="space-y-3">
-          {categoriasPaginadas.map(cat => (
-            <MobileCategoriaCard
-              key={cat.id}
-              categoria={cat}
-              onEdit={() => abrirEditar(cat)}
-              onDelete={() => {
+        <div className="space-y-4">
+          {gruposPaginados.map((grupo, i) => (
+            <CategoriaGrupoCard
+              key={grupo.root.id}
+              grupo={grupo}
+              index={i}
+              onEdit={abrirEditar}
+              onDelete={cat => {
                 setSelected(cat)
                 setDeleteModal(true)
               }}
-              onToggleActiva={() => toggleActiva(cat)}
+              onToggleActiva={toggleActiva}
             />
           ))}
         </div>
@@ -379,7 +356,7 @@ export default function CategoriasPage() {
       <AdminTablePagination
         page={currentPage}
         pageSize={ADMIN_TABLE_PAGE_SIZE}
-        totalItems={categoriasFiltradas.length}
+        totalItems={gruposFiltrados.length}
         onPageChange={setPage}
         compact
       />
@@ -404,7 +381,7 @@ export default function CategoriasPage() {
           key={selected?.id ?? 'nueva'}
           categoria={selected}
           categoriasRaiz={categorias}
-          ordenDefault={categoriasAplanadas.length}
+          ordenDefault={totalCategorias}
           onSuccess={() => {
             setModalOpen(false)
             fetchCategorias()

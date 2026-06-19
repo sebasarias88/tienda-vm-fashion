@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useGuardedRouter } from '@/lib/useGuardedRouter'
 import { Search, X, ArrowRight, TrendingUp } from 'lucide-react'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import MobileBottomSheet from '@/components/catalog/mobile/MobileBottomSheet'
@@ -21,7 +21,7 @@ export default function MobileSearchOverlay({
   catalogType = 'detal',
   initialQuery = '',
 }: MobileSearchOverlayProps) {
-  const router = useRouter()
+  const router = useGuardedRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState(initialQuery)
   const productosPath = catalogPath(catalogType, '/productos')

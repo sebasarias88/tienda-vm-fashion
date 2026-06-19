@@ -3,7 +3,7 @@
 import { Suspense, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { useGuardedRouter } from '@/lib/useGuardedRouter'
 import { Search, ArrowDown, Sparkles, X } from 'lucide-react'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
@@ -24,7 +24,7 @@ type HeroProps = {
 }
 
 export default function HeroSection({ titulo, subtitulo, categorias, catalogType = 'detal' }: HeroProps) {
-  const router = useRouter()
+  const router = useGuardedRouter()
   const [query, setQuery] = useState('')
   const ref = useRef<HTMLElement>(null)
   const productosPath = catalogPath(catalogType, '/productos')
