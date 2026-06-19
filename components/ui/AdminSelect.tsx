@@ -13,12 +13,19 @@ import { Check, ChevronDown, X } from 'lucide-react'
 export type AdminSelectOption = {
   value: string
   label: string
+  /** Texto secundario tenue (ej: la categoría padre de una subcategoría). */
+  hint?: string
+}
+
+export type AdminSelectGroup = {
+  label: string
+  options: AdminSelectOption[]
 }
 
 type DropdownCoords = { top: number; left: number; width: number }
 
 const PANEL_CLASS =
-  'max-h-64 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-1 shadow-[var(--shadow-dropdown)] md:rounded-[2px]'
+  'max-h-72 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-1 shadow-[var(--shadow-dropdown)] md:rounded-[2px]'
 
 const ITEM_BASE =
   'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] font-light transition-colors md:rounded-[2px]'
@@ -29,6 +36,20 @@ const ITEM_IDLE =
 const ITEM_ACTIVE = 'bg-[var(--gold-muted)] text-[var(--gold)]'
 
 const EMPTY_CLASS = 'px-3 py-3 text-center text-[12px] font-light text-[var(--text-subtle)]'
+
+const GROUP_HEADER_CLASS =
+  'flex items-center gap-2 px-3 pb-1 pt-2.5 text-[10px] font-semibold uppercase tracking-[1.5px] text-[var(--gold)] first:pt-1.5'
+
+function OptionLabel({ option }: { option: AdminSelectOption }) {
+  return (
+    <span className="min-w-0 truncate">
+      {option.label}
+      {option.hint ? (
+        <span className="text-[var(--text-subtle)]"> · {option.hint}</span>
+      ) : null}
+    </span>
+  )
+}
 
 function useAnchoredDropdown<T extends HTMLElement>() {
   const [open, setOpen] = useState(false)
@@ -116,14 +137,16 @@ function panelStyle(coords: DropdownCoords | null): React.CSSProperties {
 export function AdminSelect({
   value,
   onChange,
-  options,
+  options = [],
+  groups,
   placeholder = 'Seleccionar',
   disabled = false,
   className = '',
 }: {
   value: string
   onChange: (value: string) => void
-  options: AdminSelectOption[]
+  options?: AdminSelectOption[]
+  groups?: AdminSelectGroup[]
   placeholder?: string
   disabled?: boolean
   className?: string
@@ -131,32 +154,48 @@ export function AdminSelect({
   const { open, setOpen, mounted, coords, anchorRef, panelRef, rootRef } =
     useAnchoredDropdown<HTMLButtonElement>()
 
-  const selected = options.find(o => o.value === value && o.value !== '')
+  const allOptions = groups ? groups.flatMap(g => g.options) : options
+  const selected = allOptions.find(o => o.value === value && o.value !== '')
+
+  const renderOption = (option: AdminSelectOption) => {
+    const active = option.value === value
+    return (
+      <button
+        key={option.value || '__empty'}
+        type="button"
+        onClick={() => {
+          onChange(option.value)
+          setOpen(false)
+        }}
+        className={`${ITEM_BASE} ${active ? ITEM_ACTIVE : ITEM_IDLE}`}
+      >
+        <OptionLabel option={option} />
+        {active && <Check size={14} className="shrink-0" />}
+      </button>
+    )
+  }
+
+  const groupsWithItems = groups?.filter(g => g.options.length > 0) ?? []
 
   const panel =
     open && mounted
       ? createPortal(
           <div ref={panelRef} style={panelStyle(coords)} className={PANEL_CLASS}>
-            {options.length === 0 ? (
+            {groups ? (
+              groupsWithItems.length === 0 ? (
+                <p className={EMPTY_CLASS}>Sin opciones</p>
+              ) : (
+                groupsWithItems.map(group => (
+                  <div key={group.label}>
+                    <p className={GROUP_HEADER_CLASS}>{group.label}</p>
+                    {group.options.map(renderOption)}
+                  </div>
+                ))
+              )
+            ) : options.length === 0 ? (
               <p className={EMPTY_CLASS}>Sin opciones</p>
             ) : (
-              options.map(option => {
-                const active = option.value === value
-                return (
-                  <button
-                    key={option.value || '__empty'}
-                    type="button"
-                    onClick={() => {
-                      onChange(option.value)
-                      setOpen(false)
-                    }}
-                    className={`${ITEM_BASE} ${active ? ITEM_ACTIVE : ITEM_IDLE}`}
-                  >
-                    <span className="truncate">{option.label}</span>
-                    {active && <Check size={14} className="shrink-0" />}
-                  </button>
-                )
-              })
+              options.map(renderOption)
             )}
           </div>,
           document.body,
@@ -192,14 +231,16 @@ export function AdminSelect({
 export function AdminMultiSelect({
   values,
   onChange,
-  options,
+  options = [],
+  groups,
   placeholder = '+ Agregar',
   emptyLabel = 'No hay más opciones',
   className = '',
 }: {
   values: string[]
   onChange: (values: string[]) => void
-  options: AdminSelectOption[]
+  options?: AdminSelectOption[]
+  groups?: AdminSelectGroup[]
   placeholder?: string
   emptyLabel?: string
   className?: string
@@ -207,29 +248,46 @@ export function AdminMultiSelect({
   const { open, setOpen, mounted, coords, update, anchorRef, panelRef, rootRef } =
     useAnchoredDropdown<HTMLDivElement>()
 
+  const allOptions = groups ? groups.flatMap(g => g.options) : options
   const available = options.filter(o => !values.includes(o.value))
+  const availableGroups = (groups ?? [])
+    .map(g => ({ label: g.label, options: g.options.filter(o => !values.includes(o.value)) }))
+    .filter(g => g.options.length > 0)
 
   useLayoutEffect(() => {
     if (open) update()
   }, [open, values.length, update])
 
+  const renderOption = (option: AdminSelectOption) => (
+    <button
+      key={option.value}
+      type="button"
+      onClick={() => onChange([...values, option.value])}
+      className={`${ITEM_BASE} ${ITEM_IDLE}`}
+    >
+      <OptionLabel option={option} />
+    </button>
+  )
+
   const panel =
     open && mounted
       ? createPortal(
           <div ref={panelRef} style={panelStyle(coords)} className={PANEL_CLASS}>
-            {available.length === 0 ? (
+            {groups ? (
+              availableGroups.length === 0 ? (
+                <p className={EMPTY_CLASS}>{emptyLabel}</p>
+              ) : (
+                availableGroups.map(group => (
+                  <div key={group.label}>
+                    <p className={GROUP_HEADER_CLASS}>{group.label}</p>
+                    {group.options.map(renderOption)}
+                  </div>
+                ))
+              )
+            ) : available.length === 0 ? (
               <p className={EMPTY_CLASS}>{emptyLabel}</p>
             ) : (
-              available.map(option => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => onChange([...values, option.value])}
-                  className={`${ITEM_BASE} ${ITEM_IDLE}`}
-                >
-                  <span className="truncate">{option.label}</span>
-                </button>
-              ))
+              available.map(renderOption)
             )}
           </div>,
           document.body,
@@ -256,7 +314,7 @@ export function AdminMultiSelect({
         )}
 
         {values.map(value => {
-          const option = options.find(o => o.value === value)
+          const option = allOptions.find(o => o.value === value)
           if (!option) return null
           return (
             <span

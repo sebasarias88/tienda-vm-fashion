@@ -1,11 +1,12 @@
 'use client'
 
-import { CheckCircle2, Edit2, Star, Trash2, XCircle } from 'lucide-react'
+import { CheckCircle2, ChevronRight, CornerDownRight, Edit2, Star, Tag, Trash2, XCircle } from 'lucide-react'
 import { Producto } from '@/types'
 
 type MobileProductCardProps = {
   producto: Producto
   formatPrecio: (precio: number) => string
+  parentCategoria?: string | null
   onEdit: () => void
   onDelete: () => void
   onToggleDisponible: () => void
@@ -14,6 +15,7 @@ type MobileProductCardProps = {
 export default function MobileProductCard({
   producto,
   formatPrecio,
+  parentCategoria,
   onEdit,
   onDelete,
   onToggleDisponible,
@@ -54,9 +56,28 @@ export default function MobileProductCard({
             </p>
           ) : null}
           {producto.categoria ? (
-            <p className="mt-1 truncate text-[10px] uppercase tracking-[0.6px] text-[var(--text-muted)]">
-              {producto.categoria.nombre}
-            </p>
+            <span
+              className={`mt-1.5 inline-flex max-w-full items-center gap-1 rounded-full border py-0.5 pl-1.5 pr-2 text-[10px] ${
+                parentCategoria
+                  ? 'border-[rgba(96,165,250,0.25)] bg-[rgba(96,165,250,0.08)]'
+                  : 'border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.08)]'
+              }`}
+            >
+              {parentCategoria ? (
+                <CornerDownRight size={10} className="shrink-0 text-blue-400" strokeWidth={1.75} />
+              ) : (
+                <Tag size={10} className="shrink-0 text-[var(--gold-bright)]" strokeWidth={1.75} />
+              )}
+              {parentCategoria && (
+                <>
+                  <span className="max-w-[80px] shrink-0 truncate text-[var(--text-faint)]">
+                    {parentCategoria}
+                  </span>
+                  <ChevronRight size={9} className="shrink-0 text-[var(--text-faint)]" />
+                </>
+              )}
+              <span className="truncate text-[var(--text-secondary)]">{producto.categoria.nombre}</span>
+            </span>
           ) : null}
         </div>
       </div>

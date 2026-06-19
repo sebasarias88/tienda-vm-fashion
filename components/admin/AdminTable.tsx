@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LucideIcon, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LucideIcon, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X, ChevronLeft, ChevronRight, CornerDownRight } from 'lucide-react'
 import { ReactNode, useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
@@ -100,13 +100,15 @@ export function AdminTableRow({
   children,
   index = 0,
   animated = true,
+  className = '',
 }: {
   children: ReactNode
   index?: number
   animated?: boolean
+  className?: string
 }) {
   const rowClass =
-    'admin-table-row group relative border-b border-[var(--border-card)] transition-all duration-200 hover:bg-[rgba(201,168,76,0.05)] hover:shadow-[inset_3px_0_0_var(--gold)]'
+    `admin-table-row group relative border-b border-[var(--border-card)] transition-all duration-200 hover:bg-[rgba(201,168,76,0.05)] hover:shadow-[inset_3px_0_0_var(--gold)] ${className}`.trim()
 
   if (!animated) {
     return <tr className={rowClass}>{children}</tr>
@@ -360,18 +362,54 @@ export function AdminTableBadge({
   )
 }
 
-/** Categoría en tabla de productos — pill con icono */
-export function AdminTableCategory({ name }: { name: string }) {
+/**
+ * Categoría en tabla de productos — pill con icono.
+ * Si recibe `parent`, se trata de una subcategoría y se muestra el
+ * breadcrumb "Padre › Sub" con un estilo distinto + etiqueta inferior,
+ * para diferenciar visualmente categoría de subcategoría.
+ */
+export function AdminTableCategory({
+  name,
+  parent,
+}: {
+  name: string
+  parent?: string | null
+}) {
+  const isSub = Boolean(parent)
+
   return (
     <div
-      className="inline-flex max-w-[200px] items-center gap-2.5 rounded-full border border-[rgba(201,168,76,0.22)] bg-gradient-to-r from-[rgba(201,168,76,0.1)] via-[rgba(201,168,76,0.04)] to-transparent py-1 pl-1 pr-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(201,168,76,0.12)] transition-colors group-hover:border-[rgba(201,168,76,0.35)]"
-      title={name}
+      className={`inline-flex max-w-[220px] items-center gap-2.5 rounded-full border py-1 pl-1 pr-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.2)] transition-colors ${
+        isSub
+          ? 'border-[rgba(96,165,250,0.22)] bg-gradient-to-r from-[rgba(96,165,250,0.1)] via-[rgba(96,165,250,0.04)] to-transparent group-hover:border-[rgba(96,165,250,0.4)]'
+          : 'border-[rgba(201,168,76,0.22)] bg-gradient-to-r from-[rgba(201,168,76,0.1)] via-[rgba(201,168,76,0.04)] to-transparent group-hover:border-[rgba(201,168,76,0.35)]'
+      }`}
+      title={isSub ? `${parent} › ${name}` : name}
     >
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(201,168,76,0.14)] ring-1 ring-[rgba(201,168,76,0.28)]">
-        <Tag size={12} className="text-[var(--gold-bright)]" strokeWidth={1.5} />
+      <span
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ring-1 ${
+          isSub
+            ? 'bg-[rgba(96,165,250,0.14)] ring-[rgba(96,165,250,0.3)]'
+            : 'bg-[rgba(201,168,76,0.14)] ring-[rgba(201,168,76,0.28)]'
+        }`}
+      >
+        {isSub ? (
+          <CornerDownRight size={12} className="text-blue-400" strokeWidth={1.75} />
+        ) : (
+          <Tag size={12} className="text-[var(--gold-bright)]" strokeWidth={1.5} />
+        )}
       </span>
-      <span className="truncate text-[12px] tracking-[0.2px] text-[var(--text-primary)]">
-        {name}
+
+      <span className="flex min-w-0 items-center gap-1 text-[12px] tracking-[0.2px]">
+        {isSub && (
+          <>
+            <span className="max-w-[80px] shrink-0 truncate text-[var(--text-faint)]">
+              {parent}
+            </span>
+            <ChevronRight size={11} className="shrink-0 text-[var(--text-faint)]" strokeWidth={1.5} />
+          </>
+        )}
+        <span className="truncate text-[var(--text-primary)]">{name}</span>
       </span>
     </div>
   )

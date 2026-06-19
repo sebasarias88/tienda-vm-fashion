@@ -22,6 +22,7 @@ import {
   Package,
   Truck,
   MessageCircle,
+  CreditCard,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -38,6 +39,7 @@ const ENVIO_INFO = [
   { icon: Package, text: 'Envío en Armenia el mismo día' },
   { icon: Truck, text: 'Envíos nacionales en 2 a 3 días hábiles' },
   { icon: MessageCircle, text: 'Pedido finalizado por WhatsApp' },
+  { icon: CreditCard, text: 'Paga a cuotas con Addi o Sistecrédito' },
 ] as const
 
 function SeccionAcordeon({

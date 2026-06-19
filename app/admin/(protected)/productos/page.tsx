@@ -41,10 +41,15 @@ import {
 import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
 import MobileProductCard from '@/components/admin/mobile/MobileProductCard'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
+import AdminLoadError from '@/components/admin/AdminLoadError'
+
+type CategoriaInfo = { nombre: string; padre_id: string | null }
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([])
+  const [categoriasMap, setCategoriasMap] = useState<Record<string, CategoriaInfo>>({})
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [formModal, setFormModal] = useState(false)
   const [deleteModal, setDeleteModal] = useState(false)
   const [selected, setSelected] = useState<Producto | null>(null)
@@ -63,9 +68,23 @@ export default function ProductosPage() {
     if (filtroDisponible === 'disponible') query = query.eq('disponible', true)
     if (filtroDisponible === 'agotado') query = query.eq('disponible', false)
 
-    const { data, error } = await query
-    if (error) toast.error('Error al cargar productos')
-    else setProductos(data || [])
+    const [{ data, error }, { data: cats }] = await Promise.all([
+      query,
+      supabase.from('categorias').select('id, nombre, padre_id'),
+    ])
+
+    if (error) {
+      toast.error('Error al cargar productos')
+      setLoadError(true)
+    } else {
+      setProductos(data || [])
+      const map: Record<string, CategoriaInfo> = {}
+      ;(cats || []).forEach(c => {
+        map[c.id] = { nombre: c.nombre, padre_id: c.padre_id ?? null }
+      })
+      setCategoriasMap(map)
+      setLoadError(false)
+    }
     setLoading(false)
   }, [filtroDisponible])
 
@@ -167,6 +186,14 @@ export default function ProductosPage() {
       minimumFractionDigits: 0,
     }).format(precio)
 
+  /** Nombre de la categoría padre si la categoría del producto es una subcategoría. */
+  const getCategoriaPadre = (categoriaId?: string | null): string | null => {
+    if (!categoriaId) return null
+    const padreId = categoriasMap[categoriaId]?.padre_id
+    if (!padreId) return null
+    return categoriasMap[padreId]?.nombre ?? null
+  }
+
   const filtroLabels: Record<typeof filtroDisponible, string> = {
     todos: 'Todos',
     disponible: 'Disponibles',
@@ -219,6 +246,12 @@ export default function ProductosPage() {
       />
 
       {/* Tabla */}
+      {loadError && !loading ? (
+        <AdminLoadError
+          onRetry={fetchProductos}
+          title="No se pudieron cargar los productos"
+        />
+      ) : (
       <AdminTable
         minWidth="1040px"
         fixed
@@ -287,7 +320,10 @@ export default function ProductosPage() {
 
                 <AdminTableTd className="max-w-0">
                   {p.categoria ? (
-                    <AdminTableCategory name={p.categoria.nombre} />
+                    <AdminTableCategory
+                      name={p.categoria.nombre}
+                      parent={getCategoriaPadre(p.categoria.id)}
+                    />
                   ) : (
                     <AdminTableCategoryEmpty />
                   )}
@@ -316,31 +352,19 @@ export default function ProductosPage() {
                 </AdminTableTd>
 
                 <AdminTableTd>
-                  <div className="flex flex-col gap-1">
-                    <button
-                      type="button"
+                  <div className="flex flex-col gap-1.5">
+                    <CatalogToggle
+                      label="Detal"
+                      active={p.disponible_detal}
+                      tone="detal"
                       onClick={() => toggleCatalogo(p, 'disponible_detal')}
-                      title={p.disponible_detal ? 'Ocultar en detal' : 'Mostrar en detal'}
-                      className={`rounded-[2px] px-2 py-0.5 text-[9px] uppercase tracking-[1px] transition-colors ${
-                        p.disponible_detal
-                          ? 'border border-[rgba(52,211,153,0.2)] bg-[rgba(52,211,153,0.08)] text-emerald-400'
-                          : 'border border-[rgba(248,246,241,0.06)] bg-transparent text-[rgba(248,246,241,0.2)]'
-                      }`}
-                    >
-                      Detal
-                    </button>
-                    <button
-                      type="button"
+                    />
+                    <CatalogToggle
+                      label="Mayor"
+                      active={p.disponible_mayoreo}
+                      tone="mayoreo"
                       onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}
-                      title={p.disponible_mayoreo ? 'Ocultar en mayoreo' : 'Mostrar en mayoreo'}
-                      className={`rounded-[2px] px-2 py-0.5 text-[9px] uppercase tracking-[1px] transition-colors ${
-                        p.disponible_mayoreo
-                          ? 'border border-[rgba(96,165,250,0.2)] bg-[rgba(96,165,250,0.08)] text-blue-400'
-                          : 'border border-[rgba(248,246,241,0.06)] bg-transparent text-[rgba(248,246,241,0.2)]'
-                      }`}
-                    >
-                      Mayoreo
-                    </button>
+                    />
                   </div>
                 </AdminTableTd>
 
@@ -371,6 +395,7 @@ export default function ProductosPage() {
           )}
         </AdminTableBody>
       </AdminTable>
+      )}
     </div>
 
     <div className="mobile-admin-page px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] md:hidden">
@@ -403,6 +428,11 @@ export default function ProductosPage() {
             <div key={i} className="h-32 animate-pulse rounded-[2px] bg-[var(--bg-card)]" />
           ))}
         </div>
+      ) : loadError ? (
+        <AdminLoadError
+          onRetry={fetchProductos}
+          title="No se pudieron cargar los productos"
+        />
       ) : productosFiltrados.length === 0 ? (
         <MobileEmptyState
           icon={Package}
@@ -434,6 +464,7 @@ export default function ProductosPage() {
               key={p.id}
               producto={p}
               formatPrecio={formatPrecio}
+              parentCategoria={getCategoriaPadre(p.categoria?.id)}
               onEdit={() => abrirEditar(p)}
               onDelete={() => {
                 setSelected(p)
@@ -497,5 +528,42 @@ export default function ProductosPage() {
         </div>
       </Modal>
     </>
+  )
+}
+
+type CatalogToggleTone = 'detal' | 'mayoreo'
+
+const CATALOG_TOGGLE_STYLES: Record<CatalogToggleTone, string> = {
+  detal:
+    'border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.1)] text-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.06),inset_0_1px_0_rgba(52,211,153,0.12)]',
+  mayoreo:
+    'border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] text-blue-400 shadow-[0_0_0_1px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(96,165,250,0.12)]',
+}
+
+function CatalogToggle({
+  label,
+  active,
+  tone,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  tone: CatalogToggleTone
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={active ? `Visible en ${label.toLowerCase()} — click para ocultar` : `Oculto en ${label.toLowerCase()} — click para mostrar`}
+      aria-pressed={active}
+      className={`inline-flex w-[5rem] items-center justify-center rounded-full border px-2.5 py-1 text-[10px] font-light uppercase tracking-[1.2px] transition-all duration-200 ${
+        active
+          ? CATALOG_TOGGLE_STYLES[tone]
+          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)] hover:border-[rgba(248,246,241,0.18)] hover:text-[var(--text-muted)]'
+      }`}
+    >
+      {label}
+    </button>
   )
 }

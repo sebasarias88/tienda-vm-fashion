@@ -26,7 +26,6 @@ export default function MobileNavDrawer({
   const pathname = usePathname()
   const homeHref = catalogPath(catalogType, '/')
   const productosHref = catalogPath(catalogType, '/productos')
-  const isMayoreo = catalogType === 'mayoreo'
 
   const isNavActive = (href: string) => {
     if (href === homeHref) {
@@ -64,11 +63,6 @@ export default function MobileNavDrawer({
           <p className="gold-shimmer truncate text-[15px] font-thin uppercase tracking-[3px]">
             {nombreNegocio}
           </p>
-          {isMayoreo && (
-            <span className="mt-2 inline-flex rounded-xl border border-[var(--border)] bg-[var(--gold-muted)] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
-              Mayoreo
-            </span>
-          )}
         </div>
       }
     >

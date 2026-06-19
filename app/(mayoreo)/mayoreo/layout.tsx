@@ -26,12 +26,9 @@ export default async function MayoreoLayout({
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <div className="fixed left-0 right-0 top-0 z-40 flex h-9 items-center justify-center gap-2 bg-[#B8922A] text-[11px] font-light uppercase tracking-[2px] text-white">
-        <span>Catálogo al por mayor</span>
-        <span aria-hidden className="opacity-50">·</span>
-        <span className="font-medium">
-          Compra mínima {formatPrecio(MAYOREO_MIN_COMPRA)}
-        </span>
+      <div className="fixed left-0 right-0 top-0 z-40 flex h-9 items-center justify-center gap-1.5 bg-[#B8922A] text-[11px] font-light uppercase tracking-[2px] text-white">
+        <span>Compra mínima</span>
+        <span className="font-medium">{formatPrecio(MAYOREO_MIN_COMPRA)}</span>
       </div>
       <Navbar
         nombreNegocio={config['nombre_negocio'] || 'Tienda VM Fashion'}

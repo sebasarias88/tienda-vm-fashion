@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useGuardedRouter } from '@/lib/useGuardedRouter'
 import { Producto, Categoria } from '@/types'
 import ProductCard from '@/components/catalog/ProductCard'
 import ProductCardMobile from '@/components/catalog/mobile/ProductCardMobile'
@@ -54,7 +55,7 @@ export default function ProductosClient({
   initialCategoria,
   catalogType = 'detal',
 }: Props) {
-  const router = useRouter()
+  const router = useGuardedRouter()
   const pathname = usePathname()
 
   const [query, setQuery] = useState(initialQ)
@@ -70,6 +71,19 @@ export default function ProductosClient({
   useEffect(() => {
     setTimeout(() => setMounted(true), 100)
   }, [])
+
+  // Scroll al inicio al cambiar de página (después del render, para que no
+  // compita con el reflow/animaciones de la grilla). Se omite el primer render.
+  const paginaPrevia = useRef(pagina)
+  useEffect(() => {
+    if (paginaPrevia.current === pagina) return
+    paginaPrevia.current = pagina
+
+    const id = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [pagina])
 
   useEffect(() => {
     if (!ordenOpen) return
@@ -102,7 +116,20 @@ export default function ProductosClient({
     return counts
   }, [productos])
 
+  // Conteo por categoría raíz incluyendo sus subcategorías (productos únicos),
+  // para que el número de la pestaña coincida con lo que muestra el filtro.
+  const conteoRaiz = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const cat of categorias) {
+      counts[cat.slug] = productos.filter(p =>
+        productoCoincideCategoria(p, cat.slug, categorias),
+      ).length
+    }
+    return counts
+  }, [productos, categorias])
+
   const getCategoryCount = (catSlug: string) => conteoCategorias[catSlug] || 0
+  const getRaizCount = (catSlug: string) => conteoRaiz[catSlug] || 0
 
   const productosFiltrados = useMemo(() => {
     let result = [...productos]
@@ -197,9 +224,13 @@ export default function ProductosClient({
   const activeFiltersCount =
     (categoriaActiva ? 1 : 0) + (orden !== 'relevancia' ? 1 : 0)
 
+  // Distinguir "catálogo vacío" (sin productos en la BD) de "sin resultados" (por filtros/búsqueda)
+  const catalogoVacio = productos.length === 0
+  const hayFiltros = Boolean(query || categoriaActiva || orden !== 'relevancia')
+
   return (
     <div
-      className={`mobile-catalog-page relative min-h-screen ${
+      className={`mobile-catalog-page relative min-h-screen max-md:pb-20 ${
         catalogType === 'mayoreo'
           ? 'max-md:pt-[5.75rem] pt-28 sm:pt-32'
           : 'max-md:pt-[3.75rem] pt-20 sm:pt-24'
@@ -373,25 +404,25 @@ export default function ProductosClient({
             </div>
           </div>
 
-          {/* Categorías — raíz + subcategorías */}
+          {/* Categorías — pestañas raíz */}
           <div className="relative border-b border-[var(--border-subtle)]">
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[var(--bg-base)] to-transparent" />
 
-            <div className="flex gap-0 overflow-x-auto scrollbar-hide pr-2">
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide pr-2">
               <button
                 type="button"
                 onClick={() => setCategoriaActiva('')}
-                className={`relative shrink-0 px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
+                className={`relative shrink-0 rounded-t-lg px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
                   !categoriaActiva
                     ? 'text-[var(--gold)]'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]/50 hover:text-[var(--text-primary)]'
                 }`}
               >
                 Todos
                 {!categoriaActiva && (
                   <motion.span
                     layoutId="cat-tab"
-                    className="absolute inset-x-3 bottom-0 h-px bg-[var(--gold)]"
+                    className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-[var(--gold)]"
                   />
                 )}
               </button>
@@ -411,70 +442,86 @@ export default function ProductosClient({
                       )
                     }
                     title={cat.nombre}
-                    className={`relative flex max-w-[11rem] shrink-0 items-center gap-1.5 px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors sm:max-w-none ${
+                    className={`relative flex max-w-[11rem] shrink-0 items-center gap-2 rounded-t-lg px-4 py-4 text-[11px] font-light uppercase tracking-[1.2px] transition-colors sm:max-w-none ${
                       raizActiva
                         ? 'text-[var(--gold)]'
-                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                        : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]/50 hover:text-[var(--text-primary)]'
                     }`}
                   >
                     <span className="truncate">{cat.nombre}</span>
                     <span
-                      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-normal tabular-nums tracking-normal transition-colors ${
+                      className={`inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full px-1 text-[9px] font-medium tabular-nums leading-none tracking-normal transition-colors ${
                         raizActiva
-                          ? 'bg-[var(--gold-muted)] text-[var(--gold)]'
+                          ? 'bg-[var(--gold)] text-[var(--bg-base)]'
                           : 'bg-[var(--bg-surface)] text-[var(--text-subtle)]'
                       }`}
                     >
-                      {getCategoryCount(cat.slug)}
+                      {getRaizCount(cat.slug)}
                     </span>
                     {categoriaActiva === cat.slug && (
                       <motion.span
                         layoutId="cat-tab"
-                        className="absolute inset-x-3 bottom-0 h-px bg-[var(--gold)]"
+                        className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-[var(--gold)]"
                       />
                     )}
                   </button>
                 )
               })}
             </div>
+          </div>
 
-            <AnimatePresence>
-              {subcategoriasVisibles.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden border-t border-[var(--border-subtle)]"
-                >
-                  <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide px-2 py-3 pl-5 sm:pl-6">
-                    {subcategoriasVisibles.map(sub => (
-                      <button
-                        key={sub.id}
-                        type="button"
-                        onClick={() => setCategoriaActiva(sub.slug)}
-                        className={`flex shrink-0 items-center gap-1.5 rounded-[2px] border border-dashed px-3 py-1.5 text-[10px] font-light uppercase tracking-[1px] transition-colors ${
-                          categoriaActiva === sub.slug
-                            ? 'border-[var(--border)] bg-[var(--gold-muted)] text-[var(--gold)]'
-                            : 'border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border)] hover:text-[var(--text-primary)]'
-                        }`}
-                      >
-                        {sub.nombre}
-                        <span
-                          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-normal tabular-nums tracking-normal ${
-                            categoriaActiva === sub.slug
-                              ? 'bg-[rgba(201,168,76,0.22)] text-[var(--gold)]'
-                              : 'bg-[var(--bg-surface)] text-[var(--text-subtle)]'
+          {/* Subcategorías — panel contenido */}
+          <AnimatePresence initial={false}>
+            {subcategoriasVisibles.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]/50 px-4 py-3">
+                  <span className="hidden shrink-0 items-center gap-2 pr-1 text-[9px] font-light uppercase tracking-[2px] text-[var(--text-subtle)] sm:flex">
+                    {raizSeleccionada?.nombre}
+                    <span className="h-3 w-px bg-[var(--border)]" />
+                  </span>
+
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                    {subcategoriasVisibles.map(sub => {
+                      const activa = categoriaActiva === sub.slug
+                      return (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() =>
+                            setCategoriaActiva(
+                              activa ? (raizSeleccionada?.slug ?? '') : sub.slug,
+                            )
+                          }
+                          className={`group flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10.5px] font-light uppercase tracking-[1px] transition-all duration-200 ${
+                            activa
+                              ? 'border-[var(--gold)] bg-[var(--gold-muted)] text-[var(--gold)] shadow-[0_2px_12px_var(--glow-gold)]'
+                              : 'border-[var(--border-input)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--gold-subtle)] hover:text-[var(--text-primary)]'
                           }`}
                         >
-                          {getCategoryCount(sub.slug)}
-                        </span>
-                      </button>
-                    ))}
+                          {sub.nombre}
+                          <span
+                            className={`rounded-full px-1.5 py-px text-[9px] font-normal tabular-nums tracking-normal transition-colors ${
+                              activa
+                                ? 'bg-[rgba(201,168,76,0.22)] text-[var(--gold)]'
+                                : 'bg-[var(--bg-surface)] text-[var(--text-subtle)] group-hover:text-[var(--text-muted)]'
+                            }`}
+                          >
+                            {getCategoryCount(sub.slug)}
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.section>
 
         {/* Grid productos — mobile */}
@@ -488,21 +535,29 @@ export default function ProductosClient({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center gap-4 py-16 md:hidden"
+            className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center md:hidden"
           >
-            <Search size={36} className="text-[var(--text-faint)]" />
+            {catalogoVacio && !hayFiltros ? (
+              <Package size={36} className="text-[var(--text-faint)]" />
+            ) : (
+              <Search size={36} className="text-[var(--text-faint)]" />
+            )}
             <p className="text-center text-[12px] font-light uppercase tracking-[1px] text-[var(--text-secondary)]">
-              No se encontraron productos
+              {catalogoVacio && !hayFiltros
+                ? 'Aún no hay productos disponibles'
+                : 'No se encontraron productos'}
             </p>
-            <button
-              onClick={limpiarFiltros}
-              className="catalog-gold-cta min-h-[44px] rounded-xl px-5 text-[11px] font-medium uppercase tracking-[1.5px]"
-            >
-              Limpiar filtros
-            </button>
+            {hayFiltros && (
+              <button
+                onClick={limpiarFiltros}
+                className="catalog-gold-cta min-h-[44px] rounded-xl px-5 text-[11px] font-medium uppercase tracking-[1.5px]"
+              >
+                Limpiar filtros
+              </button>
+            )}
           </motion.div>
         ) : (
-          <motion.div layout className="mb-8 max-md:pb-24 md:hidden">
+          <motion.div layout className="mb-6 md:hidden">
             <ProductGridMobile>
               <AnimatePresence mode="popLayout">
                 {productosPagina.map((producto, i) => (
@@ -534,18 +589,30 @@ export default function ProductosClient({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="hidden flex-col items-center justify-center gap-4 py-20 md:flex"
+            className="hidden flex-col items-center justify-center gap-4 px-6 py-20 text-center md:flex"
           >
-            <Search size={40} className="text-[var(--text-faint)]" />
-            <p className="text-sm tracking-[0.5px] uppercase text-[var(--text-secondary)] font-light">
-              No se encontraron productos
+            {catalogoVacio && !hayFiltros ? (
+              <Package size={40} className="text-[var(--text-faint)]" />
+            ) : (
+              <Search size={40} className="text-[var(--text-faint)]" />
+            )}
+            <p className="text-sm font-light uppercase tracking-[0.5px] text-[var(--text-secondary)]">
+              {catalogoVacio && !hayFiltros
+                ? 'Aún no hay productos disponibles'
+                : 'No se encontraron productos'}
             </p>
-            <button
-              onClick={limpiarFiltros}
-              className="text-[11px] tracking-[1.5px] uppercase text-[var(--gold)] border border-[var(--border)] px-5 py-2.5 rounded-[2px] hover:bg-[var(--gold-muted)] transition-all font-light"
-            >
-              Limpiar filtros
-            </button>
+            {catalogoVacio && !hayFiltros ? (
+              <p className="max-w-sm text-[12px] font-light text-[var(--text-subtle)]">
+                Vuelve pronto, estamos preparando el catálogo.
+              </p>
+            ) : (
+              <button
+                onClick={limpiarFiltros}
+                className="rounded-[2px] border border-[var(--border)] px-5 py-2.5 text-[11px] font-light uppercase tracking-[1.5px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
+              >
+                Limpiar filtros
+              </button>
+            )}
           </motion.div>
         ) : (
           <motion.div
@@ -575,10 +642,10 @@ export default function ProductosClient({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-center gap-2 overflow-x-auto pb-12 pt-2 scrollbar-hide max-md:px-1"
+            className="flex items-center justify-center gap-2 overflow-x-auto pb-2 pt-2 scrollbar-hide max-md:px-1 md:pb-12"
           >
             <button
-              onClick={() => { setPagina(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              onClick={() => setPagina(p => Math.max(1, p - 1))}
               disabled={pagina === 1}
               className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-xl md:rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
@@ -588,7 +655,7 @@ export default function ProductosClient({
             {Array.from({ length: totalPaginas }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => { setPagina(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                onClick={() => setPagina(i + 1)}
                 className={`w-10 h-10 text-[13px] font-light rounded-xl md:rounded-[2px] border transition-all ${
                   pagina === i + 1
                     ? 'border-[var(--border)] text-[var(--gold)] bg-[var(--gold-muted)]'
@@ -600,7 +667,7 @@ export default function ProductosClient({
             ))}
 
             <button
-              onClick={() => { setPagina(p => Math.min(totalPaginas, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
               disabled={pagina === totalPaginas}
               className="px-4 py-2.5 text-[11px] tracking-[1.5px] uppercase font-light border border-[var(--border-input)] text-[var(--text-secondary)] rounded-xl md:rounded-[2px] hover:border-[var(--border)] hover:text-[var(--gold)] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
             >
