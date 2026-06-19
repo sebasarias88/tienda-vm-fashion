@@ -5,6 +5,7 @@ import {
   CatalogType,
   formatPrecio,
   getDescuentoPorcentaje,
+  getPrecioDetalInfo,
   getProductoPrecios,
 } from '@/lib/catalog'
 
@@ -25,6 +26,7 @@ export default function ProductoPrecio({
 }: ProductoPrecioProps) {
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const isMayoreo = catalogType === 'mayoreo'
+  const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const precioClass =
     size === 'lg'
       ? 'text-[1.75rem] font-light leading-none sm:text-3xl'
@@ -41,11 +43,24 @@ export default function ProductoPrecio({
       ? 'flex flex-col gap-1'
       : 'flex flex-wrap items-baseline gap-x-2 gap-y-1'
 
+  const detalInfoNode =
+    precioDetalInfo != null ? (
+      <span className="mt-2.5 inline-flex w-fit items-baseline gap-2 border-l-2 border-[var(--gold)]/40 pl-3 text-[12px] leading-none">
+        <span className="font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
+          Precio al detal
+        </span>
+        <span className="font-normal tracking-[0.3px] text-[var(--text-secondary)]">
+          {formatPrecio(precioDetalInfo)}
+        </span>
+      </span>
+    ) : null
+
   if (consultar) {
     return (
       <div className={wrapperClass}>
         {isMayoreo && <span className={labelClass}>Precio al por mayor</span>}
         <span className={`${precioClass} text-[var(--text-subtle)]`}>Consultar precio</span>
+        {detalInfoNode}
       </div>
     )
   }
@@ -67,6 +82,7 @@ export default function ProductoPrecio({
           Ahorras {formatPrecio(precioAntes! - precio!)}
         </span>
       )}
+      {detalInfoNode}
     </div>
   )
 }
