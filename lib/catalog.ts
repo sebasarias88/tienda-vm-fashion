@@ -52,6 +52,15 @@ export function getProductoPrecios(
   }
 }
 
+/**
+ * Precio al detal mostrado solo de forma informativa dentro del catálogo
+ * mayoreo (referencia de reventa). No afecta el carrito ni el checkout.
+ */
+export function getPrecioDetalInfo(producto: Producto): number | null {
+  const p = producto.precio
+  return p != null && p > 0 ? p : null
+}
+
 /** Valor numérico para ordenar por precio (mayoreo sin precio va al final). */
 export function getPrecioOrden(producto: Producto, catalogType: CatalogType): number {
   if (catalogType === 'mayoreo') {

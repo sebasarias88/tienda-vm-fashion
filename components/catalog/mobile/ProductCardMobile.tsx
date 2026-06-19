@@ -8,6 +8,7 @@ import { Producto } from '@/types'
 import {
   catalogPath,
   formatPrecio,
+  getPrecioDetalInfo,
   getProductoPrecios,
   type CatalogType,
 } from '@/lib/catalog'
@@ -36,6 +37,7 @@ export default function ProductCardMobile({
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const isMayoreo = catalogType === 'mayoreo'
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
+  const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
 
   const handleAgregar = (e: React.MouseEvent) => {
@@ -139,6 +141,14 @@ export default function ProductCardMobile({
                   </span>
                 )}
               </div>
+            )}
+            {precioDetalInfo != null && (
+              <span className="mt-1 block text-[9px] font-light leading-none tracking-[0.2px] text-[var(--text-subtle)]">
+                Detal{' '}
+                <span className="font-medium text-[var(--text-secondary)]">
+                  {formatPrecio(precioDetalInfo)}
+                </span>
+              </span>
             )}
           </div>
         </div>

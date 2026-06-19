@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 import { getLineKey } from '@/lib/cart'
-import {
-  buildVariacionesSeleccionadas,
-  resumenVariacionesTexto,
-} from '@/lib/variaciones'
+import { buildVariacionesSeleccionadas } from '@/lib/variaciones'
 import {
   ShoppingBag,
   Plus,
@@ -117,9 +114,21 @@ export default function ProductoDetalle({
   const [cantidad, setCantidad] = useState(1)
   const [zoomOpen, setZoomOpen] = useState(false)
   const [agregado, setAgregado] = useState(false)
-  const [selectedVariaciones, setSelectedVariaciones] = useState<Record<string, string>>({})
+  const [selectedVariaciones, setSelectedVariaciones] = useState<Record<string, string[]>>({})
 
   const tieneVariaciones = variaciones.length > 0
+
+  const toggleOpcion = (tipoId: string, opcionId: string) => {
+    setSelectedVariaciones(prev => {
+      const actuales = prev[tipoId] ?? []
+      return {
+        ...prev,
+        [tipoId]: actuales.includes(opcionId)
+          ? actuales.filter(id => id !== opcionId)
+          : [...actuales, opcionId],
+      }
+    })
+  }
 
   const variacionesParaCarrito = buildVariacionesSeleccionadas(
     variaciones,
@@ -133,15 +142,15 @@ export default function ProductoDetalle({
   })
   const imagenes = producto.imagenes?.length ? producto.imagenes : []
 
-  const resumenSeleccion = resumenVariacionesTexto(variaciones, selectedVariaciones)
-
   const handleAgregar = () => {
     if (!producto.disponible) return
 
     if (tieneVariaciones) {
-      const faltantes = variaciones.filter(tipo => !selectedVariaciones[tipo.id])
+      const faltantes = variaciones.filter(
+        tipo => !(selectedVariaciones[tipo.id]?.length),
+      )
       if (faltantes.length > 0) {
-        toast.error('Selecciona todas las opciones del producto')
+        toast.error('Selecciona al menos una opción del producto')
         return
       }
     }
@@ -338,15 +347,19 @@ export default function ProductoDetalle({
             )}
 
             {tieneVariaciones && (
-              <div className="mt-8 space-y-6">
-                {variaciones.map(tipo => (
+              <div className="mt-8 space-y-7">
+                {variaciones.map(tipo => {
+                  return (
                   <div key={tipo.id}>
-                    <p className="mb-3 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
-                      {tipo.nombre}
-                    </p>
+                    <div className="mb-3 flex items-baseline gap-3">
+                      <p className="flex items-center gap-2.5 text-[11px] font-light uppercase tracking-[2px] text-[var(--gold-subtle)]">
+                        <span className="h-px w-5 bg-[var(--gold)] opacity-40" />
+                        {tipo.nombre}
+                      </p>
+                    </div>
                     <div className="flex flex-wrap gap-2.5">
                       {tipo.opciones?.map(opcion => {
-                        const selected = selectedVariaciones[tipo.id] === opcion.id
+                        const selected = selectedVariaciones[tipo.id]?.includes(opcion.id) ?? false
                         const unavailable = !opcion.disponible
 
                         if (opcion.valor_color) {
@@ -356,12 +369,7 @@ export default function ProductoDetalle({
                               type="button"
                               title={opcion.nombre}
                               disabled={unavailable}
-                              onClick={() =>
-                                setSelectedVariaciones(prev => ({
-                                  ...prev,
-                                  [tipo.id]: opcion.id,
-                                }))
-                              }
+                              onClick={() => toggleOpcion(tipo.id, opcion.id)}
                               className={`rounded-full p-0.5 transition-all ${
                                 unavailable
                                   ? 'cursor-not-allowed opacity-40'
@@ -388,18 +396,13 @@ export default function ProductoDetalle({
                             key={opcion.id}
                             type="button"
                             disabled={unavailable}
-                            onClick={() =>
-                              setSelectedVariaciones(prev => ({
-                                ...prev,
-                                [tipo.id]: opcion.id,
-                              }))
-                            }
-                            className={`rounded-xl border px-4 py-2 text-[12px] font-light transition-colors md:rounded-[2px] ${
+                            onClick={() => toggleOpcion(tipo.id, opcion.id)}
+                            className={`min-h-[42px] rounded-xl border px-4 py-2.5 text-[12px] font-light tracking-[0.3px] transition-all duration-200 md:rounded-[4px] ${
                               unavailable
-                                ? 'cursor-not-allowed opacity-40'
+                                ? 'cursor-not-allowed border-[var(--border-subtle)] text-[var(--text-faint)] line-through opacity-50'
                                 : selected
-                                  ? 'border-[var(--border)] bg-[var(--gold-muted)] text-[var(--gold)]'
-                                  : 'border-[var(--border-input)] bg-transparent text-[var(--text-muted)] hover:border-[var(--border)]'
+                                  ? 'border-[var(--gold)] bg-[var(--gold-muted)] text-[var(--gold)] shadow-[0_2px_14px_var(--glow-gold)]'
+                                  : 'border-[var(--border-input)] bg-[var(--bg-surface)]/40 text-[var(--text-muted)] hover:border-[var(--gold)] hover:text-[var(--text-primary)]'
                             }`}
                           >
                             {opcion.nombre}
@@ -408,13 +411,8 @@ export default function ProductoDetalle({
                       })}
                     </div>
                   </div>
-                ))}
-
-                {resumenSeleccion && (
-                  <p className="text-[12px] font-light text-[var(--text-subtle)]">
-                    Seleccionado: {resumenSeleccion}
-                  </p>
-                )}
+                  )
+                })}
               </div>
             )}
 

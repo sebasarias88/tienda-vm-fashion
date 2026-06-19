@@ -19,31 +19,19 @@ export function normalizarVariacionesProducto(
 
 export function buildVariacionesSeleccionadas(
   variaciones: VariacionTipo[],
-  selectedByTipoId: Record<string, string>,
+  selectedByTipoId: Record<string, string[]>,
 ): Record<string, string> | undefined {
   const result: Record<string, string> = {}
 
   for (const tipo of variaciones) {
-    const opcionId = selectedByTipoId[tipo.id]
-    const opcion = tipo.opciones?.find(o => o.id === opcionId)
-    if (opcion) result[tipo.nombre] = opcion.nombre
+    const opcionIds = selectedByTipoId[tipo.id]
+    if (!opcionIds?.length) continue
+    // Se respeta el orden de las opciones del tipo para una clave estable.
+    const nombres = (tipo.opciones || [])
+      .filter(o => opcionIds.includes(o.id))
+      .map(o => o.nombre)
+    if (nombres.length) result[tipo.nombre] = nombres.join(', ')
   }
 
   return Object.keys(result).length > 0 ? result : undefined
-}
-
-export function resumenVariacionesTexto(
-  variaciones: VariacionTipo[],
-  selectedByTipoId: Record<string, string>,
-): string {
-  const parts = variaciones
-    .map(tipo => {
-      const opcionId = selectedByTipoId[tipo.id]
-      const opcion = tipo.opciones?.find(o => o.id === opcionId)
-      if (!opcion) return null
-      return `${tipo.nombre} — ${opcion.nombre}`
-    })
-    .filter(Boolean)
-
-  return parts.join(', ')
 }

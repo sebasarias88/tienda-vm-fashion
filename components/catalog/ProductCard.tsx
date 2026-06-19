@@ -7,6 +7,7 @@ import { Producto } from '@/types'
 import {
   catalogPath,
   formatPrecio,
+  getPrecioDetalInfo,
   getProductoPrecios,
   type CatalogType,
 } from '@/lib/catalog'
@@ -39,6 +40,7 @@ export default function ProductCard({
   const agregar = useCarrito(s => s.agregar)
   const isMayoreo = catalogType === 'mayoreo'
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
+  const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
 
   const handleAgregar = (e: React.MouseEvent) => {
@@ -131,6 +133,14 @@ export default function ProductCard({
                   </span>
                 )}
               </div>
+            )}
+            {precioDetalInfo != null && (
+              <span className="mt-1.5 block text-[10px] font-light tracking-[0.3px] text-[var(--text-subtle)]">
+                Precio al detal{' '}
+                <span className="font-normal text-[var(--text-secondary)]">
+                  {formatPrecio(precioDetalInfo)}
+                </span>
+              </span>
             )}
           </div>
         </div>
