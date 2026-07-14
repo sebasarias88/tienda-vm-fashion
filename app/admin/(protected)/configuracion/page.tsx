@@ -30,7 +30,7 @@ export default function ConfiguracionPage() {
     }
 
     const map: Config = {}
-    data.forEach(row => {
+    data.forEach((row: { clave: string; valor: string }) => {
       map[row.clave] = row.valor
     })
     setConfig(map)

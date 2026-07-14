@@ -68,7 +68,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       .select('*')
       .eq('activa', true)
       .order('orden')
-      .then(({ data }) => setCategorias(data || []))
+      .then(({ data }: { data: Categoria[] | null }) => setCategorias(data || []))
 
     if (producto) {
       setForm({
@@ -93,8 +93,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         .from('producto_categorias')
         .select('categoria_id')
         .eq('producto_id', producto.id)
-        .then(({ data }) => {
-          const ids = (data || []).map(row => row.categoria_id as string)
+        .then(({ data }: { data: { categoria_id: string }[] | null }) => {
+          const ids = (data || []).map(row => row.categoria_id)
           if (ids.length > 0) {
             setCategorias_ids(ids)
           } else if (producto.categoria_id) {

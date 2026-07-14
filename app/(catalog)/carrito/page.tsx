@@ -233,7 +233,7 @@ export default function CarritoPage() {
     const { data } = await supabase.from('configuracion').select('clave, valor')
     if (data) {
       const map: Record<string, string> = {}
-      data.forEach(r => {
+      data.forEach((r: { clave: string; valor: string }) => {
         map[r.clave] = r.valor
       })
       setConfig({

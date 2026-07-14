@@ -79,7 +79,7 @@ export default function ProductosPage() {
     } else {
       setProductos(data || [])
       const map: Record<string, CategoriaInfo> = {}
-      ;(cats || []).forEach(c => {
+      ;(cats || []).forEach((c: { id: string; nombre: string; padre_id: string | null }) => {
         map[c.id] = { nombre: c.nombre, padre_id: c.padre_id ?? null }
       })
       setCategoriasMap(map)
