@@ -1,8 +1,9 @@
 import { Producto } from '@/types'
+import { calcularPrecioConDescuento } from '@/lib/descuentos'
 
 export type CatalogType = 'detal' | 'mayoreo'
 
-/** Monto mínimo de compra para el catálogo al por mayor (COP). */
+/** Monto mínimo de compra para el catálogo mayorista (COP). */
 export const MAYOREO_MIN_COMPRA = 180000
 
 export function catalogBasePath(catalogType: CatalogType = 'detal'): string {
@@ -35,21 +36,36 @@ export function getProductoPrecios(
   producto: Producto,
   catalogType: CatalogType = 'detal',
 ): ProductoPrecios {
+  let precio: number | null
+  let precioAntes: number | null
+  let consultar = false
+
   if (catalogType === 'mayoreo') {
-    const precio = producto.precio_mayoreo
-    const consultar = precio == null || precio === 0
-    return {
-      precio: consultar ? null : precio,
-      precioAntes: consultar ? null : producto.precio_antes_mayoreo,
-      consultar,
+    const p = producto.precio_mayoreo
+    consultar = p == null || p === 0
+    precio = consultar ? null : p
+    precioAntes = consultar ? null : producto.precio_antes_mayoreo
+  } else {
+    precio = producto.precio
+    precioAntes = producto.precio_antes
+  }
+
+  if (precio != null && !consultar) {
+    const { precioFinal, tieneDescuento } = calcularPrecioConDescuento(
+      precio,
+      producto.categoria,
+      catalogType,
+    )
+    if (tieneDescuento) {
+      return {
+        precio: precioFinal,
+        precioAntes: precio,
+        consultar: false,
+      }
     }
   }
 
-  return {
-    precio: producto.precio,
-    precioAntes: producto.precio_antes,
-    consultar: false,
-  }
+  return { precio, precioAntes, consultar }
 }
 
 /**
@@ -58,17 +74,16 @@ export function getProductoPrecios(
  */
 export function getPrecioDetalInfo(producto: Producto): number | null {
   const p = producto.precio
-  return p != null && p > 0 ? p : null
+  if (p == null || p <= 0) return null
+  const { precioFinal } = calcularPrecioConDescuento(p, producto.categoria, 'detal')
+  return precioFinal
 }
 
 /** Valor numérico para ordenar por precio (mayoreo sin precio va al final). */
 export function getPrecioOrden(producto: Producto, catalogType: CatalogType): number {
-  if (catalogType === 'mayoreo') {
-    const p = producto.precio_mayoreo
-    if (p == null || p === 0) return Number.POSITIVE_INFINITY
-    return p
-  }
-  return producto.precio
+  const { precio, consultar } = getProductoPrecios(producto, catalogType)
+  if (consultar || precio == null) return Number.POSITIVE_INFINITY
+  return precio
 }
 
 export function getDescuentoPorcentaje(

@@ -107,7 +107,7 @@ export default function ConfiguracionPage() {
       return
     }
     if (metodosPagoMayoreo.length === 0) {
-      toast.error('Agrega al menos un método de pago para Mayoreo')
+      toast.error('Agrega al menos un método de pago para Mayorista')
       return
     }
 

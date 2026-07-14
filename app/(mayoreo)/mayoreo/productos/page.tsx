@@ -21,17 +21,17 @@ export async function generateMetadata({
   const hasFilters = Boolean(query || categorySlug)
   const basePath = catalogPath('mayoreo', '/productos')
 
-  let title = 'Catálogo al por mayor'
-  let description = `Productos de belleza al por mayor en ${siteName}.`
+  let title = 'Catálogo mayorista'
+  let description = `Productos de belleza mayoristas en ${siteName}.`
   let path = basePath
 
   if (query) {
-    title = `Mayoreo: "${query}"`
-    description = `Resultados al por mayor para "${query}" en ${siteName}.`
+    title = `Mayorista: "${query}"`
+    description = `Resultados mayoristas para "${query}" en ${siteName}.`
     path = `${basePath}?q=${encodeURIComponent(query)}`
   } else if (categorySlug) {
-    title = 'Mayoreo por categoría'
-    description = `Productos al por mayor filtrados por categoría en ${siteName}.`
+    title = 'Mayorista por categoría'
+    description = `Productos mayoristas filtrados por categoría en ${siteName}.`
     path = `${basePath}?categoria=${encodeURIComponent(categorySlug)}`
   }
 
@@ -62,17 +62,23 @@ export default async function MayoreoProductosPage({
         .select('*, subcategorias:categorias!padre_id(*)')
         .is('padre_id', null)
         .eq('activa', true)
-        .order('orden'),
+        .order('orden')
+        .order('orden', { referencedTable: 'subcategorias' }),
       supabase
         .from('productos')
         .select(
-          '*, categoria:categorias(id,nombre,slug,padre_id), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id))',
+          '*, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo))',
         )
         .eq('disponible_mayoreo', true)
         .order('orden', { ascending: true })
         .order('created_at', { ascending: false }),
     ])
-    categorias = (cat.data as Categoria[] | null) ?? []
+    categorias = ((cat.data as Categoria[] | null) ?? []).map(raiz => ({
+      ...raiz,
+      subcategorias: [...(raiz.subcategorias || [])]
+        .filter(s => s.activa !== false)
+        .sort((a, b) => a.orden - b.orden),
+    }))
     productos = (prod.data as typeof productos | null) ?? []
   } catch (error) {
     rethrowIfNextControlFlowError(error)

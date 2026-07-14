@@ -36,14 +36,25 @@ export function generarMensajeWhatsApp(
 
   const productosLineas = items
     .map((item) => {
-      const unitario = precioUnitarioItem(item, catalogType)
+      const { precio, precioAntes, consultar } = getProductoPrecios(
+        item.producto,
+        catalogType,
+      )
+      const unitario =
+        consultar || precio == null ? null : precio
       const linea =
         unitario != null
           ? formatPrecio(unitario * item.cantidad)
           : 'Consultar precio'
+      const tachado =
+        unitario != null &&
+        precioAntes != null &&
+        precioAntes > unitario
+          ? ` ~~${formatPrecio(precioAntes * item.cantidad)}~~`
+          : ''
       const vars = formatVariacionesResumen(item.variacionesSeleccionadas)
       const varsSuffix = vars ? ` | ${vars}` : ''
-      return `▸ ${item.producto.nombre} × ${item.cantidad} — ${linea}${varsSuffix}`
+      return `▸ ${item.producto.nombre} × ${item.cantidad} — ${linea}${tachado}${varsSuffix}`
     })
     .join('\n')
 
@@ -51,7 +62,7 @@ export function generarMensajeWhatsApp(
     costoEnvio === 0 ? 'A convenir' : formatPrecio(costoEnvio)
 
   const encabezadoMayoreo =
-    catalogType === 'mayoreo' ? '📦 *Pedido Mayoreo*\n\n' : ''
+    catalogType === 'mayoreo' ? '📦 *Pedido Mayorista*\n\n' : ''
 
   const mensaje = `${encabezadoMayoreo}✨ *Nuevo Pedido — Tienda VM Fashion*
 

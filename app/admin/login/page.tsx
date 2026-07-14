@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Sparkles, Eye, EyeOff, Loader2 } from 'lucide-react'
-import ThemeToggle from '@/components/catalog/ThemeToggle'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -42,10 +41,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4">
-
-      <div className="absolute right-4 top-4 z-10 mobile-safe-top">
-        <ThemeToggle variant="mobile" />
-      </div>
 
       {/* Glow de fondo */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[radial-gradient(circle,var(--glow-gold-strong)_0%,transparent_70%)] pointer-events-none" />

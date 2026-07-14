@@ -44,7 +44,7 @@ export default function OpenGraphImage() {
               color: '#c9a84c',
             }}
           >
-            Armenia · Quindío
+            Armenia · Carrera 15 #19-25 Local 8
           </span>
           <div
             style={{

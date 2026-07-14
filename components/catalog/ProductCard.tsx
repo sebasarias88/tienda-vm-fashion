@@ -11,6 +11,7 @@ import {
   getProductoPrecios,
   type CatalogType,
 } from '@/lib/catalog'
+import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -42,6 +43,11 @@ export default function ProductCard({
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
+  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
+  const pctDescuento =
+    catalogType === 'mayoreo'
+      ? producto.categoria?.descuento_porcentaje_mayoreo
+      : producto.categoria?.descuento_porcentaje
 
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -86,7 +92,12 @@ export default function ProductCard({
                 Agotado
               </span>
             )}
-            {precioAntes && producto.disponible && !consultar && (
+            {descuentoCategoria && producto.disponible && !consultar && (
+              <span className="ml-auto shrink-0 rounded-[2px] border border-[var(--border)] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-[var(--gold)]">
+                -{pctDescuento}%
+              </span>
+            )}
+            {!descuentoCategoria && precioAntes && producto.disponible && !consultar && (
               <span className="ml-auto shrink-0 rounded-[2px] border border-[var(--border)] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-[var(--gold)]">
                 Oferta
               </span>
@@ -95,9 +106,14 @@ export default function ProductCard({
         </div>
 
         <div className="flex flex-1 flex-col px-4 py-4 min-h-[5.5rem]">
-          <p className="mb-3 truncate text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
+          <p className="mb-1 truncate text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
             {producto.categoria?.nombre || 'Producto'}
           </p>
+          {producto.marca && (
+            <p className="mb-2 truncate text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
+              {producto.marca}
+            </p>
+          )}
 
           <h3
             className={`truncate text-sm font-medium leading-snug ${
@@ -111,7 +127,7 @@ export default function ProductCard({
           <div className="mt-auto pt-4">
             {isMayoreo && (
               <span className="mb-1.5 block text-[9px] font-light uppercase tracking-[1.5px] text-[var(--gold)]">
-                Por mayor
+                Mayorista
               </span>
             )}
             {consultar ? (

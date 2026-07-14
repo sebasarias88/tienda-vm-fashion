@@ -15,24 +15,46 @@ export function clampPage(page: number, totalItems: number, pageSize: number): n
   return Math.min(Math.max(1, page), totalPages)
 }
 
-/** Rango de páginas con elipsis para UI de paginación. */
+/** Rango de páginas con elipsis — máximo ~5 números visibles. */
 export function getPaginationRange(
   current: number,
   total: number,
 ): (number | 'ellipsis')[] {
-  if (total <= 7) {
+  if (total <= 5) {
     return Array.from({ length: total }, (_, i) => i + 1)
   }
 
-  if (current <= 4) {
-    return [1, 2, 3, 4, 5, 'ellipsis', total]
+  if (current <= 3) {
+    return [1, 2, 3, 4, 'ellipsis', total]
   }
 
-  if (current >= total - 3) {
-    return [1, 'ellipsis', total - 4, total - 3, total - 2, total - 1, total]
+  if (current >= total - 2) {
+    return [1, 'ellipsis', total - 3, total - 2, total - 1, total]
   }
 
   return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total]
+}
+
+/**
+ * Ventana fija de N páginas consecutivas (ej. 1–5, 6–10, 11–15…).
+ * La ventana cambia según el bloque en el que cae la página actual.
+ */
+export function getPaginationChunk(
+  current: number,
+  total: number,
+  chunkSize = 5,
+): number[] {
+  if (total <= 0) return []
+  if (total <= chunkSize) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+
+  const page = Math.min(Math.max(1, current), total)
+  const chunkIndex = Math.floor((page - 1) / chunkSize)
+  const start = chunkIndex * chunkSize + 1
+  const end = Math.min(start + chunkSize - 1, total)
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i)
 }
 
 export function getPaginationBounds(

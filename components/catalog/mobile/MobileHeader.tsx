@@ -18,6 +18,7 @@ type MobileHeaderProps = {
   categorias: Categoria[]
   catalogType?: CatalogType
   scrolled?: boolean
+  hasAnnouncement?: boolean
 }
 
 export default function MobileHeader({
@@ -25,6 +26,7 @@ export default function MobileHeader({
   categorias,
   catalogType = 'detal',
   scrolled = false,
+  hasAnnouncement,
 }: MobileHeaderProps) {
   const cantidad = useCarrito(s => s.cantidad())
   const [mounted, setMounted] = useState(false)
@@ -33,6 +35,7 @@ export default function MobileHeader({
   const [cartOpen, setCartOpen] = useState(false)
 
   const isMayoreo = catalogType === 'mayoreo'
+  const offsetTop = hasAnnouncement ?? isMayoreo
   const homeHref = catalogPath(catalogType, '/')
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function MobileHeader({
     <>
       <motion.header
         className={`fixed left-0 right-0 z-30 transition-all duration-300 ${
-          isMayoreo ? 'top-9' : 'top-0'
+          offsetTop ? 'top-9' : 'top-0'
         } ${
           scrolled
             ? 'border-b border-[var(--border)] bg-[var(--navbar-bg)]/98 backdrop-blur-lg shadow-[var(--shadow-soft)]'

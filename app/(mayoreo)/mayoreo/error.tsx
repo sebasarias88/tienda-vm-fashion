@@ -26,7 +26,7 @@ export default function MayoreoError({
           Algo salió mal
         </h1>
         <p className="mx-auto max-w-md text-[13px] font-light leading-relaxed text-[var(--text-subtle)]">
-          No pudimos cargar el catálogo al por mayor. Revisa tu conexión a
+          No pudimos cargar el catálogo mayorista. Revisa tu conexión a
           internet e inténtalo de nuevo.
         </p>
       </div>

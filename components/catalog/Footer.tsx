@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
+import { DIRECCION_COMPLETA } from '@/lib/negocio'
 
 type Props = {
   nombreNegocio: string
@@ -94,7 +95,7 @@ export default function Footer({
               <li>
                 <div className="flex items-start gap-2.5 text-[13px] font-light text-[var(--text-secondary)]">
                   <MapPin size={14} className="mt-0.5 shrink-0 text-[var(--gold-subtle)]" />
-                  <span>Armenia, Quindío — Colombia</span>
+                  <span>{DIRECCION_COMPLETA}</span>
                 </div>
               </li>
             </ul>

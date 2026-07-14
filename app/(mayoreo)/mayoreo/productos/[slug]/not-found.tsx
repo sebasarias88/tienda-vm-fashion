@@ -10,13 +10,13 @@ export default function MayoreoProductoNotFound() {
         Producto no encontrado
       </h1>
       <p className="text-[13px] font-light text-[var(--text-subtle)]">
-        El producto que buscas no existe o no está disponible al por mayor.
+        El producto que buscas no existe o no está disponible en el catálogo mayorista.
       </p>
       <Link
         href="/mayoreo/productos"
         className="rounded-[2px] border border-[var(--border)] px-6 py-3 text-[10px] font-light uppercase tracking-[2.5px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
       >
-        Ver catálogo mayoreo
+        Ver catálogo mayorista
       </Link>
     </div>
   )

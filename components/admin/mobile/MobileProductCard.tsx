@@ -41,6 +41,9 @@ export default function MobileProductCard({
               {producto.sku ? (
                 <p className="mt-0.5 truncate text-[10px] text-[var(--text-subtle)]">SKU · {producto.sku}</p>
               ) : null}
+              {producto.marca ? (
+                <p className="mt-0.5 truncate text-[10px] text-[var(--text-muted)]">{producto.marca}</p>
+              ) : null}
             </div>
             {producto.destacado ? (
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.1)] px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] text-[var(--gold)]">
@@ -52,7 +55,7 @@ export default function MobileProductCard({
           <p className="mt-2 text-[12px] font-light text-[var(--gold-bright)]">{formatPrecio(producto.precio)}</p>
           {producto.precio_mayoreo != null ? (
             <p className="text-[10px] text-[var(--text-subtle)]">
-              Mayoreo · {formatPrecio(producto.precio_mayoreo)}
+              Mayorista · {formatPrecio(producto.precio_mayoreo)}
             </p>
           ) : null}
           {producto.categoria ? (

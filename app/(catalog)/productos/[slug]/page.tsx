@@ -38,7 +38,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
   const { data: producto, error } = await supabase
     .from('productos')
-    .select('*, categoria:categorias(id,nombre,slug)')
+    .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
     .eq('slug', slug)
     .single()
 
@@ -47,7 +47,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
   const { data: relacionados } = await supabase
     .from('productos')
-    .select('*, categoria:categorias(id,nombre,slug)')
+    .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
     .eq('categoria_id', producto.categoria_id)
     .eq('disponible', true)
     .neq('id', producto.id)

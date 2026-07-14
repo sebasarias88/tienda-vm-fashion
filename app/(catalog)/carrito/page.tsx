@@ -309,7 +309,7 @@ export default function CarritoPage() {
     }
     if (catalogType === 'mayoreo' && !cumpleMinimo) {
       toast.error(
-        `La compra mínima al por mayor es ${formatPrecio(minimoMayoreo)}`,
+        `La compra mínima mayorista es ${formatPrecio(minimoMayoreo)}`,
       )
       return
     }
@@ -584,7 +584,7 @@ export default function CarritoPage() {
                   {catalogType === 'mayoreo' && !cumpleMinimo && (
                     <div className="rounded-[2px] border border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] p-4">
                       <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
-                        Compra mínima al por mayor
+                        Compra mínima mayorista
                       </p>
                       <p className="mt-1.5 text-[12px] font-light leading-relaxed text-[var(--text-secondary)]">
                         El pedido mínimo es {formatPrecio(minimoMayoreo)}. Te faltan{' '}

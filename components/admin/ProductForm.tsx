@@ -57,6 +57,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     destacado: false,
     imagenes: [] as string[],
     sku: '',
+    marca: '',
     orden: 0,
   })
   const [categorias_ids, setCategorias_ids] = useState<string[]>([])
@@ -84,6 +85,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         destacado: producto.destacado,
         imagenes: producto.imagenes || [],
         sku: producto.sku || '',
+        marca: producto.marca || '',
         orden: producto.orden,
       })
 
@@ -168,6 +170,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       categoria_id: mainCatId,
       imagenes: form.imagenes,
       sku: form.sku.trim() || null,
+      marca: form.marca.trim() || null,
       orden: form.orden,
     }
 
@@ -257,6 +260,13 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
             hint="Generado automáticamente al escribir el nombre"
           />
         </div>
+        <Input
+          label="Marca"
+          value={form.marca}
+          onChange={e => setForm(f => ({ ...f, marca: e.target.value }))}
+          placeholder="Ej: L'Oréal, Revlon, Maybelline, Genérico..."
+          hint="Opcional — permite filtrar por marca en el catálogo"
+        />
         <Textarea
           label="Descripción"
           value={form.descripcion}
@@ -284,21 +294,21 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         </div>
       </FormSection>
 
-      <FormSection title="Precios — Mayoreo">
+      <FormSection title="Precios — Mayorista">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <CopInput
-            label="Precio mayoreo (COP)"
+            label="Precio mayorista (COP)"
             value={form.precio_mayoreo}
             onChange={precio_mayoreo => setForm(f => ({ ...f, precio_mayoreo }))}
             placeholder="38.000"
-            hint="Catálogo al por mayor"
+            hint="Catálogo mayorista"
           />
           <CopInput
-            label="Precio mayoreo anterior"
+            label="Precio mayorista anterior"
             value={form.precio_antes_mayoreo}
             onChange={precio_antes_mayoreo => setForm(f => ({ ...f, precio_antes_mayoreo }))}
             placeholder="50.000"
-            hint="Opcional — precio tachado en mayoreo"
+            hint="Opcional — precio tachado en mayorista"
           />
         </div>
       </FormSection>
@@ -345,8 +355,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
             },
             {
               key: 'disponible_mayoreo' as const,
-              label: 'Disponible en Mayoreo',
-              desc: 'Visible en el catálogo al por mayor',
+              label: 'Disponible en Mayorista',
+              desc: 'Visible en el catálogo mayorista',
             },
           ].map(({ key, label, desc }) => (
             <div

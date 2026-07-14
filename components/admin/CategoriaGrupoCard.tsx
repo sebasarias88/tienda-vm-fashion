@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Categoria } from '@/types'
 import { AdminTableStatus, AdminTableActions } from '@/components/admin/AdminTable'
+import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 
 type GrupoCategoria = { root: Categoria; subs: Categoria[] }
 
@@ -125,6 +126,16 @@ export default function CategoriaGrupoCard({
               <FolderTree size={10} className="opacity-80" />
               {subs.length} {subs.length === 1 ? 'subcategoría' : 'subcategorías'}
             </span>
+            {categoriaTieneDescuentoActivo(root, 'detal') && (
+              <span className="inline-flex shrink-0 items-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.12)] px-2 py-0.5 text-[10px] font-medium text-[var(--gold)]">
+                D -{root.descuento_porcentaje}%
+              </span>
+            )}
+            {categoriaTieneDescuentoActivo(root, 'mayoreo') && (
+              <span className="inline-flex shrink-0 items-center rounded-full border border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] px-2 py-0.5 text-[10px] font-medium text-blue-400">
+                M -{root.descuento_porcentaje_mayoreo}%
+              </span>
+            )}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-[var(--text-subtle)]">
             <span className="uppercase tracking-[0.5px]">Orden {root.orden}</span>
@@ -164,9 +175,21 @@ export default function CategoriaGrupoCard({
                 fallback={<ImageIcon size={14} />}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-normal text-[var(--text-primary)]">
-                  {sub.nombre}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate text-[13px] font-normal text-[var(--text-primary)]">
+                    {sub.nombre}
+                  </p>
+                  {categoriaTieneDescuentoActivo(sub, 'detal') && (
+                    <span className="text-[10px] font-medium text-[var(--gold)]">
+                      D -{sub.descuento_porcentaje}%
+                    </span>
+                  )}
+                  {categoriaTieneDescuentoActivo(sub, 'mayoreo') && (
+                    <span className="text-[10px] font-medium text-blue-400">
+                      M -{sub.descuento_porcentaje_mayoreo}%
+                    </span>
+                  )}
+                </div>
               </div>
               <AdminTableStatus
                 label={sub.activa ? 'Activa' : 'Inactiva'}

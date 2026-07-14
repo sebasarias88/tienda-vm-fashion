@@ -8,6 +8,7 @@ import { Search, ArrowDown, Sparkles, X } from 'lucide-react'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import GoldDecorations from '@/components/catalog/GoldDecorations'
+import { DIRECCION_COMPLETA } from '@/lib/negocio'
 
 const BeautyOrb3D = dynamic(() => import('@/components/catalog/BeautyOrb3D'), {
   ssr: false,
@@ -168,7 +169,7 @@ export default function HeroSection({ titulo, subtitulo, categorias, catalogType
               className="flex items-center gap-3 mt-8 sm:mt-10 text-[11px] tracking-[1.5px] uppercase text-[var(--text-subtle)] font-light"
             >
               <div className="h-px w-8 bg-[var(--border)]" />
-              Armenia, Quindío — Envíos a toda Colombia
+              {DIRECCION_COMPLETA} — Envíos a toda Colombia
             </motion.div>
           </motion.div>
 

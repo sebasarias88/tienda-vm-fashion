@@ -330,6 +330,17 @@ export default function ProductoDetalle({
               </p>
             )}
 
+            {producto.marca && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-[9px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
+                  Marca
+                </span>
+                <span className="border border-[color-mix(in_srgb,var(--gold)_25%,var(--border))] bg-[var(--gold-muted)] px-2 py-0.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--gold)]">
+                  {producto.marca}
+                </span>
+              </div>
+            )}
+
             <div className="mt-6">
               <ProductoPrecio
                 producto={producto}
