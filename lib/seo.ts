@@ -7,6 +7,7 @@ import {
   getSiteName,
   type SiteConfigMap,
 } from '@/lib/site-config'
+import { DIRECCION_NEGOCIO } from '@/lib/negocio'
 
 const LOCALE = 'es_CO'
 
@@ -80,7 +81,7 @@ export function buildProductMetadata(
   producto: Pick<Producto, 'nombre' | 'descripcion' | 'imagenes' | 'slug'>,
   catalogType: CatalogType = 'detal',
 ): Metadata {
-  const suffix = catalogType === 'mayoreo' ? ' — Mayoreo' : ''
+  const suffix = catalogType === 'mayoreo' ? ' — Mayorista' : ''
   const title = `${producto.nombre}${suffix}`
   const description =
     producto.descripcion?.trim() ||
@@ -164,6 +165,7 @@ export function organizationJsonLd(config: SiteConfigMap) {
       : {}),
     address: {
       '@type': 'PostalAddress',
+      streetAddress: DIRECCION_NEGOCIO,
       addressLocality: 'Armenia',
       addressRegion: 'Quindío',
       addressCountry: 'CO',

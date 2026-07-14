@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, MessageCircle, Truck } from 'lucide-react'
 import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
+import { DIRECCION_NEGOCIO, CIUDAD_NEGOCIO } from '@/lib/negocio'
 
 type Props = {
   texto: string
@@ -11,13 +12,13 @@ type Props = {
 }
 
 const DEFAULT_TEXTO =
-  'Somos Tienda VM Fashion, tu aliado de belleza en Armenia, Quindío. Contamos con una amplia variedad de productos profesionales para el cuidado capilar y personal.'
+  `Somos Tienda VM Fashion, tu aliado de belleza en ${CIUDAD_NEGOCIO}. Visítanos en ${DIRECCION_NEGOCIO}. Contamos con una amplia variedad de productos profesionales para el cuidado capilar y personal.`
 
 const HIGHLIGHTS = [
   {
     icon: MapPin,
-    title: 'Armenia, Quindío',
-    description: 'Tienda física en el corazón del eje cafetero',
+    title: CIUDAD_NEGOCIO,
+    description: DIRECCION_NEGOCIO,
   },
   {
     icon: Truck,

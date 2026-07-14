@@ -8,6 +8,7 @@ import {
   getPrecioDetalInfo,
   getProductoPrecios,
 } from '@/lib/catalog'
+import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 
 type ProductoPrecioProps = {
   producto: Producto
@@ -58,7 +59,7 @@ export default function ProductoPrecio({
   if (consultar) {
     return (
       <div className={wrapperClass}>
-        {isMayoreo && <span className={labelClass}>Precio al por mayor</span>}
+        {isMayoreo && <span className={labelClass}>Precio mayorista</span>}
         <span className={`${precioClass} text-[var(--text-subtle)]`}>Consultar precio</span>
         {detalInfoNode}
       </div>
@@ -67,14 +68,24 @@ export default function ProductoPrecio({
 
   const descuento =
     precio != null ? getDescuentoPorcentaje(precio, precioAntes) : null
+  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
+  const pctDescuento =
+    catalogType === 'mayoreo'
+      ? producto.categoria?.descuento_porcentaje_mayoreo
+      : producto.categoria?.descuento_porcentaje
 
   return (
     <div className={wrapperClass}>
-      {isMayoreo && <span className={labelClass}>Precio al por mayor</span>}
+      {isMayoreo && <span className={labelClass}>Precio mayorista</span>}
       <span className={`${precioClass} ${priceColor}`}>{formatPrecio(precio!)}</span>
       {precioAntes != null && precioAntes > 0 && (
         <span className="shrink-0 text-xs font-light leading-none text-[var(--text-subtle)] line-through sm:text-base">
           {formatPrecio(precioAntes)}
+        </span>
+      )}
+      {descuentoCategoria && pctDescuento != null && size === 'lg' && (
+        <span className="border border-[color-mix(in_srgb,var(--gold)_30%,var(--border))] bg-[var(--gold-muted)] px-2 py-0.5 text-[11px] font-light uppercase tracking-[1px] text-[var(--gold)]">
+          -{pctDescuento}% en {producto.categoria?.nombre}
         </span>
       )}
       {descuento != null && size === 'lg' && disponible && (

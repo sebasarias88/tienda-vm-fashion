@@ -12,6 +12,7 @@ import {
   getProductoPrecios,
   type CatalogType,
 } from '@/lib/catalog'
+import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
 
@@ -39,6 +40,11 @@ export default function ProductCardMobile({
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
+  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
+  const pctDescuento =
+    catalogType === 'mayoreo'
+      ? producto.categoria?.descuento_porcentaje_mayoreo
+      : producto.categoria?.descuento_porcentaje
 
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -82,11 +88,15 @@ export default function ProductCardMobile({
             ) : (
               <span />
             )}
-            {precioAntes && producto.disponible && !consultar && (
+            {descuentoCategoria && producto.disponible && !consultar ? (
+              <span className="rounded-lg border border-[var(--border)] bg-[var(--badge-oferta-bg)]/95 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[1px] text-[var(--gold)] backdrop-blur-sm">
+                -{pctDescuento}%
+              </span>
+            ) : precioAntes && producto.disponible && !consultar ? (
               <span className="rounded-lg border border-[var(--border)] bg-[var(--badge-oferta-bg)]/95 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[1px] text-[var(--gold)] backdrop-blur-sm">
                 Oferta
               </span>
-            )}
+            ) : null}
           </div>
 
           <motion.button
@@ -108,6 +118,11 @@ export default function ProductCardMobile({
             <p className="mb-1 line-clamp-1 text-[9px] font-semibold uppercase tracking-[1.4px] text-[var(--gold)]">
               {producto.categoria?.nombre || 'Producto'}
             </p>
+            {producto.marca && (
+              <p className="mb-1 line-clamp-1 text-[8px] font-light uppercase tracking-[1.2px] text-[var(--text-subtle)]">
+                {producto.marca}
+              </p>
+            )}
             <h3
               className={`line-clamp-2 text-[12px] font-medium leading-[1.35] ${
                 producto.disponible ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
@@ -121,7 +136,7 @@ export default function ProductCardMobile({
           <div className="mt-auto">
             {isMayoreo && (
               <span className="mb-1 block text-[8px] font-medium uppercase tracking-[1px] text-[var(--gold)]">
-                Por mayor
+                Mayorista
               </span>
             )}
             {consultar ? (

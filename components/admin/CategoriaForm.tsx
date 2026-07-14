@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { Categoria } from '@/types'
 import { Input } from '@/components/ui/Input'
@@ -48,6 +49,15 @@ const generarSlug = (nombre: string) =>
     .trim()
     .replace(/\s+/g, '-')
 
+
+function toDatetimeLocal(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 export default function CategoriaForm({
   categoria,
   categoriasRaiz,
@@ -58,6 +68,7 @@ export default function CategoriaForm({
   const [saving, setSaving] = useState(false)
   const [uploadingImg, setUploadingImg] = useState(false)
   const [tipo, setTipo] = useState<'principal' | 'subcategoria'>('principal')
+  const [descuentoTab, setDescuentoTab] = useState<'detal' | 'mayoreo'>('detal')
   const [form, setForm] = useState({
     nombre: '',
     slug: '',
@@ -65,6 +76,12 @@ export default function CategoriaForm({
     orden: ordenDefault,
     activa: true,
     padre_id: '',
+    descuento_porcentaje: 0,
+    descuento_activo: false,
+    descuento_fecha_fin: '',
+    descuento_porcentaje_mayoreo: 0,
+    descuento_activo_mayoreo: false,
+    descuento_fecha_fin_mayoreo: '',
   })
 
   useEffect(() => {
@@ -76,6 +93,12 @@ export default function CategoriaForm({
         orden: categoria.orden,
         activa: categoria.activa,
         padre_id: categoria.padre_id || '',
+        descuento_porcentaje: categoria.descuento_porcentaje || 0,
+        descuento_activo: categoria.descuento_activo || false,
+        descuento_fecha_fin: toDatetimeLocal(categoria.descuento_fecha_fin),
+        descuento_porcentaje_mayoreo: categoria.descuento_porcentaje_mayoreo || 0,
+        descuento_activo_mayoreo: categoria.descuento_activo_mayoreo || false,
+        descuento_fecha_fin_mayoreo: toDatetimeLocal(categoria.descuento_fecha_fin_mayoreo),
       })
       setTipo(categoria.padre_id ? 'subcategoria' : 'principal')
     } else {
@@ -86,8 +109,15 @@ export default function CategoriaForm({
         orden: ordenDefault,
         activa: true,
         padre_id: '',
+        descuento_porcentaje: 0,
+        descuento_activo: false,
+        descuento_fecha_fin: '',
+        descuento_porcentaje_mayoreo: 0,
+        descuento_activo_mayoreo: false,
+        descuento_fecha_fin_mayoreo: '',
       })
       setTipo('principal')
+      setDescuentoTab('detal')
     }
   }, [categoria, ordenDefault])
 
@@ -135,7 +165,23 @@ export default function CategoriaForm({
       return
     }
 
+    if (form.descuento_activo && (!form.descuento_porcentaje || form.descuento_porcentaje < 1)) {
+      toast.error('Indica un porcentaje de descuento detal entre 1 y 99')
+      return
+    }
+    if (form.descuento_activo_mayoreo && (!form.descuento_porcentaje_mayoreo || form.descuento_porcentaje_mayoreo < 1)) {
+      toast.error('Indica un porcentaje de descuento mayorista entre 1 y 99')
+      return
+    }
+
     setSaving(true)
+    const fechaFinIso = form.descuento_fecha_fin
+      ? new Date(form.descuento_fecha_fin).toISOString()
+      : null
+    const fechaFinMayoreoIso = form.descuento_fecha_fin_mayoreo
+      ? new Date(form.descuento_fecha_fin_mayoreo).toISOString()
+      : null
+
     const payload = {
       nombre: form.nombre.trim(),
       slug: form.slug.trim(),
@@ -143,6 +189,12 @@ export default function CategoriaForm({
       orden: form.orden,
       activa: form.activa,
       padre_id: tipo === 'subcategoria' ? form.padre_id || null : null,
+      descuento_porcentaje: form.descuento_activo ? form.descuento_porcentaje : 0,
+      descuento_activo: form.descuento_activo,
+      descuento_fecha_fin: form.descuento_activo ? fechaFinIso : null,
+      descuento_porcentaje_mayoreo: form.descuento_activo_mayoreo ? form.descuento_porcentaje_mayoreo : 0,
+      descuento_activo_mayoreo: form.descuento_activo_mayoreo,
+      descuento_fecha_fin_mayoreo: form.descuento_activo_mayoreo ? fechaFinMayoreoIso : null,
     }
 
     if (categoria) {
@@ -374,6 +426,171 @@ export default function CategoriaForm({
           >
             <span className="admin-toggle__thumb" />
           </button>
+        </div>
+      </FormSection>
+
+      <FormSection title="Descuentos por catálogo">
+        <div className="space-y-4">
+          <div className="flex overflow-hidden rounded-[2px] border border-[var(--border-input)]">
+            {([
+              { id: 'detal' as const, label: 'Catálogo Detal' },
+              { id: 'mayoreo' as const, label: 'Catálogo Mayorista' },
+            ]).map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setDescuentoTab(tab.id)}
+                className={`flex-1 py-2.5 text-[10px] font-medium uppercase tracking-[1.5px] transition-all ${
+                  descuentoTab === tab.id
+                    ? 'bg-[var(--gold-muted)] text-[var(--gold)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {descuentoTab === 'detal' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="admin-form-panel space-y-4 px-4 py-3.5"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="pr-4">
+                  <p className="admin-form-panel__title">Activar descuento detal</p>
+                  <p className="admin-form-panel__desc">
+                    Aplica a productos de esta categoría en el catálogo detal
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, descuento_activo: !f.descuento_activo }))}
+                  className={`admin-toggle ${form.descuento_activo ? 'admin-toggle--on' : 'admin-toggle--off'}`}
+                  aria-pressed={form.descuento_activo}
+                >
+                  <span className="admin-toggle__thumb" />
+                </button>
+              </div>
+
+              <AnimatePresence initial={false}>
+                {form.descuento_activo && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 overflow-hidden"
+                  >
+                    <div className="relative">
+                      <Input
+                        label="Porcentaje descuento detal"
+                        type="number"
+                        min={1}
+                        max={99}
+                        value={form.descuento_porcentaje || ''}
+                        onChange={e =>
+                          setForm(f => ({
+                            ...f,
+                            descuento_porcentaje: Math.min(99, Math.max(0, Number(e.target.value) || 0)),
+                          }))
+                        }
+                        placeholder="Ej: 10"
+                        hint="Ingresa un número entre 1 y 99"
+                      />
+                      <span className="pointer-events-none absolute right-4 top-[2.15rem] text-[13px] font-light text-[var(--text-subtle)]">
+                        %
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="admin-form-label">Fecha de vencimiento detal (opcional)</label>
+                      <input
+                        type="datetime-local"
+                        value={form.descuento_fecha_fin}
+                        onChange={e => setForm(f => ({ ...f, descuento_fecha_fin: e.target.value }))}
+                        className="w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-card)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--gold)]"
+                      />
+                      <p className="admin-form-hint">Si no defines fecha, el descuento no expira</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
+          {descuentoTab === 'mayoreo' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="admin-form-panel space-y-4 px-4 py-3.5"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="pr-4">
+                  <p className="admin-form-panel__title">Activar descuento mayorista</p>
+                  <p className="admin-form-panel__desc">
+                    Aplica a productos de esta categoría en el catálogo mayorista
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm(f => ({ ...f, descuento_activo_mayoreo: !f.descuento_activo_mayoreo }))
+                  }
+                  className={`admin-toggle ${form.descuento_activo_mayoreo ? 'admin-toggle--on' : 'admin-toggle--off'}`}
+                  aria-pressed={form.descuento_activo_mayoreo}
+                >
+                  <span className="admin-toggle__thumb" />
+                </button>
+              </div>
+
+              <AnimatePresence initial={false}>
+                {form.descuento_activo_mayoreo && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 overflow-hidden"
+                  >
+                    <div className="relative">
+                      <Input
+                        label="Porcentaje descuento mayorista"
+                        type="number"
+                        min={1}
+                        max={99}
+                        value={form.descuento_porcentaje_mayoreo || ''}
+                        onChange={e =>
+                          setForm(f => ({
+                            ...f,
+                            descuento_porcentaje_mayoreo: Math.min(
+                              99,
+                              Math.max(0, Number(e.target.value) || 0),
+                            ),
+                          }))
+                        }
+                        placeholder="Ej: 15"
+                        hint="Ingresa un número entre 1 y 99"
+                      />
+                      <span className="pointer-events-none absolute right-4 top-[2.15rem] text-[13px] font-light text-[var(--text-subtle)]">
+                        %
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="admin-form-label">Fecha de vencimiento mayorista (opcional)</label>
+                      <input
+                        type="datetime-local"
+                        value={form.descuento_fecha_fin_mayoreo}
+                        onChange={e =>
+                          setForm(f => ({ ...f, descuento_fecha_fin_mayoreo: e.target.value }))
+                        }
+                        className="w-full rounded-[2px] border border-[var(--border-input)] bg-[var(--bg-card)] px-4 py-3 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--gold)]"
+                      />
+                      <p className="admin-form-hint">Si no defines fecha, el descuento no expira</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </div>
       </FormSection>
     </AdminFormLayout>

@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Categoria } from '@/types'
 import MobileBottomSheet from '@/components/catalog/mobile/MobileBottomSheet'
 import MobileFilterDropdown, { FilterOption } from '@/components/catalog/mobile/MobileFilterDropdown'
+import MobileCategoryFilter from '@/components/catalog/mobile/MobileCategoryFilter'
 
 type Orden = 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre'
-type OpenDropdown = 'orden' | 'categoria' | null
+type OpenDropdown = 'orden' | 'categoria' | 'marca' | null
 
 type MobileFiltersDrawerProps = {
   open: boolean
@@ -14,7 +15,9 @@ type MobileFiltersDrawerProps = {
   categorias: Categoria[]
   categoriaActiva: string
   onCategoriaChange: (slug: string) => void
-  subcategorias: Categoria[]
+  marcas?: string[]
+  marcasActivas?: string[]
+  onMarcasChange?: (marcas: string[]) => void
   orden: Orden
   onOrdenChange: (orden: Orden) => void
   onLimpiar: () => void
@@ -22,28 +25,11 @@ type MobileFiltersDrawerProps = {
 }
 
 const ordenOptions: FilterOption[] = [
-  { value: 'relevancia', label: 'Relevancia' },
+  { value: 'relevancia', label: 'Destacados' },
   { value: 'precio-asc', label: 'Menor precio' },
   { value: 'precio-desc', label: 'Mayor precio' },
   { value: 'nombre', label: 'Nombre A-Z' },
 ]
-
-function buildCategoriaOptions(categorias: Categoria[]): FilterOption[] {
-  const options: FilterOption[] = [{ value: '', label: 'Todas las categorías' }]
-
-  for (const cat of categorias) {
-    options.push({ value: cat.slug, label: cat.nombre })
-    cat.subcategorias?.forEach(sub => {
-      options.push({
-        value: sub.slug,
-        label: sub.nombre,
-        hint: cat.nombre,
-      })
-    })
-  }
-
-  return options
-}
 
 export default function MobileFiltersDrawer({
   open,
@@ -51,17 +37,24 @@ export default function MobileFiltersDrawer({
   categorias,
   categoriaActiva,
   onCategoriaChange,
+  marcas = [],
+  marcasActivas = [],
+  onMarcasChange,
   orden,
   onOrdenChange,
   onLimpiar,
   resultCount,
 }: MobileFiltersDrawerProps) {
   const [openDropdown, setOpenDropdown] = useState<OpenDropdown>(null)
-  const tieneFiltros = Boolean(categoriaActiva) || orden !== 'relevancia'
+  const tieneFiltros =
+    Boolean(categoriaActiva) || marcasActivas.length > 0 || orden !== 'relevancia'
 
-  const categoriaOptions = useMemo(
-    () => buildCategoriaOptions(categorias),
-    [categorias],
+  const marcaOptions = useMemo<FilterOption[]>(
+    () => [
+      { value: '', label: 'Todas las marcas' },
+      ...marcas.map(m => ({ value: m, label: m })),
+    ],
+    [marcas],
   )
 
   useEffect(() => {
@@ -95,12 +88,16 @@ export default function MobileFiltersDrawer({
       onClose={onClose}
       title="Filtros"
       subtitle={`${resultCount} producto${resultCount !== 1 ? 's' : ''}`}
-      height={openDropdown === 'categoria' ? 'tall' : 'auto'}
+      height={
+        openDropdown === 'categoria' || openDropdown === 'marca' ? 'tall' : 'auto'
+      }
       footer={footer}
     >
       <div
         className={`mobile-filters-compact px-5 pt-2 ${
-          openDropdown === 'categoria' ? 'mobile-filters-compact--open pb-6' : 'pb-4'
+          openDropdown === 'categoria' || openDropdown === 'marca'
+            ? 'mobile-filters-compact--open pb-6'
+            : 'pb-4'
         }`}
       >
         <MobileFilterDropdown
@@ -113,17 +110,28 @@ export default function MobileFiltersDrawer({
           listClassName="max-h-none"
         />
 
-        <MobileFilterDropdown
-          label="Categoría"
-          value={categoriaActiva}
-          options={categoriaOptions}
+        <MobileCategoryFilter
+          categorias={categorias}
+          categoriaActiva={categoriaActiva}
           onChange={onCategoriaChange}
           open={openDropdown === 'categoria'}
           onOpenChange={next => setOpenDropdown(next ? 'categoria' : null)}
-          searchable
-          searchPlaceholder="Buscar categoría…"
-          listClassName="max-h-[min(42dvh,260px)]"
         />
+
+        {marcas.length > 0 && onMarcasChange && (
+          <MobileFilterDropdown
+            label="Marca"
+            multiple
+            values={marcasActivas}
+            onValuesChange={onMarcasChange}
+            options={marcaOptions}
+            open={openDropdown === 'marca'}
+            onOpenChange={next => setOpenDropdown(next ? 'marca' : null)}
+            searchable
+            searchPlaceholder="Buscar marca…"
+            listClassName="max-h-[min(42dvh,260px)]"
+          />
+        )}
       </div>
     </MobileBottomSheet>
   )

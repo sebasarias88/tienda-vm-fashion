@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
-import ThemeScript from '@/components/ThemeScript'
 import ScrollToTop from '@/components/ScrollToTop'
 import ConnectionStatus from '@/components/ConnectionStatus'
 import { getSiteUrl } from '@/lib/seo'
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | Tienda VM Fashion',
   },
   description:
-    'Productos de belleza y cuidado capilar en Armenia, Quindío. Envíos a toda Colombia.',
+    'Productos de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.',
   keywords: [
     'belleza',
     'cuidado capilar',
@@ -65,10 +64,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className={outfit.variable} suppressHydrationWarning>
-      <head>
-        <ThemeScript />
-      </head>
+    <html lang="es" className={outfit.variable}>
       <body className="min-h-screen antialiased">
         <ScrollToTop />
         <ConnectionStatus />

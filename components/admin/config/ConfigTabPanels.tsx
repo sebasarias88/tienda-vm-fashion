@@ -190,7 +190,7 @@ export default function ConfigTabPanels({
             label="Texto descriptivo"
             value={config['texto_nosotros'] || ''}
             onChange={e => updateConfig('texto_nosotros', e.target.value)}
-            placeholder="Somos Tienda VM Fashion, tu aliado de belleza en Armenia, Quindío."
+            placeholder="Somos Tienda VM Fashion, tu aliado de belleza en Carrera 15 #19-25 Local 8, Armenia, Quindío."
             rows={mobile ? 6 : 5}
           />
         </FormSection>
@@ -298,14 +298,14 @@ export default function ConfigTabPanels({
       {mobile ? (
         <>
           <MobilePaymentGroup label="Detal" controls={pagoDetal} />
-          <MobilePaymentGroup label="Mayoreo" controls={pagoMayoreo} />
+          <MobilePaymentGroup label="Mayorista" controls={pagoMayoreo} />
         </>
       ) : (
         <div className="space-y-10">
           <FormSection title="Métodos de pago — Detal">
             <ConfigPaymentMethodsDesktop controls={pagoDetal} />
           </FormSection>
-          <FormSection title="Métodos de pago — Mayoreo">
+          <FormSection title="Métodos de pago — Mayorista">
             <ConfigPaymentMethodsDesktop controls={pagoMayoreo} />
           </FormSection>
         </div>

@@ -12,9 +12,13 @@ export type FilterOption = {
 
 type MobileFilterDropdownProps = {
   label: string
-  value: string
+  value?: string
   options: FilterOption[]
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
+  /** Multiselect: mantiene el panel abierto al elegir */
+  multiple?: boolean
+  values?: string[]
+  onValuesChange?: (values: string[]) => void
   open: boolean
   onOpenChange: (open: boolean) => void
   searchable?: boolean
@@ -25,9 +29,12 @@ type MobileFilterDropdownProps = {
 
 export default function MobileFilterDropdown({
   label,
-  value,
+  value = '',
   options,
   onChange,
+  multiple = false,
+  values = [],
+  onValuesChange,
   open,
   onOpenChange,
   searchable = false,
@@ -37,6 +44,15 @@ export default function MobileFilterDropdown({
   const [search, setSearch] = useState('')
   const rootRef = useRef<HTMLDivElement>(null)
   const selected = options.find(o => o.value === value)
+  const hasMulti = multiple && values.length > 0
+
+  const displayLabel = multiple
+    ? values.length === 0
+      ? (options.find(o => o.value === '')?.label ?? 'Todas')
+      : values.length === 1
+        ? values[0]
+        : `${values.length} marcas`
+    : (selected?.label ?? 'Seleccionar')
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -64,7 +80,19 @@ export default function MobileFilterDropdown({
   }, [open, onOpenChange])
 
   const pick = (next: string) => {
-    onChange(next)
+    if (multiple && onValuesChange) {
+      if (!next) {
+        onValuesChange([])
+        return
+      }
+      if (values.includes(next)) {
+        onValuesChange(values.filter(v => v !== next))
+      } else {
+        onValuesChange([...values, next])
+      }
+      return
+    }
+    onChange?.(next)
     onOpenChange(false)
   }
 
@@ -78,17 +106,24 @@ export default function MobileFilterDropdown({
         onClick={() => onOpenChange(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`mobile-filter-dropdown-trigger flex min-h-[48px] w-full items-center justify-between gap-3 rounded-xl px-4 text-left ${
+        className={`mobile-filter-dropdown-trigger flex min-h-[48px] w-full items-center justify-between gap-3 px-1 text-left ${
           open ? 'mobile-filter-dropdown-trigger--open' : ''
         }`}
       >
-        <span className="min-w-0 truncate text-[14px] font-medium text-[var(--text-primary)]">
-          {selected?.label ?? 'Seleccionar'}
+        <span
+          className={`min-w-0 truncate text-[13px] font-light uppercase tracking-[1.4px] ${
+            open || hasMulti || (value && value !== options[0]?.value)
+              ? 'text-[var(--gold)]'
+              : 'text-[var(--text-primary)]'
+          }`}
+        >
+          {displayLabel}
         </span>
         <ChevronDown
-          size={18}
-          className={`shrink-0 text-[var(--text-muted)] transition-transform duration-200 ${
-            open ? 'rotate-180' : ''
+          size={16}
+          strokeWidth={1.75}
+          className={`shrink-0 transition-transform duration-200 ${
+            open ? 'rotate-180 text-[var(--gold)]' : 'text-[var(--text-subtle)]'
           }`}
         />
       </button>
@@ -100,8 +135,9 @@ export default function MobileFilterDropdown({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.18 }}
-            className="mobile-filter-dropdown-panel mt-2 overflow-hidden rounded-xl"
+            className="mobile-filter-dropdown-panel mt-2 overflow-hidden"
             role="listbox"
+            aria-multiselectable={multiple || undefined}
           >
             {searchable ? (
               <div className="mobile-filter-dropdown-search flex items-center gap-2 border-b border-[var(--border-subtle)] px-3 py-2">
@@ -128,7 +164,11 @@ export default function MobileFilterDropdown({
                 </li>
               ) : (
                 filtered.map(option => {
-                  const active = option.value === value
+                  const active = multiple
+                    ? option.value === ''
+                      ? values.length === 0
+                      : values.includes(option.value)
+                    : option.value === value
                   return (
                     <li key={option.value || '__all__'}>
                       <button

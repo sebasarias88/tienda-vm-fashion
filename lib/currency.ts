@@ -11,7 +11,7 @@
 /** Solo dígitos, puntos y comas — para filtrar mientras se escribe. */
 export function sanitizeCopInput(value: string): string {
   return value.replace(/[^\d.,]/g, '')
-}
+} 
 
 /**
  * Convierte texto en formato colombiano o plano a número.

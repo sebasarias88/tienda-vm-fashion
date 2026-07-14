@@ -9,8 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return buildMetadata({
     config,
-    title: 'Carrito de compras — Mayoreo',
-    description: `Revisa tu pedido al por mayor en ${siteName}.`,
+    title: 'Carrito de compras — Mayorista',
+    description: `Revisa tu pedido mayorista en ${siteName}.`,
     path: catalogPath('mayoreo', '/carrito'),
     noIndex: true,
   })

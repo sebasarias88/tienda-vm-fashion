@@ -1,12 +1,20 @@
 import type { Metadata } from 'next'
+import { Info } from 'lucide-react'
 import { createSupabaseServer } from '@/lib/supabase-server'
-import HeroSection from '@/components/catalog/HeroSection'
-import CategoriasSection from '@/components/catalog/CategoriasSection'
+import HeroBanner from '@/components/catalog/HeroBanner'
+import TrustStrip from '@/components/catalog/TrustStrip'
+import PromoStrip from '@/components/catalog/PromoStrip'
+import CategoriasGrid from '@/components/catalog/CategoriasGrid'
 import ProductosDestacados from '@/components/catalog/ProductosDestacados'
+import ProductosOfertas from '@/components/catalog/ProductosOfertas'
+import ProductosNovedades from '@/components/catalog/ProductosNovedades'
+import TestimoniosSection from '@/components/catalog/TestimoniosSection'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
+import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
+import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
@@ -14,82 +22,141 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return buildMetadata({
     config,
-    title: `Mayoreo — ${siteName}`,
+    title: `Mayorista — ${siteName}`,
     description:
+      config.mayoreo_titulo?.trim() ||
       config.hero_subtitulo?.trim() ||
-      `Catálogo al por mayor de ${getSiteDescription(config)}`,
+      `Catálogo mayorista de ${getSiteDescription(config)}`,
     path: '/mayoreo',
   })
 }
 
-type ConteoRow = {
-  categoria?: { slug?: string | null } | null
-  producto_categorias?: { categoria?: { slug?: string | null } | null }[] | null
-}
-
-async function getMayoreoData() {
-  const supabase = await createSupabaseServer()
-  const [{ data: configData }, { data: categorias }, { data: destacados }, { data: conteoData }] =
-    await Promise.all([
-      supabase.from('configuracion').select('clave, valor'),
-      supabase.from('categorias').select('*').eq('activa', true).order('orden').limit(8),
-      supabase.from('productos').select('*, categoria:categorias(id,nombre,slug)')
-        .eq('disponible', true).eq('destacado', true).order('orden').limit(8),
-      supabase
-        .from('productos')
-        .select('categoria:categorias(slug), producto_categorias(categoria:categorias(slug))')
-        .eq('disponible_mayoreo', true),
-    ])
-
-  return {
-    configData,
-    categorias: categorias ?? [],
-    destacados: destacados ?? [],
-    conteoData,
-  }
+function uniqueById(items: Producto[]) {
+  const seen = new Set<string>()
+  return items.filter(p => {
+    if (seen.has(p.id)) return false
+    seen.add(p.id)
+    return true
+  })
 }
 
 export default async function MayoreoHomePage() {
   const config: Record<string, string> = {}
-  const conteos: Record<string, number> = {}
-  let categorias: Awaited<ReturnType<typeof getMayoreoData>>['categorias'] = []
-  let destacados: Awaited<ReturnType<typeof getMayoreoData>>['destacados'] = []
+  let banners: Banner[] = []
+  let promociones: Promocion[] = []
+  let categorias: Categoria[] = []
+  let destacados: Producto[] = []
+  let ofertas: Producto[] = []
+  let novedades: Producto[] = []
 
   try {
-    const data = await getMayoreoData()
-    data.configData?.forEach(row => { config[row.clave] = row.valor })
-    categorias = data.categorias
-    destacados = data.destacados
-    ;(data.conteoData as ConteoRow[] | null)?.forEach(row => {
-      const slugs = new Set<string>()
-      if (row.categoria?.slug) slugs.add(row.categoria.slug)
-      row.producto_categorias?.forEach(pc => {
-        if (pc.categoria?.slug) slugs.add(pc.categoria.slug)
-      })
-      slugs.forEach(slug => {
-        conteos[slug] = (conteos[slug] || 0) + 1
-      })
+    const supabase = await createSupabaseServer()
+
+    const [
+      { data: configData },
+      { data: bannersData },
+      { data: promocionesData },
+      { data: categoriasData },
+      { data: destacadosData },
+      { data: ofertasData },
+      { data: novedadesData },
+    ] = await Promise.all([
+      supabase.from('configuracion').select('clave, valor'),
+      supabase.from('banners').select('*').eq('activo', true).order('orden'),
+      supabase.from('promociones').select('*').eq('activa', true).order('orden'),
+      supabase
+        .from('categorias')
+        .select('*, subcategorias:categorias!padre_id(*)')
+        .is('padre_id', null)
+        .eq('activa', true)
+        .order('orden'),
+      supabase
+        .from('productos')
+        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
+        .eq('disponible_mayoreo', true)
+        .eq('destacado', true)
+        .order('orden')
+        .limit(10),
+      supabase
+        .from('productos')
+        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
+        .eq('disponible_mayoreo', true)
+        .not('precio_antes_mayoreo', 'is', null)
+        .order('orden')
+        .limit(10),
+      supabase
+        .from('productos')
+        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
+        .eq('disponible_mayoreo', true)
+        .order('created_at', { ascending: false })
+        .limit(10),
+    ])
+
+    configData?.forEach(row => {
+      config[row.clave] = row.valor
     })
+    banners = (bannersData as Banner[] | null) || []
+    promociones = (promocionesData as Promocion[] | null) || []
+    categorias = ((categoriasData as Categoria[] | null) || []).map(raiz => ({
+      ...raiz,
+      subcategorias: [...(raiz.subcategorias || [])]
+        .filter(s => s.activa !== false)
+        .sort((a, b) => a.orden - b.orden),
+    }))
+    destacados = (destacadosData as Producto[] | null) || []
+    ofertas = ((ofertasData as Producto[] | null) || []).filter(p => {
+      const antes = p.precio_antes_mayoreo
+      const actual = p.precio_mayoreo ?? p.precio
+      return antes != null && actual != null && antes > actual
+    })
+    const destacadosIds = new Set(destacados.map(p => p.id))
+    novedades = uniqueById((novedadesData as Producto[] | null) || [])
+      .filter(p => !destacadosIds.has(p.id))
+      .slice(0, 10)
   } catch (error) {
     rethrowIfNextControlFlowError(error)
     console.error('[MayoreoHomePage] Error cargando datos:', error)
   }
 
   return (
-    <>
-      <HeroSection
-        titulo={config['hero_titulo'] || 'Tu ritual de belleza ideal'}
-        subtitulo={config['hero_subtitulo'] || 'Productos profesionales para cada tipo de cabello y piel.'}
-        categorias={categorias || []}
+    <div className="min-h-screen bg-[var(--bg-base)]">
+      <HeroBanner
+        banners={banners}
+        config={config}
         catalogType="mayoreo"
+        eyebrow="Mayorista"
+        primaryCta={{
+          label: 'Ver catálogo mayorista',
+          href: '/mayoreo/productos',
+        }}
       />
-      <CategoriasSection categorias={categorias || []} conteos={conteos} catalogType="mayoreo" />
-      <ProductosDestacados productos={destacados || []} catalogType="mayoreo" />
+
+      <TrustStrip />
+      <PromoStrip promociones={promociones} />
+
+      <div className="mx-auto max-w-7xl px-5 pt-6 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3 border border-[var(--border)] bg-[var(--gold-muted)] px-5 py-3.5">
+          <span className="text-[var(--gold)]">
+            <Info size={14} />
+          </span>
+          <p className="text-[12px] font-light text-[var(--text-muted)]">
+            {config['mayoreo_titulo'] ||
+              'Precios especiales para revendedores. Consulta el monto mínimo de pedido.'}
+          </p>
+        </div>
+      </div>
+
+      <CategoriasGrid categorias={categorias} catalogType="mayoreo" />
+      <ProductosDestacados productos={destacados} catalogType="mayoreo" />
+      <ProductosOfertas productos={ofertas} catalogType="mayoreo" />
+      <ProductosNovedades productos={novedades} catalogType="mayoreo" />
+      <TestimoniosSection />
       <NosotrosSection
         texto={config['texto_nosotros'] || ''}
         whatsapp={config['whatsapp_numero'] || '573185867702'}
         nombreNegocio={config['nombre_negocio'] || 'Tienda VM Fashion'}
       />
-    </>
+      <ProcesoPedido />
+    </div>
   )
 }

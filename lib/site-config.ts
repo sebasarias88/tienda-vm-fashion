@@ -25,7 +25,7 @@ export function getSiteDescription(config: SiteConfigMap): string {
   return (
     config.seo_descripcion?.trim() ||
     config.hero_subtitulo?.trim() ||
-    'Productos de belleza y cuidado capilar en Armenia, Quindío. Envíos a toda Colombia.'
+    'Productos de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.'
   )
 }
 
@@ -44,3 +44,4 @@ export function getSiteKeywords(config: SiteConfigMap): string[] {
     'Colombia',
   ]
 }
+

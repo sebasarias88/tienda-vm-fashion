@@ -3,22 +3,8 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import {
-  LayoutDashboard,
-  Package,
-  Tag,
-  Settings,
-  LogOut,
-  Sparkles,
-} from 'lucide-react'
-import ThemeToggle from '@/components/catalog/ThemeToggle'
-
-const links = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/productos', label: 'Productos', icon: Package },
-  { href: '/admin/categorias', label: 'Categorías', icon: Tag },
-  { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
-]
+import { LogOut, Sparkles } from 'lucide-react'
+import { ADMIN_NAV_LINKS } from '@/lib/admin-nav'
 
 export default function AdminSidebar() {
   const pathname = usePathname()
@@ -33,28 +19,25 @@ export default function AdminSidebar() {
   return (
     <aside className="admin-sidebar fixed left-0 top-0 z-20 hidden h-screen w-64 flex-col border-r border-[rgba(201,168,76,0.26)] bg-[var(--bg-card)] md:flex">
 
-      {/* Logo + tema */}
+      {/* Logo */}
       <div className="border-b border-[rgba(201,168,76,0.22)] px-5 py-6">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="mb-1.5 flex items-center gap-2">
-              <Sparkles size={13} className="shrink-0 text-[var(--gold)]" />
-              <span className="text-[10px] uppercase tracking-[3px] text-[rgba(201,168,76,0.82)]">
-                Admin Panel
-              </span>
-            </div>
-            <p className="gold-shimmer truncate text-[15px] uppercase tracking-[2px]">
-              VM Fashion
-            </p>
+        <div className="min-w-0">
+          <div className="mb-1.5 flex items-center gap-2">
+            <Sparkles size={13} className="shrink-0 text-[var(--gold)]" />
+            <span className="text-[10px] uppercase tracking-[3px] text-[rgba(201,168,76,0.82)]">
+              Admin Panel
+            </span>
           </div>
-          <ThemeToggle variant="admin-desktop" className="shrink-0" />
+          <p className="gold-shimmer truncate text-[15px] uppercase tracking-[2px]">
+            VM Fashion
+          </p>
         </div>
       </div>
 
       {/* Links */}
       <nav className="flex flex-1 flex-col px-3 py-5">
         <div className="space-y-0.5">
-          {links.map(({ href, label, icon: Icon }) => {
+          {ADMIN_NAV_LINKS.map(({ href, label, icon: Icon }) => {
             const active = pathname.startsWith(href)
             return (
               <Link

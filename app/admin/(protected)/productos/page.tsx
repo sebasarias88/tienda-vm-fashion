@@ -79,7 +79,7 @@ export default function ProductosPage() {
     } else {
       setProductos(data || [])
       const map: Record<string, CategoriaInfo> = {}
-      ;(cats || []).forEach(c => {
+      ;(cats || []).forEach((c: { id: string; nombre: string; padre_id: string | null }) => {
         map[c.id] = { nombre: c.nombre, padre_id: c.padre_id ?? null }
       })
       setCategoriasMap(map)
@@ -173,7 +173,7 @@ export default function ProductosPage() {
 
     if (error) toast.error('Error al actualizar')
     else {
-      const etiqueta = campo === 'disponible_detal' ? 'Detal' : 'Mayoreo'
+      const etiqueta = campo === 'disponible_detal' ? 'Detal' : 'Mayorista'
       toast.success(`${etiqueta} ${nuevoValor ? 'activado' : 'desactivado'}`)
       fetchProductos()
     }
@@ -268,9 +268,10 @@ export default function ProductosPage() {
           <AdminTableHeaderRow>
             <AdminTableTh className="w-[7rem]">Imagen</AdminTableTh>
             <AdminTableTh className="w-[22%]">Producto</AdminTableTh>
-            <AdminTableTh className="w-[20%]">Categoría</AdminTableTh>
+            <AdminTableTh className="w-[10%]">Marca</AdminTableTh>
+            <AdminTableTh className="w-[18%]">Categoría</AdminTableTh>
             <AdminTableTh className="w-[7.5rem]">Precio detal</AdminTableTh>
-            <AdminTableTh className="w-[7.5rem]">Precio mayoreo</AdminTableTh>
+            <AdminTableTh className="w-[7.5rem]">Precio mayorista</AdminTableTh>
             <AdminTableTh className="w-[7.5rem]">Estado</AdminTableTh>
             <AdminTableTh className="w-[7.5rem]">Destacado</AdminTableTh>
             <AdminTableTh className="w-[5.5rem] text-center">Acciones</AdminTableTh>
@@ -278,10 +279,10 @@ export default function ProductosPage() {
         </AdminTableHead>
         <AdminTableBody>
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={8} />)
+            Array.from({ length: 6 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={9} />)
           ) : productosFiltrados.length === 0 ? (
             <AdminTableEmpty
-              colSpan={8}
+              colSpan={9}
               icon={Package}
               title={
                 search
@@ -316,6 +317,16 @@ export default function ProductosPage() {
                     title={p.nombre}
                     subtitle={p.sku ? `SKU · ${p.sku}` : undefined}
                   />
+                </AdminTableTd>
+
+                <AdminTableTd className="max-w-0">
+                  {p.marca ? (
+                    <span className="truncate text-[12px] font-light text-[var(--text-secondary)]">
+                      {p.marca}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-[var(--text-faint)]">—</span>
+                  )}
                 </AdminTableTd>
 
                 <AdminTableTd className="max-w-0">
@@ -360,7 +371,7 @@ export default function ProductosPage() {
                       onClick={() => toggleCatalogo(p, 'disponible_detal')}
                     />
                     <CatalogToggle
-                      label="Mayor"
+                      label="Mayorista"
                       active={p.disponible_mayoreo}
                       tone="mayoreo"
                       onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}

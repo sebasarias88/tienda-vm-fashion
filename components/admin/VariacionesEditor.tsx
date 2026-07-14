@@ -49,7 +49,7 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
       toast.error('Error al cargar variaciones')
       setTipos([])
     } else {
-      const sorted = (data || []).map(tipo => ({
+      const sorted = ((data || []) as VariacionTipo[]).map(tipo => ({
         ...tipo,
         opciones: [...(tipo.opciones || [])].sort((a, b) => a.orden - b.orden),
       }))
