@@ -26,6 +26,7 @@ type Props = {
   categorias: Categoria[]
   initialQ: string
   initialCategoria: string
+  initialMarca?: string
   catalogType?: CatalogType
 }
 
@@ -62,6 +63,7 @@ export default function ProductosClient({
   categorias,
   initialQ,
   initialCategoria,
+  initialMarca = '',
   catalogType = 'detal',
 }: Props) {
   const router = useGuardedRouter()
@@ -71,7 +73,11 @@ export default function ProductosClient({
   const [query, setQuery] = useState(initialQ)
   const [inputValue, setInputValue] = useState(initialQ)
   const [categoriaActiva, setCategoriaActiva] = useState(initialCategoria)
-  const [marcasActivas, setMarcasActivas] = useState<string[]>([])
+  const [marcasActivas, setMarcasActivas] = useState<string[]>(() =>
+    initialMarca
+      ? initialMarca.split(',').map(m => m.trim()).filter(Boolean)
+      : [],
+  )
   const [orden, setOrden] = useState<Orden>('relevancia')
   const [ordenOpen, setOrdenOpen] = useState(false)
   const [marcaOpen, setMarcaOpen] = useState(false)
@@ -106,6 +112,15 @@ export default function ProductosClient({
     setQuery(initialQ)
     setInputValue(initialQ)
   }, [initialQ])
+
+  useEffect(() => {
+    skipUrlSync.current = true
+    setMarcasActivas(
+      initialMarca
+        ? initialMarca.split(',').map(m => m.trim()).filter(Boolean)
+        : [],
+    )
+  }, [initialMarca])
 
   // Optimistic update desde el menú lateral (misma página /productos)
   useEffect(() => {
@@ -151,6 +166,7 @@ export default function ProductosClient({
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (categoriaActiva) params.set('categoria', categoriaActiva)
+    if (marcasActivas.length > 0) params.set('marca', marcasActivas.join(','))
     const search = params.toString()
     const next = search ? `${pathname}?${search}` : pathname
     const current =
@@ -160,7 +176,7 @@ export default function ProductosClient({
     if (current !== next) {
       router.replace(next, { scroll: false })
     }
-  }, [query, categoriaActiva, pathname, router])
+  }, [query, categoriaActiva, marcasActivas, pathname, router])
 
   const mostrarCarga = !mounted || isPending || filtroPendiente
 
@@ -310,13 +326,7 @@ export default function ProductosClient({
   )
 
   return (
-    <div
-      className={`mobile-catalog-page relative min-h-screen max-md:pb-20 ${
-        catalogType === 'mayoreo'
-          ? 'max-md:pt-[5.75rem] pt-28 sm:pt-32'
-          : 'max-md:pt-[3.75rem] pt-20 sm:pt-24'
-      }`}
-    >
+    <div className="mobile-catalog-page relative min-h-screen max-md:pb-20 max-md:pt-[6.5rem] pt-28 sm:pt-32">
       <PageGoldAccent />
       <div className="relative z-10 max-w-7xl mx-auto px-4 max-md:px-4 sm:px-6 lg:px-8">
 

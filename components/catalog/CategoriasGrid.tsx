@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
-import { ArrowUpRight, Tag } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Tag } from 'lucide-react'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 
 /** Máximo en home: 1 destacada + 4 pequeñas */
@@ -26,69 +26,59 @@ export default function CategoriasGrid({
   const mostrarDestacada = visibles.length >= 3
 
   return (
-    <section className="mx-auto flex min-h-[100svh] max-w-7xl flex-col px-5 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mb-4 flex shrink-0 items-end justify-between gap-4 sm:mb-5"
-      >
-        <div>
-          <p className="mb-1.5 catalog-eyebrow tracking-[3px]">Explorar</p>
-          <h2 className="text-[1.5rem] font-thin uppercase tracking-[1.5px] text-[var(--text-primary)] sm:text-[1.875rem]">
-            Categorías
-          </h2>
-          <p className="mt-1.5 max-w-md text-[13px] catalog-lead sm:text-[14px]">
-            Encuentra exactamente lo que tu cabello y tu ritual necesitan
-          </p>
+    <section className="bg-[var(--bg-base)] py-12 sm:py-14">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+          className="mb-8 flex flex-col gap-5 border-b border-[var(--border-subtle)] pb-8 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-px w-8 bg-[var(--gold)]" />
+              <span className="catalog-eyebrow tracking-[3px]">Explorar</span>
+            </div>
+            <h2 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[var(--text-primary)] sm:text-[2.125rem]">
+              Categorías
+            </h2>
+            <p className="mt-3 max-w-lg text-[14px] catalog-lead leading-relaxed">
+              Encuentra exactamente lo que tu cabello y tu ritual necesitan
+            </p>
+          </div>
+
+          <Link
+            href={productosHref}
+            className="group inline-flex shrink-0 items-center gap-2 self-start border-b border-[var(--border)] pb-1 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-secondary)] transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+          >
+            {hayMas ? 'Ver más' : 'Ver catálogo'}
+            <ArrowRight
+              size={14}
+              className="text-[var(--gold-subtle)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--gold)]"
+            />
+          </Link>
+        </motion.div>
+
+        <div
+          className={`grid gap-2.5 sm:gap-3 ${
+            mostrarDestacada
+              ? 'min-h-[min(70svh,620px)] grid-cols-2 grid-rows-[1.15fr_1fr_1fr] md:grid-cols-4 md:grid-rows-2'
+              : 'auto-rows-fr grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          }`}
+        >
+          {visibles.map((cat, i) => (
+            <CategoriaCard
+              key={cat.id}
+              cat={cat}
+              index={i}
+              productosHref={productosHref}
+              catalogType={catalogType}
+              featured={mostrarDestacada && i === 0}
+            />
+          ))}
         </div>
-        <Link
-          href={productosHref}
-          className="hidden items-center gap-1.5 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-subtle)] transition-colors hover:text-[var(--gold)] sm:inline-flex"
-        >
-          {hayMas ? 'Ver más' : 'Ver catálogo'}
-          <ArrowUpRight size={13} />
-        </Link>
-      </motion.div>
-
-      <div
-        className={`grid min-h-0 flex-1 gap-2.5 sm:gap-3 ${
-          mostrarDestacada
-            ? 'grid-cols-2 grid-rows-[1.15fr_1fr_1fr] md:grid-cols-4 md:grid-rows-2'
-            : 'auto-rows-fr grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-        }`}
-      >
-        {visibles.map((cat, i) => (
-          <CategoriaCard
-            key={cat.id}
-            cat={cat}
-            index={i}
-            productosHref={productosHref}
-            catalogType={catalogType}
-            featured={mostrarDestacada && i === 0}
-          />
-        ))}
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mt-4 flex shrink-0 justify-center sm:mt-5"
-      >
-        <Link
-          href={productosHref}
-          className="group inline-flex items-center gap-2 border border-[var(--border)] bg-[var(--bg-card)] px-5 py-2.5 text-[10px] font-medium uppercase tracking-[2px] text-[var(--text-primary)] shadow-[var(--shadow-soft)] transition-all hover:border-[color-mix(in_srgb,var(--gold)_40%,var(--border))] hover:text-[var(--gold)] sm:px-6 sm:py-3 sm:text-[11px]"
-        >
-          {hayMas
-            ? `Ver más categorías (${categorias.length - MAX_VISIBLE}+)`
-            : 'Ver catálogo completo'}
-          <ArrowUpRight
-            size={13}
-            className="text-[var(--gold)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          />
-        </Link>
-      </motion.div>
     </section>
   )
 }

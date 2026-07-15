@@ -2116,9 +2116,9 @@ header nav a {
   pointer-events: auto;
 }
 
-/* Mobile — ancho completo bajo el header */
+/* Mobile — bajo announcement (h-9) + header (h-14) + margen */
 .app-toast-container--mobile {
-  top: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+  top: calc(5.75rem + env(safe-area-inset-top, 0px)) !important;
   left: 1rem !important;
   right: 1rem !important;
   width: auto !important;

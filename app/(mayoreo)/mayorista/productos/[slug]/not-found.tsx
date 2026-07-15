@@ -13,7 +13,7 @@ export default function MayoreoProductoNotFound() {
         El producto que buscas no existe o no está disponible en el catálogo mayorista.
       </p>
       <Link
-        href="/mayoreo/productos"
+        href="/mayorista/productos"
         className="rounded-[2px] border border-[var(--border)] px-6 py-3 text-[10px] font-light uppercase tracking-[2.5px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
       >
         Ver catálogo mayorista

@@ -15,7 +15,7 @@ function SectionHeaderSkeleton({ wide = false }: { wide?: boolean }) {
 
 function CarouselSkeleton({ muted = false }: { muted?: boolean }) {
   return (
-    <section className={`py-14 sm:py-16 ${muted ? 'bg-[var(--bg-muted)]' : ''}`}>
+    <section className={`py-12 sm:py-14 ${muted ? 'bg-[var(--bg-muted)]' : ''}`}>
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <SectionHeaderSkeleton wide />
         <div className="flex gap-3 overflow-hidden sm:gap-4">
@@ -41,35 +41,10 @@ type HomePageSkeletonProps = {
 export default function HomePageSkeleton({ mayoreo = false }: HomePageSkeletonProps) {
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      {/* Hero — left aligned like HeroBanner */}
-      <section
-        className="relative flex w-full flex-col justify-end overflow-hidden px-5 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:justify-center lg:px-8 lg:pb-24 lg:pt-36"
-        style={{ minHeight: 'min(92vh, 780px)' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--bg-base)] via-[var(--bg-muted)] to-[var(--gold-muted)]" />
-        <div className="relative z-10 max-w-2xl space-y-5">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-px w-8" />
-            <Skeleton className="h-3 w-40" />
-          </div>
-          <Skeleton className="h-12 w-full max-w-lg sm:h-14" />
-          <Skeleton className="h-12 w-[85%] max-w-md sm:h-14" />
-          <Skeleton className="h-4 w-full max-w-md" />
-          <Skeleton className="h-4 w-3/4 max-w-sm" />
-          <Skeleton className="mt-3 h-12 w-48" />
-        </div>
-      </section>
-
-      {/* Trust strip */}
-      <section className="border-b border-[var(--border-subtle)]">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-8 px-5 py-10 sm:grid-cols-4 sm:px-6 sm:py-12 lg:px-8">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-3 px-3">
-              <Skeleton className="h-11 w-11 rounded-full" />
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-          ))}
+      {/* Hero — banner limpio, luego destacados */}
+      <section className="relative w-full overflow-hidden bg-[var(--bg-muted)] pt-[calc(2.25rem+3.5rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.25rem+4rem)]">
+        <div className="relative aspect-[16/10] w-full md:aspect-auto md:h-[min(72svh,760px)] md:min-h-[320px]">
+          <Skeleton className="absolute inset-0 h-full w-full rounded-none" />
         </div>
       </section>
 

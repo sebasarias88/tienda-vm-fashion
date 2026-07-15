@@ -31,6 +31,7 @@ import {
 } from '@/lib/catalog'
 import ProductoPrecio from '@/components/catalog/ProductoPrecio'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
+import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
 
 const ENVIO_INFO = [
   { icon: Package, text: 'Envío en Armenia el mismo día' },
@@ -114,6 +115,7 @@ export default function ProductoDetalle({
   const [cantidad, setCantidad] = useState(1)
   const [zoomOpen, setZoomOpen] = useState(false)
   const [agregado, setAgregado] = useState(false)
+  const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [selectedVariaciones, setSelectedVariaciones] = useState<Record<string, string[]>>({})
 
   const tieneVariaciones = variaciones.length > 0
@@ -159,7 +161,14 @@ export default function ProductoDetalle({
       agregar(producto, variacionesParaCarrito)
     }
     setAgregado(true)
-    toast.success(`${producto.nombre} agregado al carrito`)
+    const isMobile =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 767px)').matches
+    if (isMobile) {
+      setQuickAddOpen(true)
+    } else {
+      toast.success(`${producto.nombre} agregado al carrito`)
+    }
     setTimeout(() => setAgregado(false), 2500)
   }
 
@@ -182,7 +191,7 @@ export default function ProductoDetalle({
   const homeHref = catalogPath(catalogType, '/')
 
   return (
-    <div className={`relative min-h-screen ${catalogType === 'mayoreo' ? 'pt-28 sm:pt-32' : 'pt-20 sm:pt-24'}`}>
+    <div className="relative min-h-screen max-md:pt-[6.5rem] pt-28 sm:pt-32">
       <PageGoldAccent />
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-12 sm:pb-16">
         {/* Navegación superior */}
@@ -598,6 +607,13 @@ export default function ProductoDetalle({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <MobileQuickAddSheet
+        open={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
+        producto={producto}
+        catalogType={catalogType}
+      />
     </div>
   )
 }

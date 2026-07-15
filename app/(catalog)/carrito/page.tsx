@@ -200,7 +200,10 @@ function OrderSummaryPanel({
 
 export default function CarritoPage() {
   const pathname = usePathname()
-  const catalogType: CatalogType = pathname.startsWith('/mayoreo') ? 'mayoreo' : 'detal'
+  const catalogType: CatalogType =
+    pathname.startsWith('/mayorista') || pathname.startsWith('/mayoreo')
+      ? 'mayoreo'
+      : 'detal'
   const productosHref = catalogPath(catalogType, '/productos')
 
   const { items, quitar, actualizarCantidad, vaciar } = useCarrito()
@@ -352,8 +355,7 @@ export default function CarritoPage() {
 
   if (!mounted) return null
 
-  const mobilePaddingTop =
-    catalogType === 'mayoreo' ? 'max-md:pt-[5.75rem]' : 'max-md:pt-[3.75rem]'
+  const mobilePaddingTop = 'max-md:pt-[6.5rem]'
 
   return (
     <>
@@ -396,7 +398,7 @@ export default function CarritoPage() {
       </div>
 
       {/* ── Desktop (sin cambios) ── */}
-      <div className="relative hidden min-h-screen pb-16 pt-20 sm:pt-24 md:block">
+      <div className="relative hidden min-h-screen pb-16 pt-28 sm:pt-32 md:block">
       <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

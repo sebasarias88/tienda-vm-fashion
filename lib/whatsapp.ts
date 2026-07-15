@@ -2,12 +2,45 @@ import { ItemCarrito, DatosCliente } from '@/types'
 import { formatVariacionesResumen } from '@/lib/cart'
 import { getProductoPrecios, type CatalogType } from '@/lib/catalog'
 
+export type WhatsAppConsultaContext = 'flotante' | 'nosotros' | 'footer'
+
 function formatPrecio(precio: number): string {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(precio)
+}
+
+/** Mensaje prellenado según dónde se abre el chat (consulta, no pedido). */
+export function mensajeConsultaWhatsApp(
+  context: WhatsAppConsultaContext,
+  catalogType: CatalogType = 'detal',
+): string {
+  const esMayorista = catalogType === 'mayoreo'
+
+  if (context === 'nosotros') {
+    return esMayorista
+      ? 'Hola, vengo del catálogo mayorista de Tienda VM Fashion y me gustaría hacer una consulta.'
+      : 'Hola, vengo del sitio de Tienda VM Fashion y me gustaría hacer una consulta.'
+  }
+
+  if (context === 'footer') {
+    return esMayorista
+      ? 'Hola, me comunico desde el catálogo mayorista de Tienda VM Fashion.'
+      : 'Hola, me comunico desde el sitio de Tienda VM Fashion.'
+  }
+
+  // flotante
+  return esMayorista
+    ? 'Hola, me gustaría consultar sobre el catálogo mayorista.'
+    : 'Hola, me gustaría hacer una consulta sobre los productos.'
+}
+
+/** URL wa.me con texto prellenado. */
+export function buildWhatsAppUrl(numero: string, mensaje: string): string {
+  const digits = numero.replace(/\D/g, '')
+  return `https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`
 }
 
 function precioUnitarioItem(

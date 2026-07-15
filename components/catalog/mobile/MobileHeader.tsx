@@ -118,6 +118,7 @@ export default function MobileHeader({
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
         catalogType={catalogType}
+        categorias={categorias}
       />
 
       <MobileCartSheet

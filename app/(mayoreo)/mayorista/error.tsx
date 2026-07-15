@@ -12,7 +12,7 @@ export default function MayoreoError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('Mayoreo error:', error)
+    console.error('Mayorista error:', error)
   }, [error])
 
   return (
@@ -41,7 +41,7 @@ export default function MayoreoError({
           Reintentar
         </button>
         <Link
-          href="/mayoreo"
+          href="/mayorista"
           className="rounded-[2px] border border-[var(--border)] px-6 py-3 text-[10px] font-light uppercase tracking-[2.5px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
         >
           Ir al inicio
