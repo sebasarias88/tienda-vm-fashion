@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [
+      {
+        source: '/mayoreo',
+        destination: '/mayorista',
+        permanent: true,
+      },
+      {
+        source: '/mayoreo/:path*',
+        destination: '/mayorista/:path*',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;

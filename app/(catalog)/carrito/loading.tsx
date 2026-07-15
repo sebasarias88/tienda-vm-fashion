@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function CarritoLoading() {
   return (
-    <div className="relative min-h-screen pb-16 pt-20 sm:pt-24">
+    <div className="relative min-h-screen pb-16 max-md:pt-[6.5rem] pt-28 sm:pt-32">
       <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="mb-8 border-b border-[var(--border-subtle)] pb-6">

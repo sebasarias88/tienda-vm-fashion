@@ -4,11 +4,14 @@ import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, MessageCircle, Truck } from 'lucide-react'
 import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 import { DIRECCION_NEGOCIO, CIUDAD_NEGOCIO } from '@/lib/negocio'
+import type { CatalogType } from '@/lib/catalog'
+import { buildWhatsAppUrl, mensajeConsultaWhatsApp } from '@/lib/whatsapp'
 
 type Props = {
   texto: string
   whatsapp?: string
   nombreNegocio?: string
+  catalogType?: CatalogType
 }
 
 const DEFAULT_TEXTO =
@@ -36,8 +39,12 @@ export default function NosotrosSection({
   texto,
   whatsapp = '573185867702',
   nombreNegocio = 'Tienda VM Fashion',
+  catalogType = 'detal',
 }: Props) {
-  const whatsappUrl = `https://wa.me/${whatsapp.replace(/\D/g, '')}`
+  const whatsappUrl = buildWhatsAppUrl(
+    whatsapp,
+    mensajeConsultaWhatsApp('nosotros', catalogType),
+  )
 
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-16 sm:py-20">

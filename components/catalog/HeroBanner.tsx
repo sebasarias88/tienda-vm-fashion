@@ -139,8 +139,8 @@ export default function HeroBanner({
               alt={currentBanner.titulo || 'Banner'}
               className="h-full w-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,13,13,0.82)] via-[rgba(13,13,13,0.45)] to-[rgba(13,13,13,0.18)]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(13,13,13,0.65)] via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[rgba(13,13,13,0.28)] via-[rgba(13,13,13,0.1)] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(13,13,13,0.28)] via-transparent to-transparent" />
           </motion.div>
         ) : (
           <motion.div
@@ -206,7 +206,17 @@ export default function HeroBanner({
                 animate={{ width: 32 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               />
-              <span className="text-[11px] font-medium uppercase tracking-[0.32em] text-[var(--gold)]">
+              <span
+                className="text-[11px] font-medium uppercase tracking-[0.32em] text-[var(--gold)]"
+                style={
+                  hasImages
+                    ? {
+                        textShadow:
+                          '0 1px 2px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.55)',
+                      }
+                    : undefined
+                }
+              >
                 {eyebrow}
               </span>
             </div>
@@ -219,7 +229,12 @@ export default function HeroBanner({
                 letterSpacing: '-0.015em',
                 color: hasImages ? '#FFFFFF' : 'var(--text-primary)',
                 textShadow: hasImages
-                  ? '0 1px 3px rgba(0,0,0,0.95), 0 2px 18px rgba(0,0,0,0.55)'
+                  ? [
+                      '0 1px 0 rgba(0,0,0,0.45)',
+                      '0 2px 4px rgba(0,0,0,0.75)',
+                      '0 6px 24px rgba(0,0,0,0.55)',
+                      '0 0 40px rgba(0,0,0,0.35)',
+                    ].join(', ')
                   : undefined,
               }}
             >
@@ -244,9 +259,17 @@ export default function HeroBanner({
               <p
                 className={`mt-5 max-w-lg text-[15px] font-light leading-[1.75] sm:text-[16px] ${
                   hasImages
-                    ? 'text-[rgba(248,246,241,0.72)]'
+                    ? 'text-[rgba(255,255,255,0.92)]'
                     : 'text-[var(--text-muted)]'
                 }`}
+                style={
+                  hasImages
+                    ? {
+                        textShadow:
+                          '0 1px 2px rgba(0,0,0,0.85), 0 4px 18px rgba(0,0,0,0.5)',
+                      }
+                    : undefined
+                }
               >
                 {subtitulo}
               </p>

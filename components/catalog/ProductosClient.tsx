@@ -310,13 +310,7 @@ export default function ProductosClient({
   )
 
   return (
-    <div
-      className={`mobile-catalog-page relative min-h-screen max-md:pb-20 ${
-        catalogType === 'mayoreo'
-          ? 'max-md:pt-[5.75rem] pt-28 sm:pt-32'
-          : 'max-md:pt-[3.75rem] pt-20 sm:pt-24'
-      }`}
-    >
+    <div className="mobile-catalog-page relative min-h-screen max-md:pb-20 max-md:pt-[6.5rem] pt-28 sm:pt-32">
       <PageGoldAccent />
       <div className="relative z-10 max-w-7xl mx-auto px-4 max-md:px-4 sm:px-6 lg:px-8">
 

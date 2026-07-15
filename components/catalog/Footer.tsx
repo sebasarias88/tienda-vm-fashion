@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
+import { buildWhatsAppUrl, mensajeConsultaWhatsApp } from '@/lib/whatsapp'
 
 type Props = {
   nombreNegocio: string
@@ -43,7 +44,10 @@ export default function Footer({
     { href: catalogPath(catalogType, '/productos'), label: 'Catálogo' },
     { href: catalogPath(catalogType, '/carrito'), label: 'Carrito' },
   ] as const
-  const whatsappUrl = `https://wa.me/${whatsapp.replace(/\D/g, '')}`
+  const whatsappUrl = buildWhatsAppUrl(
+    whatsapp,
+    mensajeConsultaWhatsApp('footer', catalogType),
+  )
 
   return (
     <footer className="mt-20 border-t border-[var(--border)] bg-[var(--bg-footer)]">

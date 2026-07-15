@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/carrito', '/mayoreo/carrito'],
+        disallow: ['/admin/', '/carrito', '/mayorista/carrito'],
       },
     ],
     sitemap: toAbsoluteUrl('/sitemap.xml'),

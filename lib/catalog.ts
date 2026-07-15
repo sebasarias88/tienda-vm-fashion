@@ -4,13 +4,16 @@ import { calcularPrecioConDescuento } from '@/lib/descuentos'
 export type CatalogType = 'detal' | 'mayoreo'
 
 /** Monto mínimo de compra para el catálogo mayorista (COP). */
-export const MAYOREO_MIN_COMPRA = 180000
+export const MAYOREO_MIN_COMPRA = 200000
+
+/** Monto de recompra mayorista (COP) — informado en la barra superior. */
+export const MAYOREO_RECOMPRA = 100000
 
 export function catalogBasePath(catalogType: CatalogType = 'detal'): string {
-  return catalogType === 'mayoreo' ? '/mayoreo' : ''
+  return catalogType === 'mayoreo' ? '/mayorista' : ''
 }
 
-/** Ruta dentro del catálogo (detal o mayoreo). */
+/** Ruta dentro del catálogo (detal o mayorista). */
 export function catalogPath(catalogType: CatalogType, path: string): string {
   const base = catalogBasePath(catalogType)
   if (!path || path === '/') return base || '/'
@@ -70,7 +73,7 @@ export function getProductoPrecios(
 
 /**
  * Precio al detal mostrado solo de forma informativa dentro del catálogo
- * mayoreo (referencia de reventa). No afecta el carrito ni el checkout.
+ * mayorista (referencia de reventa). No afecta el carrito ni el checkout.
  */
 export function getPrecioDetalInfo(producto: Producto): number | null {
   const p = producto.precio
@@ -79,7 +82,7 @@ export function getPrecioDetalInfo(producto: Producto): number | null {
   return precioFinal
 }
 
-/** Valor numérico para ordenar por precio (mayoreo sin precio va al final). */
+/** Valor numérico para ordenar por precio (mayorista sin precio va al final). */
 export function getPrecioOrden(producto: Producto, catalogType: CatalogType): number {
   const { precio, consultar } = getProductoPrecios(producto, catalogType)
   if (consultar || precio == null) return Number.POSITIVE_INFINITY

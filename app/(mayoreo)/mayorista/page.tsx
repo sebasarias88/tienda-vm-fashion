@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Info } from 'lucide-react'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroBanner from '@/components/catalog/HeroBanner'
 import TrustStrip from '@/components/catalog/TrustStrip'
@@ -27,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       config.mayoreo_titulo?.trim() ||
       config.hero_subtitulo?.trim() ||
       `Catálogo mayorista de ${getSiteDescription(config)}`,
-    path: '/mayoreo',
+    path: '/mayorista',
   })
 }
 
@@ -127,24 +126,12 @@ export default async function MayoreoHomePage() {
         eyebrow="Mayorista"
         primaryCta={{
           label: 'Ver catálogo mayorista',
-          href: '/mayoreo/productos',
+          href: '/mayorista/productos',
         }}
       />
 
       <TrustStrip />
       <PromoStrip promociones={promociones} />
-
-      <div className="mx-auto max-w-7xl px-5 pt-6 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 border border-[var(--border)] bg-[var(--gold-muted)] px-5 py-3.5">
-          <span className="text-[var(--gold)]">
-            <Info size={14} />
-          </span>
-          <p className="text-[12px] font-light text-[var(--text-muted)]">
-            {config['mayoreo_titulo'] ||
-              'Precios especiales para revendedores. Consulta el monto mínimo de pedido.'}
-          </p>
-        </div>
-      </div>
 
       <CategoriasGrid categorias={categorias} catalogType="mayoreo" />
       <ProductosDestacados productos={destacados} catalogType="mayoreo" />
@@ -155,6 +142,7 @@ export default async function MayoreoHomePage() {
         texto={config['texto_nosotros'] || ''}
         whatsapp={config['whatsapp_numero'] || '573185867702'}
         nombreNegocio={config['nombre_negocio'] || 'Tienda VM Fashion'}
+        catalogType="mayoreo"
       />
       <ProcesoPedido />
     </div>

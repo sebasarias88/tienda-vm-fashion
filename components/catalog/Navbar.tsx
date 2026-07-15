@@ -41,7 +41,11 @@ export default function Navbar({
     pathname === homeHref ||
     pathname === `${homeHref}/` ||
     pathname === '/' ||
-    (isMayoreo && (pathname === '/mayoreo' || pathname === '/mayoreo/'))
+    (isMayoreo &&
+      (pathname === '/mayorista' ||
+        pathname === '/mayorista/' ||
+        pathname === '/mayoreo' ||
+        pathname === '/mayoreo/'))
 
   // En inicio (sin scroll) siempre modo claro sobre el hero para legibilidad
   const overHero = isHome && !scrolled
