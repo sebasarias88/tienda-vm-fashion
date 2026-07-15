@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, MessageCircle, Truck } from 'lucide-react'
-import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 import { DIRECCION_NEGOCIO, CIUDAD_NEGOCIO } from '@/lib/negocio'
 import type { CatalogType } from '@/lib/catalog'
 import { buildWhatsAppUrl, mensajeConsultaWhatsApp } from '@/lib/whatsapp'
@@ -47,8 +46,7 @@ export default function NosotrosSection({
   )
 
   return (
-    <section className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 py-16 sm:py-20">
-      <SectionGoldDivider />
+    <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}

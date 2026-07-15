@@ -7,7 +7,6 @@ import { Producto } from '@/types'
 import { type CatalogType } from '@/lib/catalog'
 import ResponsiveProductCard from '@/components/catalog/mobile/ResponsiveProductCard'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
-import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -36,11 +35,9 @@ export default function ProductosCarousel({
 
   return (
     <section
-      className={`py-14 sm:py-16 ${muted ? 'bg-[var(--bg-muted)]' : 'bg-[var(--bg-base)]'}`}
+      className={`py-12 sm:py-14 ${muted ? 'bg-[var(--bg-muted)]' : 'bg-[var(--bg-base)]'}`}
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <SectionGoldDivider />
-
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -92,16 +89,6 @@ export default function ProductosCarousel({
             </motion.div>
           ))}
         </HorizontalCarousel>
-
-        <div className="mt-8 flex justify-center sm:hidden">
-          <Link
-            href={verMasHref}
-            className="inline-flex items-center gap-2 border border-[var(--border)] bg-[var(--bg-card)] px-6 py-3 text-[11px] font-medium uppercase tracking-[2px] text-[var(--text-primary)] transition-colors hover:border-[color-mix(in_srgb,var(--gold)_40%,var(--border))] hover:text-[var(--gold)]"
-          >
-            {verMasLabel}
-            <ArrowRight size={14} className="text-[var(--gold)]" />
-          </Link>
-        </div>
       </div>
     </section>
   )

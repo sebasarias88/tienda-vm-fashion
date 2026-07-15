@@ -11,7 +11,6 @@ import {
   Package,
   type LucideIcon,
 } from 'lucide-react'
-import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
 const STEPS: { num: number; label: string; icon: LucideIcon }[] = [
   { num: 1, label: 'Elige tus productos', icon: ShoppingBag },
@@ -49,9 +48,7 @@ function StepConnector() {
 
 export default function ProcesoPedido() {
   return (
-    <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-6 sm:pb-24 lg:px-8">
-      <SectionGoldDivider />
-
+    <section className="mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-14 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}

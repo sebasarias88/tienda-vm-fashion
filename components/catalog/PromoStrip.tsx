@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { Promocion } from '@/types'
-import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 
 function isPromoActive(promo: Promocion) {
   const now = new Date()
@@ -23,9 +22,7 @@ export default function PromoStrip({ promociones }: { promociones: Promocion[] }
   const rest = activas.slice(3)
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-16 lg:px-8">
-      <SectionGoldDivider />
-
+    <section className="mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-14 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}

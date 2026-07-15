@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroBanner from '@/components/catalog/HeroBanner'
-import TrustStrip from '@/components/catalog/TrustStrip'
 import PromoStrip from '@/components/catalog/PromoStrip'
 import CategoriasGrid from '@/components/catalog/CategoriasGrid'
 import ProductosDestacados from '@/components/catalog/ProductosDestacados'
@@ -104,12 +103,11 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
       <HeroBanner banners={banners} config={config} />
-      <TrustStrip />
+      <ProductosDestacados productos={destacados} />
       <PromoStrip promociones={promociones} />
       <CategoriasGrid categorias={categorias} />
-      <ProductosDestacados productos={destacados} />
-      <ProductosOfertas productos={ofertas} />
       <ProductosNovedades productos={novedades} />
+      <ProductosOfertas productos={ofertas} />
       <TestimoniosSection />
       <NosotrosSection
         texto={config['texto_nosotros'] || ''}

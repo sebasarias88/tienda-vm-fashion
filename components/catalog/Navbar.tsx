@@ -10,6 +10,7 @@ import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { Menu, X } from 'lucide-react'
 import CartDrawer from '@/components/catalog/CartDrawer'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
+import DesktopNavSearch from '@/components/catalog/DesktopNavSearch'
 import MobileHeader from '@/components/catalog/mobile/MobileHeader'
 
 type NavbarProps = {
@@ -31,6 +32,8 @@ export default function Navbar({
   const [cartOpen, setCartOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [heroOverImage, setHeroOverImage] = useState(false)
+  const [heroLayout, setHeroLayout] = useState('')
 
   const isMayoreo = catalogType === 'mayoreo'
   const offsetTop = hasAnnouncement ?? isMayoreo
@@ -47,8 +50,11 @@ export default function Navbar({
         pathname === '/mayoreo' ||
         pathname === '/mayoreo/'))
 
-  // En inicio (sin scroll) siempre modo claro sobre el hero para legibilidad
-  const overHero = isHome && !scrolled
+  // Solo modo claro cuando el hero es foto full-bleed oscura (no split / image-only)
+  const overHero = isHome && !scrolled && heroOverImage
+  // Opción B: barra legible sobre cualquier banner
+  const solidOverHero =
+    isHome && !scrolled && (heroLayout === 'image-only' || heroLayout === 'split')
 
   const isNavActive = (href: string) => {
     if (href === homeHref) {
@@ -60,6 +66,24 @@ export default function Navbar({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    const syncHero = () => {
+      setHeroOverImage(
+        document.documentElement.getAttribute('data-hero-has-image') === 'true',
+      )
+      setHeroLayout(
+        document.documentElement.getAttribute('data-hero-layout') || '',
+      )
+    }
+    syncHero()
+    const obs = new MutationObserver(syncHero)
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-hero-has-image', 'data-hero-layout'],
+    })
+    return () => obs.disconnect()
+  }, [pathname])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48)
@@ -101,7 +125,7 @@ export default function Navbar({
         className={`fixed left-0 right-0 z-30 hidden transition-all duration-400 md:block ${
           offsetTop ? 'top-9' : 'top-0'
         } ${
-          scrolled
+          scrolled || solidOverHero
             ? 'border-b border-[var(--border)] bg-[var(--navbar-bg)] backdrop-blur-md'
             : overHero
               ? 'bg-gradient-to-b from-black/45 via-black/20 to-transparent'
@@ -147,12 +171,18 @@ export default function Navbar({
             </nav>
 
             <div className="flex shrink-0 items-center gap-2.5">
+              <DesktopNavSearch
+                catalogType={catalogType}
+                categorias={categorias}
+                light={overHero}
+              />
+
               <motion.button
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCartOpen(true)}
                 aria-label={`Carrito${mounted && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
-                className={`inline-flex h-9 items-center gap-2 border px-3.5 text-[11px] font-medium uppercase tracking-[0.16em] transition-colors ${
+                className={`relative inline-flex h-9 w-9 items-center justify-center border transition-colors ${
                   overHero
                     ? 'border-[color-mix(in_srgb,var(--gold)_50%,transparent)] bg-white/15 text-[#F8F6F1] backdrop-blur-sm hover:border-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--text-on-gold)]'
                     : 'border-[color-mix(in_srgb,var(--gold)_40%,var(--border))] bg-[var(--bg-card)] text-[var(--text-primary)] hover:border-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--text-on-gold)]'
@@ -160,10 +190,9 @@ export default function Navbar({
                 style={{ borderRadius: 2 }}
               >
                 <LuxuryCartIcon size={15} />
-                <span>Carrito</span>
                 {mounted && cantidad > 0 && (
                   <span
-                    className={`inline-flex h-5 min-w-5 items-center justify-center px-1.5 text-[10px] font-semibold tabular-nums ${
+                    className={`absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center px-1 text-[9px] font-semibold tabular-nums ${
                       overHero
                         ? 'bg-[var(--gold-bright)] text-[var(--text-on-gold)]'
                         : 'bg-[var(--gold)] text-[var(--text-on-gold)]'

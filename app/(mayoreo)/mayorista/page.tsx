@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroBanner from '@/components/catalog/HeroBanner'
-import TrustStrip from '@/components/catalog/TrustStrip'
 import PromoStrip from '@/components/catalog/PromoStrip'
 import CategoriasGrid from '@/components/catalog/CategoriasGrid'
 import ProductosDestacados from '@/components/catalog/ProductosDestacados'
@@ -119,24 +118,12 @@ export default async function MayoreoHomePage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <HeroBanner
-        banners={banners}
-        config={config}
-        catalogType="mayoreo"
-        eyebrow="Mayorista"
-        primaryCta={{
-          label: 'Ver catálogo mayorista',
-          href: '/mayorista/productos',
-        }}
-      />
-
-      <TrustStrip />
-      <PromoStrip promociones={promociones} />
-
-      <CategoriasGrid categorias={categorias} catalogType="mayoreo" />
+      <HeroBanner banners={banners} config={config} catalogType="mayoreo" />
       <ProductosDestacados productos={destacados} catalogType="mayoreo" />
-      <ProductosOfertas productos={ofertas} catalogType="mayoreo" />
+      <PromoStrip promociones={promociones} />
+      <CategoriasGrid categorias={categorias} catalogType="mayoreo" />
       <ProductosNovedades productos={novedades} catalogType="mayoreo" />
+      <ProductosOfertas productos={ofertas} catalogType="mayoreo" />
       <TestimoniosSection />
       <NosotrosSection
         texto={config['texto_nosotros'] || ''}

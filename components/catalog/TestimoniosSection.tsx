@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Quote } from 'lucide-react'
-import SectionGoldDivider from '@/components/catalog/SectionGoldDivider'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
 
 const TESTIMONIOS = [
@@ -52,10 +51,8 @@ function Stars() {
 
 export default function TestimoniosSection() {
   return (
-    <section className="bg-[var(--bg-muted)] py-16 sm:py-20">
+    <section className="bg-[var(--bg-muted)] py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <SectionGoldDivider />
-
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
