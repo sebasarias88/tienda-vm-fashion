@@ -65,13 +65,18 @@ export default function HeroBanner({
   const currentBanner = bannersConImagen[current]
   const bannerHref = currentBanner?.enlace_boton?.trim() || null
 
+  const pickCopy = (value?: string | null) => {
+    const text = value?.trim()
+    if (!text || /ritual/i.test(text)) return ''
+    return text.replace(/\bmayoreo\b/gi, 'mayorista')
+  }
   const fallbackTitle =
-    config['hero_titulo'] ||
-    (isMayoreo ? 'Precios mayoristas' : 'Tu ritual de belleza ideal')
+    pickCopy(config['hero_titulo']) ||
+    (isMayoreo ? 'Precios mayoristas' : 'Belleza y cuidado capilar')
   const fallbackSubtitle =
-    config['hero_subtitulo'] ||
+    pickCopy(config['hero_subtitulo']) ||
     (isMayoreo
-      ? config['mayoreo_titulo'] ||
+      ? pickCopy(config['mayoreo_titulo']) ||
         'Precios especiales para revendedores. Consulta el monto mínimo de pedido.'
       : 'Productos profesionales de belleza y cuidado capilar. Envíos a toda Colombia.')
 

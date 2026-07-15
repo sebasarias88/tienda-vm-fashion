@@ -15,15 +15,16 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: 'Tienda VM Fashion',
+    default: 'Catálogo detal — Tienda VM Fashion',
     template: '%s | Tienda VM Fashion',
   },
   description:
-    'Productos de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.',
+    'Catálogo detal de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.',
   keywords: [
     'belleza',
     'cuidado capilar',
     'cosmética',
+    'catálogo detal',
     'VM Fashion',
     'Armenia',
     'Quindío',

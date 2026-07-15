@@ -19,17 +19,17 @@ export async function generateMetadata({
   const categorySlug = categoria?.trim()
   const hasFilters = Boolean(query || categorySlug)
 
-  let title = 'Catálogo de productos'
-  let description = `Explora el catálogo de belleza y cuidado capilar de ${siteName}. Envíos a toda Colombia.`
+  let title = 'Catálogo detal'
+  let description = `Explora el catálogo detal de belleza y cuidado capilar de ${siteName}. Envíos a toda Colombia.`
   let path = '/productos'
 
   if (query) {
-    title = `Resultados para "${query}"`
-    description = `Productos que coinciden con "${query}" en ${siteName}.`
+    title = `Detal: "${query}"`
+    description = `Productos detal que coinciden con "${query}" en ${siteName}.`
     path = `/productos?q=${encodeURIComponent(query)}`
   } else if (categorySlug) {
-    title = 'Productos por categoría'
-    description = `Productos filtrados por categoría en ${siteName}.`
+    title = 'Detal por categoría'
+    description = `Productos detal filtrados por categoría en ${siteName}.`
     path = `/productos?categoria=${encodeURIComponent(categorySlug)}`
   }
 

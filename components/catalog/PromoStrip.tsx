@@ -36,7 +36,7 @@ export default function PromoStrip({ promociones }: { promociones: Promocion[] }
             <span className="text-[var(--gold)]">del momento</span>
           </h2>
           <p className="mt-2 max-w-md text-[14px] catalog-lead">
-            Aprovecha descuentos y lanzamientos pensados para tu ritual de belleza
+            Aprovecha descuentos y lanzamientos en belleza y cuidado capilar
           </p>
         </div>
       </motion.div>

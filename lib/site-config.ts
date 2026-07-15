@@ -22,10 +22,13 @@ export function getSiteName(config: SiteConfigMap): string {
 }
 
 export function getSiteDescription(config: SiteConfigMap): string {
+  const seo = config.seo_descripcion?.trim()
+  const hero = config.hero_subtitulo?.trim()
+  const clean = (text?: string) => (text && !/ritual/i.test(text) ? text : '')
   return (
-    config.seo_descripcion?.trim() ||
-    config.hero_subtitulo?.trim() ||
-    'Productos de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.'
+    clean(seo) ||
+    clean(hero) ||
+    'Catálogo detal de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.'
   )
 }
 
@@ -38,6 +41,7 @@ export function getSiteKeywords(config: SiteConfigMap): string[] {
     'belleza',
     'cuidado capilar',
     'cosmética',
+    'catálogo detal',
     'VM Fashion',
     'Armenia',
     'Quindío',

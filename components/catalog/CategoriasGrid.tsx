@@ -44,7 +44,7 @@ export default function CategoriasGrid({
               Categorías
             </h2>
             <p className="mt-3 max-w-lg text-[14px] catalog-lead leading-relaxed">
-              Encuentra exactamente lo que tu cabello y tu ritual necesitan
+              Encuentra exactamente lo que tu cabello necesita
             </p>
           </div>
 

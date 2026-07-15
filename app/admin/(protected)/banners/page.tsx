@@ -399,7 +399,7 @@ export default function BannersPage() {
             label="Título"
             value={form.titulo}
             onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
-            placeholder="Tu ritual de belleza ideal"
+            placeholder="Belleza y cuidado capilar"
           />
           <Input
             label="Subtítulo"

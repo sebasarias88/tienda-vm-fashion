@@ -175,7 +175,7 @@ export default function ConfigTabPanels({
               label="Título del inicio"
               value={config['hero_titulo'] || ''}
               onChange={e => updateConfig('hero_titulo', e.target.value)}
-              placeholder="Tu ritual de belleza ideal"
+              placeholder="Belleza y cuidado capilar"
             />
             <Input
               label="Subtítulo del inicio"

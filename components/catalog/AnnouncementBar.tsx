@@ -8,7 +8,7 @@ const DEFAULT_MESSAGES = [
   'Marcas en tendencia',
   'Pedidos fáciles desde el catálogo',
   'Compra fácil con Addi y Sistecrédito',
-  'Tu ritual de belleza empieza aquí',
+  'Catálogo detal',
 ]
 
 type AnnouncementBarProps = {
