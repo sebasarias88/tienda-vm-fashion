@@ -10,20 +10,18 @@ import TestimoniosSection from '@/components/catalog/TestimoniosSection'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
-import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
+import { getSiteConfig, getSiteDescription } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
-  const siteName = getSiteName(config)
-  const heroTitle = config.hero_titulo?.trim()
 
   return buildMetadata({
     config,
-    title: heroTitle || siteName,
+    title: 'Catálogo detal',
     description:
-      config.hero_subtitulo?.trim() ||
+      config.seo_descripcion?.trim() ||
       getSiteDescription(config),
     path: '/',
   })

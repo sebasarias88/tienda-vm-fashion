@@ -21,7 +21,7 @@ export default function ProductosOfertas({
           Ofertas <span className="text-[var(--gold)]">del momento</span>
         </>
       }
-      description="Descuentos activos para renovar tu ritual de belleza"
+      description="Descuentos activos en belleza y cuidado capilar"
       verMasHref={catalogPath(catalogType, '/productos')}
       verMasLabel="Ver más"
       muted

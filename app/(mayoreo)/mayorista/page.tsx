@@ -10,7 +10,7 @@ import TestimoniosSection from '@/components/catalog/TestimoniosSection'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
-import { getSiteConfig, getSiteDescription, getSiteName } from '@/lib/site-config'
+import { getSiteConfig, getSiteName } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
@@ -20,11 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return buildMetadata({
     config,
-    title: `Mayorista — ${siteName}`,
+    title: 'Catálogo mayorista',
     description:
-      config.mayoreo_titulo?.trim() ||
-      config.hero_subtitulo?.trim() ||
-      `Catálogo mayorista de ${getSiteDescription(config)}`,
+      (config.mayoreo_titulo?.trim() && !/mayoreo/i.test(config.mayoreo_titulo)
+        ? config.mayoreo_titulo.trim()
+        : '') ||
+      config.seo_descripcion?.trim() ||
+      `Catálogo mayorista de belleza y cuidado capilar en ${siteName}.`,
     path: '/mayorista',
   })
 }

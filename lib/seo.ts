@@ -81,11 +81,14 @@ export function buildProductMetadata(
   producto: Pick<Producto, 'nombre' | 'descripcion' | 'imagenes' | 'slug'>,
   catalogType: CatalogType = 'detal',
 ): Metadata {
-  const suffix = catalogType === 'mayoreo' ? ' — Mayorista' : ''
+  const siteName = getSiteName(config)
+  const suffix = catalogType === 'mayoreo' ? ' — Mayorista' : ' — Detal'
   const title = `${producto.nombre}${suffix}`
   const description =
     producto.descripcion?.trim() ||
-    `${producto.nombre} disponible en ${getSiteName(config)}. Envíos a toda Colombia.`
+    `${producto.nombre}${
+      catalogType === 'mayoreo' ? ' en el catálogo mayorista' : ' en el catálogo detal'
+    } de ${siteName}. Envíos a toda Colombia.`
   const path = catalogPath(catalogType, `/productos/${producto.slug}`)
   const image = producto.imagenes?.[0] ?? null
 
