@@ -57,13 +57,6 @@ export default function HorizontalCarousel({
 
   return (
     <div className={`group/carousel relative ${className}`}>
-      {canScrollLeft && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[var(--bg-base)] to-transparent sm:w-14" />
-      )}
-      {canScrollRight && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[var(--bg-base)] to-transparent sm:w-14" />
-      )}
-
       <button
         type="button"
         onClick={() => scroll('left')}

@@ -84,7 +84,7 @@ export default function ProductoPrecio({
         </span>
       )}
       {descuentoCategoria && pctDescuento != null && size === 'lg' && (
-        <span className="border border-[color-mix(in_srgb,var(--gold)_30%,var(--border))] bg-[var(--gold-muted)] px-2 py-0.5 text-[11px] font-light uppercase tracking-[1px] text-[var(--gold)]">
+        <span className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold)]">
           -{pctDescuento}% en {producto.categoria?.nombre}
         </span>
       )}
