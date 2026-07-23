@@ -24,23 +24,26 @@ export default function AnnouncementBar({
   // Duplicamos para el loop infinito del marquee
   const track = [...items, ...items]
 
+  // Texto legible para crawlers / lectores (con espacios y puntuación)
+  const seoText = `${items.join('. ')}.`
+
   return (
     <div
       className="fixed inset-x-0 top-0 z-40 h-9 overflow-hidden bg-[#B8922A] text-white"
       role="region"
       aria-label="Anuncios"
     >
-      <div className="announcement-marquee flex h-full w-max items-center gap-4 px-4">
+      {/* Una sola frase bien puntuada: evita que Google pegue los textos del marquee */}
+      <p className="sr-only">{seoText}</p>
+
+      <div className="announcement-marquee flex h-full w-max items-center gap-4 px-4" aria-hidden="true">
         {track.map((text, i) => (
           <Fragment key={`${text}-${i}`}>
             <span className="shrink-0 text-[10px] font-light uppercase leading-none tracking-[2px] sm:text-[11px]">
               {text}
             </span>
-            <span
-              className="inline-flex h-[1em] w-[1em] shrink-0 items-center justify-center"
-              aria-hidden
-            >
-              <span className="block h-1 w-1 rounded-full bg-white/70" />
+            <span className="shrink-0 text-[10px] font-light leading-none text-white/55 sm:text-[11px]">
+              {' · '}
             </span>
           </Fragment>
         ))}

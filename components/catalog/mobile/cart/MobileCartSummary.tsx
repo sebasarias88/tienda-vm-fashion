@@ -24,6 +24,10 @@ type MobileCartSummaryProps = {
   showEnvio?: boolean
   compact?: boolean
   showProducts?: boolean
+  esRecogida?: boolean
+  cargoAdicional?: number
+  metodoPago?: string
+  porcentajeAdicional?: number
 }
 
 export default function MobileCartSummary({
@@ -37,6 +41,10 @@ export default function MobileCartSummary({
   showEnvio = false,
   compact = false,
   showProducts = false,
+  esRecogida = false,
+  cargoAdicional = 0,
+  metodoPago = '',
+  porcentajeAdicional = 0,
 }: MobileCartSummaryProps) {
   const listProducts = showProducts || !compact
 
@@ -71,18 +79,49 @@ export default function MobileCartSummary({
         {showEnvio ? (
           <>
             <div className="mobile-cart-summary__row">
-              <span>Envío</span>
+              <span>{esRecogida ? 'Entrega' : 'Envío'}</span>
               <span className="tabular-nums">
-                {envioGratis ? 'Gratis' : envio === 0 ? 'A convenir' : formatPrecio(envio ?? 0)}
+                {esRecogida
+                  ? 'Recoger en tienda'
+                  : envioGratis
+                    ? 'Gratis'
+                    : envio === 0
+                      ? 'A convenir'
+                      : formatPrecio(envio ?? 0)}
               </span>
             </div>
+            {cargoAdicional > 0 ? (
+              <div className="mobile-cart-summary__row">
+                <span>
+                  Cargo {metodoPago}
+                  {porcentajeAdicional > 0 ? (
+                    <span className="ml-1 text-[var(--gold-subtle)]">
+                      ({porcentajeAdicional}%)
+                    </span>
+                  ) : null}
+                </span>
+                <span className="tabular-nums">+{formatPrecio(cargoAdicional)}</span>
+              </div>
+            ) : null}
             {tiempoEntrega ? (
               <div className="mobile-cart-summary__row mobile-cart-summary__row--wrap">
-                <span>Entrega</span>
+                <span>{esRecogida ? 'Disponibilidad' : 'Entrega'}</span>
                 <span className="text-right">{tiempoEntrega}</span>
               </div>
             ) : null}
           </>
+        ) : cargoAdicional > 0 ? (
+          <div className="mobile-cart-summary__row">
+            <span>
+              Cargo {metodoPago}
+              {porcentajeAdicional > 0 ? (
+                <span className="ml-1 text-[var(--gold-subtle)]">
+                  ({porcentajeAdicional}%)
+                </span>
+              ) : null}
+            </span>
+            <span className="tabular-nums">+{formatPrecio(cargoAdicional)}</span>
+          </div>
         ) : null}
 
         {total !== undefined ? (

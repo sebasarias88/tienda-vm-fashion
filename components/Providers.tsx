@@ -5,9 +5,8 @@ import Lenis from 'lenis'
 import { Toaster, ToastPosition } from 'react-hot-toast'
 
 function useIsMobileToast() {
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
-  )
+  // false en SSR y en el primer paint → evita mismatch de hidratación
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)')

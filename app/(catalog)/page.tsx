@@ -10,7 +10,11 @@ import TestimoniosSection from '@/components/catalog/TestimoniosSection'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
-import { getSiteConfig, getSiteDescription } from '@/lib/site-config'
+import {
+  getSiteConfig,
+  getSiteDescription,
+  normalizeSeoDescription,
+} from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
@@ -21,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     config,
     title: 'Catálogo detal',
     description:
-      config.seo_descripcion?.trim() ||
+      normalizeSeoDescription(config.seo_descripcion) ||
       getSiteDescription(config),
     path: '/',
   })

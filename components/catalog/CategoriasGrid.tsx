@@ -7,9 +7,7 @@ import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { ArrowRight, ArrowUpRight, Tag } from 'lucide-react'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
-
-/** Máximo en home: 1 destacada + 4 pequeñas */
-const MAX_VISIBLE = 5
+import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
 
 export default function CategoriasGrid({
   categorias,
@@ -21,9 +19,6 @@ export default function CategoriasGrid({
   if (!categorias.length) return null
 
   const productosHref = catalogPath(catalogType, '/productos')
-  const visibles = categorias.slice(0, MAX_VISIBLE)
-  const hayMas = categorias.length > MAX_VISIBLE
-  const mostrarDestacada = visibles.length >= 3
 
   return (
     <section className="bg-[var(--bg-base)] py-12 sm:py-14">
@@ -52,7 +47,7 @@ export default function CategoriasGrid({
             href={productosHref}
             className="group inline-flex shrink-0 items-center gap-2 self-start border-b border-[var(--border)] pb-1 text-[11px] font-light uppercase tracking-[2px] text-[var(--text-secondary)] transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
           >
-            {hayMas ? 'Ver más' : 'Ver catálogo'}
+            Ver más
             <ArrowRight
               size={14}
               className="text-[var(--gold-subtle)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--gold)]"
@@ -60,24 +55,20 @@ export default function CategoriasGrid({
           </Link>
         </motion.div>
 
-        <div
-          className={`grid gap-2.5 sm:gap-3 ${
-            mostrarDestacada
-              ? 'min-h-[min(70svh,620px)] grid-cols-2 grid-rows-[1.15fr_1fr_1fr] md:grid-cols-4 md:grid-rows-2'
-              : 'auto-rows-fr grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          }`}
+        <HorizontalCarousel
+          itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]"
+          gapClassName="gap-3 sm:gap-4"
         >
-          {visibles.map((cat, i) => (
+          {categorias.map((cat, i) => (
             <CategoriaCard
               key={cat.id}
               cat={cat}
               index={i}
               productosHref={productosHref}
               catalogType={catalogType}
-              featured={mostrarDestacada && i === 0}
             />
           ))}
-        </div>
+        </HorizontalCarousel>
       </div>
     </section>
   )
@@ -88,13 +79,11 @@ function CategoriaCard({
   index,
   productosHref,
   catalogType = 'detal',
-  featured,
 }: {
   cat: Categoria
   index: number
   productosHref: string
   catalogType?: CatalogType
-  featured?: boolean
 }) {
   const [hovered, setHovered] = useState(false)
   const subcats = cat.subcategorias || []
@@ -107,16 +96,14 @@ function CategoriaCard({
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: Math.min(index * 0.05, 0.35) }}
-      className={`min-h-0 ${
-        featured ? 'col-span-2 row-span-1 md:col-span-2 md:row-span-2' : ''
-      }`}
+      transition={{ delay: Math.min(index * 0.04, 0.28) }}
+      className="h-full"
     >
       <Link
         href={`${productosHref}?categoria=${cat.slug}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="group relative block h-full min-h-0 overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+        className="group relative block aspect-[4/5] overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
       >
         {cat.imagen_url ? (
           <img
@@ -127,7 +114,7 @@ function CategoriaCard({
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--bg-muted)] to-[var(--gold-muted)]">
             <Tag
-              size={featured ? 36 : 24}
+              size={28}
               className="text-[color-mix(in_srgb,var(--gold)_40%,transparent)]"
             />
           </div>
@@ -139,7 +126,6 @@ function CategoriaCard({
           </div>
         )}
 
-        {/* Scrim oscuro sólido en la zona de texto para contraste sobre fondos claros */}
         <div
           className="absolute inset-0 transition-opacity duration-300"
           style={{
@@ -156,9 +142,7 @@ function CategoriaCard({
             </p>
           )}
           <p
-            className={`font-medium uppercase leading-snug tracking-[1px] text-white transition-transform duration-300 group-hover:-translate-y-0.5 ${
-              featured ? 'text-[15px] sm:text-[20px]' : 'text-[12px] sm:text-[13px]'
-            }`}
+            className="text-[13px] font-medium uppercase leading-snug tracking-[1px] text-white transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-[14px]"
             style={{
               color: '#FFFFFF',
               textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.55)',
@@ -166,19 +150,6 @@ function CategoriaCard({
           >
             {cat.nombre}
           </p>
-
-          {featured && subcats.length > 0 && (
-            <div className="mt-2 hidden flex-wrap gap-1.5 md:flex">
-              {subcats.slice(0, 4).map((sub: Categoria) => (
-                <span
-                  key={sub.id}
-                  className="border border-white/25 bg-black/35 px-2 py-0.5 text-[9px] font-light uppercase tracking-[1px] text-white/90 backdrop-blur-[2px]"
-                >
-                  {sub.nombre}
-                </span>
-              ))}
-            </div>
-          )}
 
           <motion.div
             className="mt-2 flex items-center gap-1 text-[9px] font-medium uppercase tracking-[2px] text-[#F0E2B8] [text-shadow:0_1px_3px_rgba(0,0,0,0.85)] sm:mt-2.5 sm:text-[10px]"

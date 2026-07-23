@@ -10,7 +10,7 @@ import TestimoniosSection from '@/components/catalog/TestimoniosSection'
 import NosotrosSection from '@/components/catalog/NosotrosSection'
 import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
-import { getSiteConfig, getSiteName } from '@/lib/site-config'
+import { getSiteConfig, getSiteName, normalizeSeoDescription } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
@@ -18,15 +18,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
   const siteName = getSiteName(config)
 
+  const mayoreoDesc = (() => {
+    const raw = normalizeSeoDescription(config.mayoreo_titulo)
+    if (!raw || /mayoreo/i.test(raw)) return ''
+    return raw
+  })()
+
   return buildMetadata({
     config,
     title: 'Catálogo mayorista',
     description:
-      (config.mayoreo_titulo?.trim() && !/mayoreo/i.test(config.mayoreo_titulo)
-        ? config.mayoreo_titulo.trim()
-        : '') ||
-      config.seo_descripcion?.trim() ||
-      `Catálogo mayorista de belleza y cuidado capilar en ${siteName}.`,
+      mayoreoDesc ||
+      normalizeSeoDescription(config.seo_descripcion) ||
+      `Catálogo mayorista de belleza y cuidado capilar en ${siteName}. Precios por volumen, envíos a Colombia y pedidos por WhatsApp.`,
     path: '/mayorista',
   })
 }

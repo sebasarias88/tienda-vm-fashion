@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
-import { DatosCliente, ItemCarrito } from '@/types'
+import { DatosCliente, ItemCarrito, MetodoPagoConfig, TipoEntrega } from '@/types'
 import { generarMensajeWhatsApp, abrirWhatsApp } from '@/lib/whatsapp'
 import {
   cartSubtotal,
@@ -16,6 +16,11 @@ import {
 } from '@/lib/cart'
 import { parseCopValue } from '@/lib/currency'
 import { catalogPath, MAYOREO_MIN_COMPRA, type CatalogType } from '@/lib/catalog'
+import {
+  calcularCargoMetodoPago,
+  formatCargoLabel,
+} from '@/lib/metodosPago'
+import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import StickySidebar from '@/components/catalog/StickySidebar'
@@ -33,6 +38,8 @@ import {
   Loader2,
   Package,
   Truck,
+  Info,
+  Store,
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -115,6 +122,10 @@ function OrderSummaryPanel({
   tiempoEntrega,
   envioGratis,
   showEnvio = false,
+  esRecogida = false,
+  cargoAdicional = 0,
+  metodoPago = '',
+  porcentajeAdicional = 0,
 }: {
   items: ItemCarrito[]
   subtotal: number
@@ -124,6 +135,10 @@ function OrderSummaryPanel({
   tiempoEntrega?: string
   envioGratis?: boolean
   showEnvio?: boolean
+  esRecogida?: boolean
+  cargoAdicional?: number
+  metodoPago?: string
+  porcentajeAdicional?: number
 }) {
   return (
     <div className="space-y-4">
@@ -172,18 +187,50 @@ function OrderSummaryPanel({
         {showEnvio && (
           <>
             <div className="flex justify-between text-[13px] font-light">
-              <span className="text-[var(--text-muted)]">Envío</span>
+              <span className="text-[var(--text-muted)]">
+                {esRecogida ? 'Entrega' : 'Envío'}
+              </span>
               <span className="text-[var(--text-primary)]">
-                {envioGratis ? 'Gratis' : envio === 0 ? 'A convenir' : formatPrecio(envio ?? 0)}
+                {esRecogida
+                  ? 'Recoger en tienda'
+                  : envioGratis
+                    ? 'Gratis'
+                    : envio === 0
+                      ? 'A convenir'
+                      : formatPrecio(envio ?? 0)}
               </span>
             </div>
+            {cargoAdicional > 0 && (
+              <div className="flex justify-between text-[13px] font-light">
+                <span className="text-[var(--text-muted)]">
+                  Cargo {metodoPago}
+                  {porcentajeAdicional > 0 && (
+                    <span className="ml-1 text-[var(--gold-subtle)]">({porcentajeAdicional}%)</span>
+                  )}
+                </span>
+                <span className="text-[var(--text-primary)]">+{formatPrecio(cargoAdicional)}</span>
+              </div>
+            )}
             {tiempoEntrega && (
               <div className="flex justify-between text-[13px] font-light">
-                <span className="text-[var(--text-muted)]">Entrega</span>
+                <span className="text-[var(--text-muted)]">
+                  {esRecogida ? 'Disponibilidad' : 'Entrega'}
+                </span>
                 <span className="text-[var(--text-primary)]">{tiempoEntrega}</span>
               </div>
             )}
           </>
+        )}
+        {!showEnvio && cargoAdicional > 0 && (
+          <div className="flex justify-between text-[13px] font-light">
+            <span className="text-[var(--text-muted)]">
+              Cargo {metodoPago}
+              {porcentajeAdicional > 0 && (
+                <span className="ml-1 text-[var(--gold-subtle)]">({porcentajeAdicional}%)</span>
+              )}
+            </span>
+            <span className="text-[var(--text-primary)]">+{formatPrecio(cargoAdicional)}</span>
+          </div>
         )}
         {total !== undefined && (
           <div className="flex items-baseline justify-between border-t border-[var(--border-subtle)] pt-3">
@@ -220,25 +267,69 @@ export default function CarritoPage() {
   })
   const [loadingConfig, setLoadingConfig] = useState(true)
   const [enviando, setEnviando] = useState(false)
+  const [metodosConfig, setMetodosConfig] = useState<MetodoPagoConfig[]>([])
+  const [metodoPagoConfig, setMetodoPagoConfig] = useState<MetodoPagoConfig | null>(null)
 
   const [datos, setDatos] = useState<DatosCliente>({
     nombre: '',
     celular: '',
     direccion: '',
     ciudad: '',
+    tipoEntrega: '',
     metodoPago: '',
     notas: '',
   })
 
-  const [errores, setErrores] = useState<Partial<DatosCliente>>({})
+  const [errores, setErrores] = useState<Partial<Record<keyof DatosCliente, string>>>({})
 
   const fetchConfig = useCallback(async () => {
-    const { data } = await supabase.from('configuracion').select('clave, valor')
+    const catalogosFiltro =
+      catalogType === 'mayoreo' ? ['mayoreo', 'ambos'] : ['detal', 'ambos']
+
+    const [{ data }, { data: metodosData }] = await Promise.all([
+      supabase.from('configuracion').select('clave, valor'),
+      supabase
+        .from('metodo_pago_config')
+        .select('*')
+        .eq('activo', true)
+        .in('catalogo', catalogosFiltro)
+        .order('orden', { ascending: true }),
+    ])
+
+    const metodos = (metodosData as MetodoPagoConfig[] | null) || []
+    setMetodosConfig(metodos)
+
     if (data) {
       const map: Record<string, string> = {}
       data.forEach((r: { clave: string; valor: string }) => {
         map[r.clave] = r.valor
       })
+
+      const metodosFallback = (() => {
+        const key =
+          catalogType === 'mayoreo' ? 'metodos_pago_mayoreo' : 'metodos_pago_detal'
+        const raw = map[key] ?? map['metodos_pago']
+        try {
+          const parsed = JSON.parse(raw || '[]')
+          return Array.isArray(parsed) ? (parsed as string[]) : []
+        } catch {
+          return []
+        }
+      })()
+
+      // Keep the full configuracion list; do not replace it with only DB surcharge rows.
+      const metodosPagoLista =
+        metodosFallback.length > 0
+          ? metodosFallback
+          : metodos.length > 0
+            ? metodos.map(m => m.nombre)
+            : [
+                'Efectivo contra entrega',
+                'Nequi',
+                'Daviplata',
+                'Transferencia bancaria',
+              ]
+
       setConfig({
         whatsapp_numero: map['whatsapp_numero'] || '573185867702',
         envio_armenia: map['envio_armenia'] || '5000',
@@ -246,17 +337,7 @@ export default function CarritoPage() {
         envio_gratis_desde: map['envio_gratis_desde'] || '0',
         tiempo_entrega_armenia: map['tiempo_entrega_armenia'] || 'El mismo día',
         tiempo_entrega_nacional: map['tiempo_entrega_nacional'] || '2 a 3 días hábiles',
-        metodos_pago: (() => {
-          const key =
-            catalogType === 'mayoreo' ? 'metodos_pago_mayoreo' : 'metodos_pago_detal'
-          const raw = map[key] ?? map['metodos_pago']
-          try {
-            const parsed = JSON.parse(raw || '[]')
-            return Array.isArray(parsed) ? parsed : []
-          } catch {
-            return []
-          }
-        })(),
+        metodos_pago: metodosPagoLista,
       })
     }
     setLoadingConfig(false)
@@ -267,23 +348,82 @@ export default function CarritoPage() {
     void fetchConfig()
   }, [fetchConfig])
 
+  useEffect(() => {
+    if (!datos.metodoPago) {
+      setMetodoPagoConfig(null)
+      return
+    }
+    const found =
+      metodosConfig.find(
+        m => m.nombre.trim().toLowerCase() === datos.metodoPago.trim().toLowerCase(),
+      ) || null
+    setMetodoPagoConfig(found)
+  }, [datos.metodoPago, metodosConfig])
+
+  /** Full payment list: configuracion order + surcharge metadata when DB has a match. */
+  const metodosPagoOpciones = useMemo((): MetodoPagoConfig[] => {
+    const byNombre = new Map(
+      metodosConfig.map(m => [m.nombre.trim().toLowerCase(), m]),
+    )
+    const base = config.metodos_pago
+
+    if (base.length === 0) return metodosConfig
+
+    const fromLista = base.map((nombre, i) => {
+      const fromDb = byNombre.get(nombre.trim().toLowerCase())
+      if (fromDb) return fromDb
+      return {
+        id: `fallback-${nombre}`,
+        nombre,
+        catalogo: (catalogType === 'mayoreo' ? 'mayoreo' : 'detal') as MetodoPagoConfig['catalogo'],
+        porcentaje_adicional: 0,
+        monto_adicional_fijo: 0,
+        descripcion_cliente: null,
+        activo: true,
+        orden: i,
+      } satisfies MetodoPagoConfig
+    })
+
+    const extras = metodosConfig.filter(
+      m =>
+        !base.some(
+          n => n.trim().toLowerCase() === m.nombre.trim().toLowerCase(),
+        ),
+    )
+
+    return [...fromLista, ...extras]
+  }, [config.metodos_pago, metodosConfig, catalogType])
+
+  const esRecogida = datos.tipoEntrega === 'recogida'
   const esArmenia = CIUDADES_ARMENIA.includes(datos.ciudad.toLowerCase().trim())
   const subtotal = useMemo(
     () => cartSubtotal(items, catalogType),
     [items, catalogType],
   )
   const envioGratisDesde = parseCopValue(config.envio_gratis_desde)
-  const envioGratis = envioGratisDesde > 0 && subtotal >= envioGratisDesde
+  const envioGratis =
+    !esRecogida && envioGratisDesde > 0 && subtotal >= envioGratisDesde
 
-  const costoEnvio = envioGratis
+  const costoEnvio = esRecogida
     ? 0
+    : envioGratis
+      ? 0
+      : esArmenia
+        ? parseCopValue(config.envio_armenia)
+        : parseCopValue(config.envio_nacional)
+
+  const tiempoEntrega = esRecogida
+    ? 'Te avisamos cuando esté listo'
     : esArmenia
-      ? parseCopValue(config.envio_armenia)
-      : parseCopValue(config.envio_nacional)
+      ? config.tiempo_entrega_armenia
+      : config.tiempo_entrega_nacional
 
-  const tiempoEntrega = esArmenia ? config.tiempo_entrega_armenia : config.tiempo_entrega_nacional
+  const { cargoAdicional, descripcion: descripcionCargo } = calcularCargoMetodoPago(
+    subtotal,
+    metodoPagoConfig,
+  )
 
-  const totalFinal = subtotal + costoEnvio
+  const totalFinal = subtotal + costoEnvio + cargoAdicional
   const stepIndex = STEPS.findIndex(s => s.id === step)
   const stickyTop = catalogType === 'mayoreo' ? 100 : 96
 
@@ -291,13 +431,29 @@ export default function CarritoPage() {
   const cumpleMinimo = subtotal >= minimoMayoreo
   const faltaParaMinimo = Math.max(0, minimoMayoreo - subtotal)
 
+  const seleccionarTipoEntrega = (tipo: TipoEntrega) => {
+    setDatos(d => ({
+      ...d,
+      tipoEntrega: tipo,
+      ...(tipo === 'recogida' ? { ciudad: '', direccion: '' } : {}),
+    }))
+    setErrores(er => ({
+      ...er,
+      tipoEntrega: '',
+      ...(tipo === 'recogida' ? { ciudad: '', direccion: '' } : {}),
+    }))
+  }
+
   const validar = () => {
-    const e: Partial<DatosCliente> = {}
+    const e: Partial<Record<keyof DatosCliente, string>> = {}
     if (!datos.nombre.trim()) e.nombre = 'El nombre es requerido'
     if (!datos.celular.trim()) e.celular = 'El celular es requerido'
     else if (!/^[0-9+\s]{7,15}$/.test(datos.celular.trim())) e.celular = 'Número inválido'
-    if (!datos.direccion.trim()) e.direccion = 'La dirección es requerida'
-    if (!datos.ciudad.trim()) e.ciudad = 'La ciudad es requerida'
+    if (!datos.tipoEntrega) e.tipoEntrega = 'Selecciona cómo recibir tu pedido'
+    if (datos.tipoEntrega === 'envio') {
+      if (!datos.direccion.trim()) e.direccion = 'La dirección es requerida'
+      if (!datos.ciudad.trim()) e.ciudad = 'La ciudad es requerida'
+    }
     if (!datos.metodoPago) e.metodoPago = 'Selecciona un método de pago'
     setErrores(e)
     return Object.keys(e).length === 0
@@ -337,6 +493,7 @@ export default function CarritoPage() {
       costoEnvio,
       tiempoEntrega,
       catalogType,
+      cargoAdicional,
     )
     setTimeout(() => {
       abrirWhatsApp(mensaje, config.whatsapp_numero)
@@ -390,6 +547,13 @@ export default function CarritoPage() {
           envioGratis={envioGratis}
           tiempoEntrega={tiempoEntrega}
           totalFinal={totalFinal}
+          cargoAdicional={cargoAdicional}
+          descripcionCargo={descripcionCargo}
+          metodosConfig={metodosPagoOpciones}
+          metodoPagoConfig={metodoPagoConfig}
+          setMetodoPagoConfig={setMetodoPagoConfig}
+          esRecogida={esRecogida}
+          seleccionarTipoEntrega={seleccionarTipoEntrega}
           handleContinuar={handleContinuar}
           handleConfirmar={handleConfirmar}
           handleEnviarWhatsApp={handleEnviarWhatsApp}
@@ -598,7 +762,7 @@ export default function CarritoPage() {
                     </div>
                   )}
                   <p className="text-[12px] font-light text-[var(--text-subtle)]">
-                    El envío se calcula en el siguiente paso según tu ciudad.
+                    En el siguiente paso eliges envío a domicilio o recogida en tienda.
                   </p>
                   <motion.button
                     type="button"
@@ -678,60 +842,175 @@ export default function CarritoPage() {
                 </section>
 
                 <section className="border-t border-[var(--border-subtle)] pt-10">
-                  <SectionTitle icon={MapPin}>Dirección de entrega</SectionTitle>
-                  <div className="space-y-6">
-                    <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
-                        Ciudad *
-                      </label>
-                      <input
-                        type="text"
-                        value={datos.ciudad}
-                        onChange={e => {
-                          setDatos(d => ({ ...d, ciudad: e.target.value }))
-                          if (errores.ciudad) setErrores(er => ({ ...er, ciudad: '' }))
-                        }}
-                        placeholder="Ej: Armenia, Bogotá, Medellín..."
-                        className={inputClass('ciudad')}
-                      />
-                      {errores.ciudad && (
-                        <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.ciudad}</p>
-                      )}
-                      {datos.ciudad.trim() && (
-                        <motion.p
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="mt-2 flex items-start gap-2 text-[12px] font-light text-[var(--gold-subtle)]"
+                  <SectionTitle icon={Truck}>¿Cómo quieres recibir tu pedido?</SectionTitle>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {(
+                      [
+                        {
+                          id: 'envio' as const,
+                          icon: Truck,
+                          title: 'Envío a domicilio',
+                          desc: 'Llevamos el pedido a tu dirección',
+                        },
+                        {
+                          id: 'recogida' as const,
+                          icon: Store,
+                          title: 'Recoger en tienda',
+                          desc: 'Sin costo de envío · Armenia',
+                        },
+                      ] as const
+                    ).map(opcion => {
+                      const selected = datos.tipoEntrega === opcion.id
+                      const Icon = opcion.icon
+                      return (
+                        <motion.button
+                          key={opcion.id}
+                          type="button"
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => seleccionarTipoEntrega(opcion.id)}
+                          className={`flex items-start gap-3 rounded-[2px] border px-4 py-4 text-left transition-all ${
+                            selected
+                              ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
+                              : 'border-[var(--border-subtle)] hover:border-[rgba(201,168,76,0.2)]'
+                          }`}
                         >
-                          <Truck size={13} className="mt-0.5 shrink-0" />
-                          {envioGratis
-                            ? 'Envío gratis para tu pedido'
-                            : costoEnvio === 0
-                              ? 'Envío a convenir con el negocio'
-                              : `Envío estimado: ${formatPrecio(costoEnvio)} — ${tiempoEntrega}`}
-                        </motion.p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
-                        Dirección completa *
-                      </label>
-                      <input
-                        type="text"
-                        value={datos.direccion}
-                        onChange={e => {
-                          setDatos(d => ({ ...d, direccion: e.target.value }))
-                          if (errores.direccion) setErrores(er => ({ ...er, direccion: '' }))
-                        }}
-                        placeholder="Ej: Calle 10 #5-20, Barrio Los Andes"
-                        className={inputClass('direccion')}
-                      />
-                      {errores.direccion && (
-                        <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.direccion}</p>
-                      )}
-                    </div>
+                          <Icon
+                            size={18}
+                            className={`mt-0.5 shrink-0 ${
+                              selected ? 'text-[var(--gold)]' : 'text-[var(--text-muted)]'
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className={`text-[13px] font-light ${
+                                selected ? 'text-[var(--gold)]' : 'text-[var(--text-primary)]'
+                              }`}
+                            >
+                              {opcion.title}
+                            </p>
+                            <p className="mt-0.5 text-[11px] font-light text-[var(--text-subtle)]">
+                              {opcion.desc}
+                            </p>
+                          </div>
+                          {selected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]"
+                            >
+                              <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-on-gold)]" />
+                            </motion.div>
+                          )}
+                        </motion.button>
+                      )
+                    })}
                   </div>
+                  {errores.tipoEntrega && (
+                    <p className="mt-2 text-[11px] font-light text-red-400">{errores.tipoEntrega}</p>
+                  )}
                 </section>
+
+                {datos.tipoEntrega === 'recogida' && (
+                  <section className="border-t border-[var(--border-subtle)] pt-10">
+                    <SectionTitle icon={Store}>Punto de recogida</SectionTitle>
+                    <div className="rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-4">
+                      <p className="text-[13px] font-light text-[var(--text-primary)]">
+                        Tienda VM Fashion
+                      </p>
+                      <p className="mt-1.5 text-[12px] font-light leading-relaxed text-[var(--text-muted)]">
+                        {DIRECCION_COMPLETA}
+                      </p>
+                      <p className="mt-3 flex items-start gap-2 text-[12px] font-light text-[var(--gold-subtle)]">
+                        <Info size={13} className="mt-0.5 shrink-0" />
+                        No necesitas dirección de envío. Te avisamos por WhatsApp cuando tu pedido esté listo.
+                      </p>
+                    </div>
+                    {cargoAdicional > 0 && datos.metodoPago && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                      >
+                        <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
+                        <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+                          {descripcionCargo ||
+                            `El método ${datos.metodoPago} incluye un cargo adicional de ${formatPrecio(cargoAdicional)}`}
+                        </p>
+                      </motion.div>
+                    )}
+                  </section>
+                )}
+
+                {datos.tipoEntrega === 'envio' && (
+                  <section className="border-t border-[var(--border-subtle)] pt-10">
+                    <SectionTitle icon={MapPin}>Dirección de entrega</SectionTitle>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
+                          Ciudad *
+                        </label>
+                        <input
+                          type="text"
+                          value={datos.ciudad}
+                          onChange={e => {
+                            setDatos(d => ({ ...d, ciudad: e.target.value }))
+                            if (errores.ciudad) setErrores(er => ({ ...er, ciudad: '' }))
+                          }}
+                          placeholder="Ej: Armenia, Bogotá, Medellín..."
+                          className={inputClass('ciudad')}
+                        />
+                        {errores.ciudad && (
+                          <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.ciudad}</p>
+                        )}
+                        {datos.ciudad.trim() && (
+                          <motion.p
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-2 flex items-start gap-2 text-[12px] font-light text-[var(--gold-subtle)]"
+                          >
+                            <Truck size={13} className="mt-0.5 shrink-0" />
+                            {envioGratis
+                              ? 'Envío gratis para tu pedido'
+                              : costoEnvio === 0
+                                ? 'Envío a convenir con el negocio'
+                                : `Envío estimado: ${formatPrecio(costoEnvio)} — ${tiempoEntrega}`}
+                          </motion.p>
+                        )}
+                        {cargoAdicional > 0 && datos.metodoPago && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3 flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                          >
+                            <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
+                            <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+                              {descripcionCargo ||
+                                `El método ${datos.metodoPago} incluye un cargo adicional de ${formatPrecio(cargoAdicional)}`}
+                            </p>
+                          </motion.div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
+                          Dirección completa *
+                        </label>
+                        <input
+                          type="text"
+                          value={datos.direccion}
+                          onChange={e => {
+                            setDatos(d => ({ ...d, direccion: e.target.value }))
+                            if (errores.direccion) setErrores(er => ({ ...er, direccion: '' }))
+                          }}
+                          placeholder="Ej: Calle 10 #5-20, Barrio Los Andes"
+                          className={inputClass('direccion')}
+                        />
+                        {errores.direccion && (
+                          <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.direccion}</p>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                )}
 
                 <section className="border-t border-[var(--border-subtle)] pt-10">
                   <SectionTitle icon={CreditCard}>Método de pago</SectionTitle>
@@ -742,35 +1021,69 @@ export default function CarritoPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="divide-y divide-[var(--border-subtle)]">
-                      {config.metodos_pago.map(metodo => (
-                        <button
-                          key={metodo}
-                          type="button"
-                          onClick={() => {
-                            setDatos(d => ({ ...d, metodoPago: metodo }))
-                            if (errores.metodoPago) setErrores(er => ({ ...er, metodoPago: '' }))
-                          }}
-                          className={`flex w-full items-center justify-between py-4 text-left transition-colors ${
-                            datos.metodoPago === metodo
-                              ? 'text-[var(--gold)]'
-                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                          }`}
-                        >
-                          <span className="text-[14px] font-light">{metodo}</span>
-                          <span
-                            className={`h-4 w-4 rounded-full border transition-all ${
-                              datos.metodoPago === metodo
-                                ? 'border-[var(--gold)] bg-[var(--gold-light)]'
-                                : 'border-[var(--border-input)]'
+                    <div className="space-y-2">
+                      {metodosPagoOpciones.map(metodo => {
+                        const isSelected = datos.metodoPago === metodo.nombre
+                        const tieneCargoExtra =
+                          metodo.porcentaje_adicional > 0 || metodo.monto_adicional_fijo > 0
+
+                        return (
+                          <motion.button
+                            key={metodo.id}
+                            type="button"
+                            whileTap={{ scale: 0.99 }}
+                            onClick={() => {
+                              setDatos(d => ({ ...d, metodoPago: metodo.nombre }))
+                              const realConfig =
+                                metodosConfig.find(
+                                  m =>
+                                    m.nombre.trim().toLowerCase() ===
+                                    metodo.nombre.trim().toLowerCase(),
+                                ) || null
+                              setMetodoPagoConfig(realConfig)
+                              if (errores.metodoPago) {
+                                setErrores(e => ({ ...e, metodoPago: '' }))
+                              }
+                            }}
+                            className={`flex w-full items-center justify-between rounded-[2px] border px-4 py-3.5 text-left transition-all ${
+                              isSelected
+                                ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
+                                : 'border-[var(--border-subtle)] hover:border-[rgba(201,168,76,0.2)]'
                             }`}
                           >
-                            {datos.metodoPago === metodo && (
-                              <span className="block h-full w-full scale-[0.4] rounded-full bg-[var(--text-on-gold)]" />
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`text-[13px] font-light ${
+                                  isSelected ? 'text-[var(--gold)]' : 'text-[var(--text-secondary)]'
+                                }`}
+                              >
+                                {metodo.nombre}
+                              </p>
+                              {tieneCargoExtra && (
+                                <p
+                                  className={`mt-0.5 text-[10px] font-light ${
+                                    isSelected
+                                      ? 'text-[var(--gold-subtle)]'
+                                      : 'text-[var(--text-faint)]'
+                                  }`}
+                                >
+                                  {metodo.descripcion_cliente || formatCargoLabel(metodo)}
+                                </p>
+                              )}
+                            </div>
+
+                            {isSelected && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="ml-4 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]"
+                              >
+                                <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-on-gold)]" />
+                              </motion.div>
                             )}
-                          </span>
-                        </button>
-                      ))}
+                          </motion.button>
+                        )
+                      })}
                     </div>
                   )}
                   {errores.metodoPago && (
@@ -816,6 +1129,12 @@ export default function CarritoPage() {
                   items={items}
                   subtotal={subtotal}
                   catalogType={catalogType}
+                  cargoAdicional={cargoAdicional}
+                  metodoPago={datos.metodoPago}
+                  porcentajeAdicional={metodoPagoConfig?.porcentaje_adicional || 0}
+                  total={
+                    cargoAdicional > 0 ? subtotal + cargoAdicional : undefined
+                  }
                 />
               </CartSidebar>
             </motion.div>
@@ -852,8 +1171,18 @@ export default function CarritoPage() {
                       {[
                         { label: 'Nombre', value: datos.nombre },
                         { label: 'Celular', value: datos.celular },
-                        { label: 'Ciudad', value: datos.ciudad },
-                        { label: 'Dirección', value: datos.direccion },
+                        {
+                          label: 'Entrega',
+                          value: esRecogida
+                            ? 'Recoger en tienda'
+                            : 'Envío a domicilio',
+                        },
+                        ...(esRecogida
+                          ? [{ label: 'Tienda', value: DIRECCION_COMPLETA }]
+                          : [
+                              { label: 'Ciudad', value: datos.ciudad },
+                              { label: 'Dirección', value: datos.direccion },
+                            ]),
                         { label: 'Pago', value: datos.metodoPago },
                         ...(datos.notas ? [{ label: 'Notas', value: datos.notas }] : []),
                       ].map(({ label, value }) => (
@@ -912,27 +1241,61 @@ export default function CarritoPage() {
                       <Package size={13} />
                       Resumen de costos
                     </p>
-                    <div className="space-y-2.5">
+                    <div className="space-y-2.5 rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-muted)] p-4">
                       <div className="flex justify-between text-[13px] font-light">
                         <span className="text-[var(--text-muted)]">Subtotal</span>
                         <span className="text-[var(--text-primary)]">{formatPrecio(subtotal)}</span>
                       </div>
                       <div className="flex justify-between text-[13px] font-light">
-                        <span className="text-[var(--text-muted)]">Envío</span>
+                        <span className="text-[var(--text-muted)]">
+                          {esRecogida ? 'Entrega' : 'Envío'}
+                        </span>
                         <span className="text-[var(--text-primary)]">
-                          {envioGratis ? 'Gratis' : costoEnvio === 0 ? 'A convenir' : formatPrecio(costoEnvio)}
+                          {esRecogida
+                            ? 'Recoger en tienda'
+                            : envioGratis
+                              ? 'Gratis'
+                              : costoEnvio === 0
+                                ? 'A convenir'
+                                : formatPrecio(costoEnvio)}
                         </span>
                       </div>
+                      {cargoAdicional > 0 && (
+                        <div className="flex justify-between text-[13px] font-light">
+                          <span className="text-[var(--text-muted)]">
+                            Cargo {datos.metodoPago}
+                            {(metodoPagoConfig?.porcentaje_adicional || 0) > 0 && (
+                              <span className="ml-1 text-[var(--gold-subtle)]">
+                                ({metodoPagoConfig?.porcentaje_adicional}%)
+                              </span>
+                            )}
+                          </span>
+                          <span className="text-[var(--text-primary)]">
+                            +{formatPrecio(cargoAdicional)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-[13px] font-light">
-                        <span className="text-[var(--text-muted)]">Entrega</span>
+                        <span className="text-[var(--text-muted)]">
+                          {esRecogida ? 'Disponibilidad' : 'Entrega'}
+                        </span>
                         <span className="text-[var(--text-primary)]">{tiempoEntrega}</span>
                       </div>
-                      <div className="flex items-baseline justify-between border-t border-[var(--border-subtle)] pt-4">
+                      <div className="h-px bg-[rgba(201,168,76,0.1)]" />
+                      <div className="flex items-baseline justify-between pt-1">
                         <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)]">
                           Total
                         </span>
-                        <span className="text-2xl font-light text-[var(--gold)]">{formatPrecio(totalFinal)}</span>
+                        <span className="text-2xl font-light text-[var(--gold)]">
+                          {formatPrecio(totalFinal)}
+                        </span>
                       </div>
+                      {cargoAdicional > 0 && (
+                        <p className="pt-1 text-[10px] font-light leading-relaxed text-[var(--gold-subtle)]">
+                          ✓ Incluye {formatPrecio(cargoAdicional)} de cargo por pago con{' '}
+                          {datos.metodoPago}
+                        </p>
+                      )}
                     </div>
                   </section>
                 </div>

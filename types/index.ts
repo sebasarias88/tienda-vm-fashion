@@ -49,6 +49,8 @@ export type ProductoSeccion = {
   orden: number
 }
 
+export type VideoTipo = 'tiktok' | 'youtube' | 'instagram' | 'url'
+
 export type Producto = {
   id: string
   nombre: string
@@ -68,6 +70,8 @@ export type Producto = {
   categorias?: Categoria[]
   secciones?: ProductoSeccion[]
   imagenes: string[]
+  video_url?: string | null
+  video_tipo?: VideoTipo | null
   sku: string | null
   orden: number
   created_at: string
@@ -81,6 +85,17 @@ export type Configuracion = {
   descripcion: string | null
 }
 
+export type MetodoPagoConfig = {
+  id: string
+  nombre: string
+  catalogo: 'detal' | 'mayoreo' | 'ambos'
+  porcentaje_adicional: number
+  monto_adicional_fijo: number
+  descripcion_cliente: string | null
+  activo: boolean
+  orden: number
+}
+
 export type ItemCarrito = {
   producto: Producto
   cantidad: number
@@ -89,11 +104,15 @@ export type ItemCarrito = {
   lineKey?: string
 }
 
+export type TipoEntrega = 'envio' | 'recogida'
+
 export type DatosCliente = {
   nombre: string
   celular: string
   direccion: string
   ciudad: string
+  /** envio = domicilio · recogida = tienda física */
+  tipoEntrega: TipoEntrega | ''
   metodoPago: string
   notas: string
 }

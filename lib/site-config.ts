@@ -22,13 +22,29 @@ export function getSiteName(config: SiteConfigMap): string {
 }
 
 export function getSiteDescription(config: SiteConfigMap): string {
-  const seo = config.seo_descripcion?.trim()
-  const hero = config.hero_subtitulo?.trim()
+  const seo = normalizeSeoDescription(config.seo_descripcion)
+  const hero = normalizeSeoDescription(config.hero_subtitulo)
   const clean = (text?: string) => (text && !/ritual/i.test(text) ? text : '')
   return (
     clean(seo) ||
     clean(hero) ||
-    'Catálogo detal de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.'
+    'Belleza y cuidado capilar en Armenia, Quindío. Catálogo detal con envíos a todo Colombia, asesoría por WhatsApp y pago fácil con Addi o Sistecrédito.'
+  )
+}
+
+/** Corrige frases pegadas sin espacio (típico de marquees indexados mal). */
+export function normalizeSeoDescription(raw?: string | null): string {
+  const text = raw?.trim()
+  if (!text) return ''
+
+  return (
+    text
+      // "ColombiaAsesoría" → "Colombia. Asesoría"
+      .replace(/([a-záéíóúñü0-9])([A-ZÁÉÍÓÚÑÜ])/g, '$1. $2')
+      // Colapsa espacios raros
+      .replace(/\s+/g, ' ')
+      .replace(/\.\s*\./g, '.')
+      .trim()
   )
 }
 

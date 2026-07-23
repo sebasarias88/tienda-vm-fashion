@@ -200,9 +200,9 @@ export default function ConfigTabPanels({
               label="Meta descripción"
               value={config['seo_descripcion'] || ''}
               onChange={e => updateConfig('seo_descripcion', e.target.value)}
-              placeholder="Descripción que aparece en Google y al compartir el enlace del sitio."
+              placeholder="Belleza y cuidado capilar en Armenia. Catálogo detal con envíos a Colombia, asesoría por WhatsApp y pago con Addi o Sistecrédito."
               rows={mobile ? 4 : 3}
-              hint="Máximo recomendado: 160 caracteres"
+              hint="Máx. ~155–160 caracteres. Usa frases completas con puntos o comas (no pegues textos del banner)."
             />
             <Input
               label="Palabras clave"
