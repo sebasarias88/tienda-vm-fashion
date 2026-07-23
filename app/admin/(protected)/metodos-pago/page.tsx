@@ -93,7 +93,7 @@ export default function MetodosPagoPage() {
       setLoadError(true)
     } else {
       setConfigs((data as MetodoPagoConfig[]) || [])
-    90|      setLoadError(false)
+      setLoadError(false)
     }
     setLoading(false)
   }, [])
