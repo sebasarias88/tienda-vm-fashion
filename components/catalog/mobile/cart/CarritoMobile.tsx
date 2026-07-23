@@ -11,9 +11,13 @@ import {
   Truck,
   Package,
   Phone,
+  Info,
+  Store,
 } from 'lucide-react'
-import { ItemCarrito, DatosCliente } from '@/types'
+import { ItemCarrito, DatosCliente, MetodoPagoConfig, TipoEntrega } from '@/types'
 import { type CatalogType } from '@/lib/catalog'
+import { formatCargoLabel } from '@/lib/metodosPago'
+import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import MobileCartSteps, { type Step } from '@/components/catalog/mobile/cart/MobileCartSteps'
 import MobileCartItem, { formatPrecio } from '@/components/catalog/mobile/cart/MobileCartItem'
 import MobileCartSummary from '@/components/catalog/mobile/cart/MobileCartSummary'
@@ -55,8 +59,10 @@ type CarritoMobileProps = {
   faltaParaMinimo: number
   datos: DatosCliente
   setDatos: React.Dispatch<React.SetStateAction<DatosCliente>>
-  errores: Partial<DatosCliente>
-  setErrores: React.Dispatch<React.SetStateAction<Partial<DatosCliente>>>
+  errores: Partial<Record<keyof DatosCliente, string>>
+  setErrores: React.Dispatch<
+    React.SetStateAction<Partial<Record<keyof DatosCliente, string>>>
+  >
   config: Config
   loadingConfig: boolean
   enviando: boolean
@@ -64,6 +70,13 @@ type CarritoMobileProps = {
   envioGratis: boolean
   tiempoEntrega: string
   totalFinal: number
+  cargoAdicional: number
+  descripcionCargo: string | null
+  metodosConfig: MetodoPagoConfig[]
+  metodoPagoConfig: MetodoPagoConfig | null
+  setMetodoPagoConfig: React.Dispatch<React.SetStateAction<MetodoPagoConfig | null>>
+  esRecogida: boolean
+  seleccionarTipoEntrega: (tipo: TipoEntrega) => void
   handleContinuar: () => void
   handleConfirmar: () => void
   handleEnviarWhatsApp: () => void
@@ -121,10 +134,16 @@ export default function CarritoMobile({
   envioGratis,
   tiempoEntrega,
   totalFinal,
+  cargoAdicional,
+  descripcionCargo,
+  metodosConfig,
+  metodoPagoConfig,
+  setMetodoPagoConfig,
+  esRecogida,
+  seleccionarTipoEntrega,
   handleContinuar,
   handleConfirmar,
   handleEnviarWhatsApp,
-  inputClass,
 }: CarritoMobileProps) {
   const stickySpacer =
     step === 'resumen'
@@ -236,7 +255,7 @@ export default function CarritoMobile({
                     </div>
                   )}
                   <p className="mt-3 text-center text-[11px] font-light leading-relaxed text-[var(--text-subtle)]">
-                    El envío se calcula en el siguiente paso según tu ciudad.
+                    En el siguiente paso eliges envío a domicilio o recogida en tienda.
                   </p>
                   <Link
                     href={productosHref}
@@ -278,10 +297,10 @@ export default function CarritoMobile({
               <div className="mobile-cart-list-panel__header">
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)]">
-                    Contacto y entrega
+                    Tus datos
                   </p>
                   <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
-                    Para coordinar tu pedido
+                    Nombre y celular de contacto
                   </p>
                 </div>
               </div>
@@ -317,53 +336,205 @@ export default function CarritoMobile({
                     autoComplete="tel"
                   />
                 </CartFormField>
-
-                <CartFormField id="cart-ciudad" label="Ciudad" required error={errores.ciudad}>
-                  <input
-                    id="cart-ciudad"
-                    type="text"
-                    value={datos.ciudad}
-                    onChange={e => {
-                      setDatos(d => ({ ...d, ciudad: e.target.value }))
-                      if (errores.ciudad) setErrores(er => ({ ...er, ciudad: '' }))
-                    }}
-                    placeholder="Ej: Armenia, Bogotá..."
-                    className={checkoutInputClass}
-                    autoComplete="address-level2"
-                  />
-                </CartFormField>
-
-                {datos.ciudad.trim() ? (
-                  <div className="mobile-cart-checkout-shipping">
-                    <p className="flex items-start gap-2">
-                      <Truck size={14} className="mt-0.5 shrink-0 text-[var(--gold)]" />
-                      <span>
-                        {envioGratis
-                          ? 'Envío gratis para tu pedido'
-                          : costoEnvio === 0
-                            ? 'Envío a convenir con el negocio'
-                            : `Envío: ${formatPrecio(costoEnvio)} — ${tiempoEntrega}`}
-                      </span>
-                    </p>
-                  </div>
-                ) : null}
-
-                <CartFormField id="cart-direccion" label="Dirección" required error={errores.direccion}>
-                  <input
-                    id="cart-direccion"
-                    type="text"
-                    value={datos.direccion}
-                    onChange={e => {
-                      setDatos(d => ({ ...d, direccion: e.target.value }))
-                      if (errores.direccion) setErrores(er => ({ ...er, direccion: '' }))
-                    }}
-                    placeholder="Calle, barrio, referencias..."
-                    className={checkoutInputClass}
-                    autoComplete="street-address"
-                  />
-                </CartFormField>
               </div>
             </div>
+
+            <div className="mobile-cart-list-panel">
+              <div className="mobile-cart-list-panel__header">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)]">
+                    Tipo de entrega
+                  </p>
+                  <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
+                    ¿Envío o recoges en tienda?
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2 px-4 py-3">
+                {(
+                  [
+                    {
+                      id: 'envio' as const,
+                      icon: Truck,
+                      title: 'Envío a domicilio',
+                      desc: 'Llevamos el pedido a tu dirección',
+                    },
+                    {
+                      id: 'recogida' as const,
+                      icon: Store,
+                      title: 'Recoger en tienda',
+                      desc: 'Sin costo de envío · Armenia',
+                    },
+                  ] as const
+                ).map(opcion => {
+                  const selected = datos.tipoEntrega === opcion.id
+                  const Icon = opcion.icon
+                  return (
+                    <motion.button
+                      key={opcion.id}
+                      type="button"
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => seleccionarTipoEntrega(opcion.id)}
+                      className={`flex w-full items-start gap-3 rounded-[2px] border px-4 py-3.5 text-left transition-all ${
+                        selected
+                          ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
+                          : 'border-[var(--border-subtle)]'
+                      }`}
+                    >
+                      <Icon
+                        size={16}
+                        className={`mt-0.5 shrink-0 ${
+                          selected ? 'text-[var(--gold)]' : 'text-[var(--text-muted)]'
+                        }`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`text-[13px] font-light ${
+                            selected ? 'text-[var(--gold)]' : 'text-[var(--text-primary)]'
+                          }`}
+                        >
+                          {opcion.title}
+                        </p>
+                        <p className="mt-0.5 text-[11px] font-light text-[var(--text-subtle)]">
+                          {opcion.desc}
+                        </p>
+                      </div>
+                      {selected ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]"
+                        >
+                          <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-on-gold)]" />
+                        </motion.div>
+                      ) : null}
+                    </motion.button>
+                  )
+                })}
+                {errores.tipoEntrega ? (
+                  <p className="text-[11px] text-red-400">{errores.tipoEntrega}</p>
+                ) : null}
+              </div>
+            </div>
+
+            {datos.tipoEntrega === 'recogida' ? (
+              <div className="mobile-cart-list-panel">
+                <div className="mobile-cart-list-panel__header">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)]">
+                      Punto de recogida
+                    </p>
+                    <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
+                      Tienda física
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3 px-4 py-3">
+                  <div className="rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-3.5">
+                    <p className="text-[13px] font-light text-[var(--text-primary)]">
+                      Tienda VM Fashion
+                    </p>
+                    <p className="mt-1 text-[12px] font-light leading-relaxed text-[var(--text-muted)]">
+                      {DIRECCION_COMPLETA}
+                    </p>
+                    <p className="mt-2.5 flex items-start gap-2 text-[11px] font-light text-[var(--gold-subtle)]">
+                      <Info size={12} className="mt-0.5 shrink-0" />
+                      Sin dirección de envío. Te avisamos cuando esté listo.
+                    </p>
+                  </div>
+                  {cargoAdicional > 0 && datos.metodoPago ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                    >
+                      <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
+                      <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+                        {descripcionCargo ||
+                          `El método ${datos.metodoPago} incluye un cargo adicional de ${formatPrecio(cargoAdicional)}`}
+                      </p>
+                    </motion.div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
+            {datos.tipoEntrega === 'envio' ? (
+              <div className="mobile-cart-list-panel">
+                <div className="mobile-cart-list-panel__header">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)]">
+                      Dirección de entrega
+                    </p>
+                    <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
+                      Para calcular el envío
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mobile-cart-checkout-fields">
+                  <CartFormField id="cart-ciudad" label="Ciudad" required error={errores.ciudad}>
+                    <input
+                      id="cart-ciudad"
+                      type="text"
+                      value={datos.ciudad}
+                      onChange={e => {
+                        setDatos(d => ({ ...d, ciudad: e.target.value }))
+                        if (errores.ciudad) setErrores(er => ({ ...er, ciudad: '' }))
+                      }}
+                      placeholder="Ej: Armenia, Bogotá..."
+                      className={checkoutInputClass}
+                      autoComplete="address-level2"
+                    />
+                  </CartFormField>
+
+                  {datos.ciudad.trim() ? (
+                    <div className="mobile-cart-checkout-shipping">
+                      <p className="flex items-start gap-2">
+                        <Truck size={14} className="mt-0.5 shrink-0 text-[var(--gold)]" />
+                        <span>
+                          {envioGratis
+                            ? 'Envío gratis para tu pedido'
+                            : costoEnvio === 0
+                              ? 'Envío a convenir con el negocio'
+                              : `Envío: ${formatPrecio(costoEnvio)} — ${tiempoEntrega}`}
+                        </span>
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {cargoAdicional > 0 && datos.metodoPago ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                    >
+                      <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
+                      <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
+                        {descripcionCargo ||
+                          `El método ${datos.metodoPago} incluye un cargo adicional de ${formatPrecio(cargoAdicional)}`}
+                      </p>
+                    </motion.div>
+                  ) : null}
+
+                  <CartFormField id="cart-direccion" label="Dirección" required error={errores.direccion}>
+                    <input
+                      id="cart-direccion"
+                      type="text"
+                      value={datos.direccion}
+                      onChange={e => {
+                        setDatos(d => ({ ...d, direccion: e.target.value }))
+                        if (errores.direccion) setErrores(er => ({ ...er, direccion: '' }))
+                      }}
+                      placeholder="Calle, barrio, referencias..."
+                      className={checkoutInputClass}
+                      autoComplete="street-address"
+                    />
+                  </CartFormField>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mobile-cart-list-panel">
               <div className="mobile-cart-list-panel__header">
@@ -384,33 +555,63 @@ export default function CarritoMobile({
                   ))}
                 </div>
               ) : (
-                <div className="mobile-cart-pay-rows">
-                  {config.metodos_pago.map(metodo => (
-                    <button
-                      key={metodo}
-                      type="button"
-                      onClick={() => {
-                        setDatos(d => ({ ...d, metodoPago: metodo }))
-                        if (errores.metodoPago) setErrores(er => ({ ...er, metodoPago: '' }))
-                      }}
-                      className={`mobile-cart-pay-option${
-                        datos.metodoPago === metodo ? ' mobile-cart-pay-option--active' : ''
-                      }`}
-                    >
-                      <span className="text-[14px] font-medium">{metodo}</span>
-                      <span
-                        className={`mobile-cart-pay-radio flex h-5 w-5 items-center justify-center rounded-full border ${
-                          datos.metodoPago === metodo
-                            ? 'border-[var(--gold)] bg-[var(--gold)]'
-                            : 'border-[var(--border-input)] bg-[var(--bg-card)]'
+                <div className="space-y-2 px-4 py-3">
+                  {metodosConfig.map(metodo => {
+                    const isSelected = datos.metodoPago === metodo.nombre
+                    const tieneCargoExtra =
+                      metodo.porcentaje_adicional > 0 || metodo.monto_adicional_fijo > 0
+
+                    return (
+                      <motion.button
+                        key={metodo.id}
+                        type="button"
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => {
+                          setDatos(d => ({ ...d, metodoPago: metodo.nombre }))
+                          setMetodoPagoConfig(tieneCargoExtra ? metodo : null)
+                          if (errores.metodoPago) {
+                            setErrores(e => ({ ...e, metodoPago: '' }))
+                          }
+                        }}
+                        className={`flex w-full items-center justify-between rounded-[2px] border px-4 py-3.5 text-left transition-all ${
+                          isSelected
+                            ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
+                            : 'border-[var(--border-subtle)] hover:border-[rgba(201,168,76,0.2)]'
                         }`}
                       >
-                        {datos.metodoPago === metodo ? (
-                          <span className="h-2 w-2 rounded-full bg-[var(--text-on-gold)]" />
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`text-[13px] font-light ${
+                              isSelected ? 'text-[var(--gold)]' : 'text-[var(--text-secondary)]'
+                            }`}
+                          >
+                            {metodo.nombre}
+                          </p>
+                          {tieneCargoExtra ? (
+                            <p
+                              className={`mt-0.5 text-[10px] font-light ${
+                                isSelected
+                                  ? 'text-[var(--gold-subtle)]'
+                                  : 'text-[var(--text-faint)]'
+                              }`}
+                            >
+                              {metodo.descripcion_cliente || formatCargoLabel(metodo)}
+                            </p>
+                          ) : null}
+                        </div>
+
+                        {isSelected ? (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="ml-3 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]"
+                          >
+                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--text-on-gold)]" />
+                          </motion.div>
                         ) : null}
-                      </span>
-                    </button>
-                  ))}
+                      </motion.button>
+                    )
+                  })}
                 </div>
               )}
 
@@ -435,8 +636,10 @@ export default function CarritoMobile({
             <div className={stickySpacer} aria-hidden />
 
             <MobileCartStickyBar
-              totalLabel="Subtotal"
-              totalValue={formatPrecio(subtotal)}
+              totalLabel={cargoAdicional > 0 ? 'Total parcial' : 'Subtotal'}
+              totalValue={formatPrecio(
+                cargoAdicional > 0 ? subtotal + cargoAdicional : subtotal,
+              )}
               primaryLabel="Revisar pedido"
               onPrimary={handleConfirmar}
               secondaryLabel="Volver"
@@ -513,8 +716,17 @@ export default function CarritoMobile({
                 {[
                   { label: 'Nombre', value: datos.nombre, icon: User },
                   { label: 'Celular', value: datos.celular, icon: Phone },
-                  { label: 'Ciudad', value: datos.ciudad, icon: MapPin },
-                  { label: 'Dirección', value: datos.direccion, icon: Truck },
+                  {
+                    label: 'Entrega',
+                    value: esRecogida ? 'Recoger en tienda' : 'Envío a domicilio',
+                    icon: esRecogida ? Store : Truck,
+                  },
+                  ...(esRecogida
+                    ? [{ label: 'Tienda', value: DIRECCION_COMPLETA, icon: MapPin }]
+                    : [
+                        { label: 'Ciudad', value: datos.ciudad, icon: MapPin },
+                        { label: 'Dirección', value: datos.direccion, icon: Truck },
+                      ]),
                   { label: 'Pago', value: datos.metodoPago, icon: CreditCard },
                   ...(datos.notas ? [{ label: 'Notas', value: datos.notas, icon: FileText }] : []),
                 ].map(({ label, value, icon: Icon }) => (
@@ -543,6 +755,10 @@ export default function CarritoMobile({
               envioGratis={envioGratis}
               showEnvio
               compact
+              esRecogida={esRecogida}
+              cargoAdicional={cargoAdicional}
+              metodoPago={datos.metodoPago}
+              porcentajeAdicional={metodoPagoConfig?.porcentaje_adicional || 0}
             />
 
             <p className="text-center text-[11px] leading-relaxed text-[var(--text-subtle)]">

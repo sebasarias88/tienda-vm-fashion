@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import { X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { Producto, Categoria } from '@/types'
+import { Producto, Categoria, VideoTipo } from '@/types'
 import { Input, Textarea } from '@/components/ui/Input'
 import { AdminMultiSelect } from '@/components/ui/AdminSelect'
 import { CopInput } from '@/components/ui/CopInput'
@@ -12,6 +13,7 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
 import SeccionesEditor from '@/components/admin/SeccionesEditor'
 import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
+import VideoEmbed, { detectarVideoTipo } from '@/components/catalog/VideoEmbed'
 import toast from 'react-hot-toast'
 
 type ProductFormProps = {
@@ -56,6 +58,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     disponible_mayoreo: true,
     destacado: false,
     imagenes: [] as string[],
+    video_url: '',
+    video_tipo: '' as '' | VideoTipo,
     sku: '',
     marca: '',
     orden: 0,
@@ -84,6 +88,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         disponible_mayoreo: producto.disponible_mayoreo ?? producto.disponible,
         destacado: producto.destacado,
         imagenes: producto.imagenes || [],
+        video_url: producto.video_url || '',
+        video_tipo: producto.video_tipo || '',
         sku: producto.sku || '',
         marca: producto.marca || '',
         orden: producto.orden,
@@ -169,6 +175,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       destacado: form.destacado,
       categoria_id: mainCatId,
       imagenes: form.imagenes,
+      video_url: form.video_url.trim() || null,
+      video_tipo: form.video_tipo || null,
       sku: form.sku.trim() || null,
       marca: form.marca.trim() || null,
       orden: form.orden,
@@ -242,6 +250,58 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           imagenes={form.imagenes}
           onChange={imgs => setForm(f => ({ ...f, imagenes: imgs }))}
         />
+      </FormSection>
+
+      <FormSection title="Video">
+        <div className="space-y-3">
+          <label className="admin-form-label">Video del producto (opcional)</label>
+
+          <div className="relative">
+            <input
+              type="url"
+              value={form.video_url}
+              onChange={e => {
+                const url = e.target.value
+                setForm(f => ({
+                  ...f,
+                  video_url: url,
+                  video_tipo: url.trim() ? detectarVideoTipo(url.trim()) : '',
+                }))
+              }}
+              placeholder="https://www.tiktok.com/@usuario/video/..."
+              className="admin-input w-full rounded-xl border px-4 py-3 pr-24 text-[13px] transition-[border-color,box-shadow,background-color] duration-200 md:rounded-[2px]"
+            />
+            {form.video_tipo && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded-[2px] border border-[color-mix(in_srgb,var(--gold)_20%,var(--border))] bg-[color-mix(in_srgb,var(--gold)_10%,transparent)] px-2 py-1 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--gold)]">
+                {form.video_tipo}
+              </span>
+            )}
+          </div>
+
+          <p className="admin-form-hint">
+            Pega el link del video de TikTok, YouTube o Instagram. Se mostrará al final de las
+            imágenes del producto.
+          </p>
+
+          {form.video_url && form.video_tipo && (
+            <div className="overflow-hidden rounded-[2px] border border-[color-mix(in_srgb,var(--gold)_15%,var(--border))] bg-[rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between border-b border-[color-mix(in_srgb,var(--gold)_8%,var(--border))] px-3 py-2">
+                <span className="text-[10px] font-light uppercase tracking-[1px] text-[var(--text-subtle)]">
+                  Vista previa
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, video_url: '', video_tipo: '' }))}
+                  className="text-[var(--text-faint)] transition-colors hover:text-red-400"
+                  aria-label="Quitar video"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+              <VideoEmbed url={form.video_url} tipo={form.video_tipo} compact />
+            </div>
+          )}
+        </div>
       </FormSection>
 
       <FormSection title="Información">

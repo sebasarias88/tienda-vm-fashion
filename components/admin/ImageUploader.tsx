@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { ImageIcon, X, Loader2, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+const MAX_IMAGENES = 10
+
 type ImageUploaderProps = {
   imagenes: string[]
   onChange: (imagenes: string[]) => void
@@ -32,8 +34,8 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
   const handleFiles = async (files: FileList | File[]) => {
     const arr = Array.from(files).filter(f => f.type.startsWith('image/'))
     if (!arr.length) return
-    if (imagenes.length + arr.length > 6) {
-      toast.error('Máximo 6 imágenes por producto')
+    if (imagenes.length + arr.length > MAX_IMAGENES) {
+      toast.error(`Máximo ${MAX_IMAGENES} imágenes por producto`)
       return
     }
 
@@ -81,7 +83,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
       <label className="admin-form-label">
         Imágenes del producto
         <span className="ml-2 normal-case tracking-normal text-[var(--text-subtle)]">
-          ({imagenes.length}/6)
+          ({imagenes.length}/{MAX_IMAGENES})
         </span>
       </label>
 
@@ -134,7 +136,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
           </div>
         )}
 
-        {imagenes.length < 6 && (
+        {imagenes.length < MAX_IMAGENES && (
           <label
             onDragOver={e => {
               e.preventDefault()

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | Tienda VM Fashion',
   },
   description:
-    'Catálogo detal de belleza y cuidado capilar en Carrera 15 #19-25 Local 8, Armenia, Quindío. Envíos a toda Colombia.',
+    'Belleza y cuidado capilar en Armenia, Quindío. Catálogo detal con envíos a todo Colombia, asesoría por WhatsApp y pago fácil con Addi o Sistecrédito.',
   keywords: [
     'belleza',
     'cuidado capilar',

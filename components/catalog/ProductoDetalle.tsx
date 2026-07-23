@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
@@ -11,6 +11,7 @@ import {
   Plus,
   Minus,
   ChevronLeft,
+  ChevronRight,
   ChevronDown,
   ZoomIn,
   Check,
@@ -21,6 +22,7 @@ import {
   MessageCircle,
   CreditCard,
   X,
+  Play,
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
@@ -32,6 +34,7 @@ import {
 import ProductoPrecio from '@/components/catalog/ProductoPrecio'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
+import VideoEmbed from '@/components/catalog/VideoEmbed'
 
 const ENVIO_INFO = [
   { icon: Package, text: 'Envío en Armenia el mismo día' },
@@ -111,7 +114,9 @@ export default function ProductoDetalle({
   const agregar = useCarrito(s => s.agregar)
   const items = useCarrito(s => s.items)
 
-  const [imagenActiva, setImagenActiva] = useState(0)
+  const [imagenActiva, setImagenActiva] = useState(() =>
+    (producto.imagenes?.length ?? 0) > 0 ? 0 : producto.video_url ? -1 : 0,
+  )
   const [cantidad, setCantidad] = useState(1)
   const [zoomOpen, setZoomOpen] = useState(false)
   const [agregado, setAgregado] = useState(false)
@@ -119,6 +124,9 @@ export default function ProductoDetalle({
   const [selectedVariaciones, setSelectedVariaciones] = useState<Record<string, string[]>>({})
 
   const tieneVariaciones = variaciones.length > 0
+  const imagenes = producto.imagenes?.length ? producto.imagenes : []
+  const hasVideo = Boolean(producto.video_url && producto.video_tipo)
+  const showingVideo = imagenActiva === -1 && hasVideo
 
   const toggleOpcion = (tipoId: string, opcionId: string) => {
     setSelectedVariaciones(prev => {
@@ -142,7 +150,6 @@ export default function ProductoDetalle({
     const key = i.lineKey ?? getLineKey(i.producto.id, i.variacionesSeleccionadas)
     return key === lineKeyActual
   })
-  const imagenes = producto.imagenes?.length ? producto.imagenes : []
 
   const handleAgregar = () => {
     if (!producto.disponible) return
@@ -180,6 +187,46 @@ export default function ProductoDetalle({
       toast.success('Enlace copiado')
     }
   }
+
+  const zoomImageIndex = imagenActiva >= 0 ? imagenActiva : 0
+  const canNavigateZoom = imagenes.length > 1
+
+  const zoomPrev = useCallback(() => {
+    if (imagenes.length <= 1) return
+    setImagenActiva(i => {
+      const current = i >= 0 ? i : 0
+      return current <= 0 ? imagenes.length - 1 : current - 1
+    })
+  }, [imagenes.length])
+
+  const zoomNext = useCallback(() => {
+    if (imagenes.length <= 1) return
+    setImagenActiva(i => {
+      const current = i >= 0 ? i : 0
+      return current >= imagenes.length - 1 ? 0 : current + 1
+    })
+  }, [imagenes.length])
+
+  useEffect(() => {
+    if (!zoomOpen) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setZoomOpen(false)
+        return
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        zoomPrev()
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        zoomNext()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [zoomOpen, zoomPrev, zoomNext])
 
   const precios = getProductoPrecios(producto, catalogType)
   const descuento =
@@ -246,10 +293,25 @@ export default function ProductoDetalle({
             className="space-y-4"
           >
             <div
-              className="group relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-[var(--bg-surface)]"
-              onClick={() => imagenes.length && setZoomOpen(true)}
+              className={`group relative aspect-[3/4] overflow-hidden bg-[var(--bg-surface)] ${
+                showingVideo ? 'cursor-default' : 'cursor-zoom-in'
+              }`}
+              onClick={() => {
+                if (!showingVideo && imagenes.length) setZoomOpen(true)
+              }}
             >
-              {imagenes.length > 0 ? (
+              {showingVideo ? (
+                <div
+                  className="absolute inset-0 overflow-hidden bg-white"
+                  style={{ WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)' }}
+                >
+                  <VideoEmbed
+                    url={producto.video_url!}
+                    tipo={producto.video_tipo!}
+                    fill
+                  />
+                </div>
+              ) : imagenes.length > 0 ? (
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={imagenActiva}
@@ -268,14 +330,18 @@ export default function ProductoDetalle({
                 </div>
               )}
 
-              {imagenes.length > 0 && (
+              {!showingVideo && imagenes.length > 0 && (
                 <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-[var(--bg-overlay)] px-2.5 py-1.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--text-primary)] opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                   <ZoomIn size={12} className="text-[var(--gold)]" />
                   Ampliar
                 </div>
               )}
 
-              <div className="absolute left-4 top-4 flex flex-col gap-2">
+              <div
+                className={`absolute left-4 top-4 flex flex-col gap-2 ${
+                  showingVideo ? 'pointer-events-none' : ''
+                }`}
+              >
                 {!producto.disponible && (
                   <span className="rounded-lg bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-primary)] backdrop-blur-sm md:rounded-[2px]">
                     Agotado
@@ -289,7 +355,7 @@ export default function ProductoDetalle({
               </div>
             </div>
 
-            {imagenes.length > 1 && (
+            {(imagenes.length > 1 || hasVideo) && (
               <div className="flex gap-3 overflow-x-auto overscroll-x-contain scrollbar-hide pb-0.5">
                 {imagenes.map((url, i) => (
                   <button
@@ -306,6 +372,23 @@ export default function ProductoDetalle({
                     )}
                   </button>
                 ))}
+                {hasVideo && (
+                  <button
+                    type="button"
+                    onClick={() => setImagenActiva(-1)}
+                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 border bg-[var(--bg-muted)] transition-all duration-200 ${
+                      showingVideo
+                        ? 'border-[var(--gold)] opacity-100'
+                        : 'border-[var(--border-subtle)] opacity-50 hover:opacity-80'
+                    }`}
+                    aria-label="Ver video del producto"
+                  >
+                    <Play size={16} className="text-[var(--gold)]" />
+                    <span className="text-[7px] uppercase tracking-[1px] text-[var(--text-subtle)]">
+                      Video
+                    </span>
+                  </button>
+                )}
               </div>
             )}
           </motion.div>
@@ -578,32 +661,87 @@ export default function ProductoDetalle({
 
       {/* Modal zoom */}
       <AnimatePresence>
-        {zoomOpen && imagenes.length > 0 && (
+        {zoomOpen && !showingVideo && imagenes.length > 0 && imagenActiva >= 0 && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-6 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md sm:p-6"
             data-lenis-prevent
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setZoomOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Imagen ampliada"
           >
-            <motion.img
-              src={imagenes[imagenActiva]}
-              alt={producto.nombre}
-              className="max-h-full max-w-full rounded-lg object-contain md:rounded-[2px]"
-              initial={{ scale: 0.94, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.94, opacity: 0 }}
-              onClick={e => e.stopPropagation()}
-            />
             <button
               type="button"
               onClick={() => setZoomOpen(false)}
-              className="absolute right-5 top-5 rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] md:rounded-[2px]"
+              className="absolute right-4 top-4 z-20 rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] md:right-5 md:top-5 md:rounded-[2px]"
               aria-label="Cerrar"
             >
               <X size={20} />
             </button>
+
+            {canNavigateZoom && (
+              <>
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation()
+                    zoomPrev()
+                  }}
+                  className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white backdrop-blur-sm transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)] sm:left-4 sm:h-12 sm:w-12"
+                  aria-label="Imagen anterior"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation()
+                    zoomNext()
+                  }}
+                  className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white backdrop-blur-sm transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)] sm:right-4 sm:h-12 sm:w-12"
+                  aria-label="Imagen siguiente"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              </>
+            )}
+
+            <div
+              className="relative flex w-full max-w-[min(100vw-2rem,560px)] flex-col items-center gap-4 sm:max-w-[min(100vw-6rem,640px)]"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-black/40">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={zoomImageIndex}
+                    src={imagenes[zoomImageIndex]}
+                    alt={`${producto.nombre} — imagen ${zoomImageIndex + 1}`}
+                    className="absolute inset-0 h-full w-full object-contain"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    drag={canNavigateZoom ? 'x' : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.12}
+                    onDragEnd={(_, info) => {
+                      if (!canNavigateZoom) return
+                      if (info.offset.x < -60 || info.velocity.x < -400) zoomNext()
+                      else if (info.offset.x > 60 || info.velocity.x > 400) zoomPrev()
+                    }}
+                  />
+                </AnimatePresence>
+              </div>
+
+              {canNavigateZoom && (
+                <p className="text-[11px] font-light uppercase tracking-[2px] text-white/55">
+                  {zoomImageIndex + 1} / {imagenes.length}
+                </p>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

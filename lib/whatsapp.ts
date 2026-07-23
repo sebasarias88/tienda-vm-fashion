@@ -1,6 +1,7 @@
 import { ItemCarrito, DatosCliente } from '@/types'
 import { formatVariacionesResumen } from '@/lib/cart'
 import { getProductoPrecios, type CatalogType } from '@/lib/catalog'
+import { DIRECCION_COMPLETA } from '@/lib/negocio'
 
 export type WhatsAppConsultaContext = 'flotante' | 'nosotros' | 'footer'
 
@@ -58,6 +59,7 @@ export function generarMensajeWhatsApp(
   costoEnvio: number,
   tiempoEntrega: string,
   catalogType: CatalogType = 'detal',
+  cargoAdicional = 0,
 ): string {
   const subtotal = items.reduce((acc, item) => {
     const unitario = precioUnitarioItem(item, catalogType)
@@ -65,7 +67,8 @@ export function generarMensajeWhatsApp(
     return acc + unitario * item.cantidad
   }, 0)
 
-  const total = subtotal + costoEnvio
+  const esRecogida = cliente.tipoEntrega === 'recogida'
+  const total = subtotal + (esRecogida ? 0 : costoEnvio) + cargoAdicional
 
   const productosLineas = items
     .map((item) => {
@@ -91,19 +94,32 @@ export function generarMensajeWhatsApp(
     })
     .join('\n')
 
-  const envioTexto =
-    costoEnvio === 0 ? 'A convenir' : formatPrecio(costoEnvio)
+  const cargoLinea =
+    cargoAdicional > 0
+      ? `\nCargo ${cliente.metodoPago}: +${formatPrecio(cargoAdicional)}`
+      : ''
 
   const encabezadoMayoreo =
     catalogType === 'mayoreo' ? '📦 *Pedido Mayorista*\n\n' : ''
+
+  const datosEntrega = esRecogida
+    ? `🏪 *Entrega:* Recoger en tienda
+📍 *Tienda:* ${DIRECCION_COMPLETA}`
+    : `📍 *Dirección:* ${cliente.direccion}
+🏙️ *Ciudad:* ${cliente.ciudad}`
+
+  const resumenEnvio = esRecogida
+    ? `Entrega: Recoger en tienda (sin costo de envío)${cargoLinea}
+⏱️ Disponibilidad: ${tiempoEntrega}`
+    : `Envío: ${costoEnvio === 0 ? 'A convenir' : formatPrecio(costoEnvio)}${cargoLinea}
+⏱️ Entrega: ${tiempoEntrega}`
 
   const mensaje = `${encabezadoMayoreo}✨ *Nuevo Pedido — Tienda VM Fashion*
 
 👤 *Datos del cliente*
 Nombre: ${cliente.nombre}
 Celular: ${cliente.celular}
-Dirección: ${cliente.direccion}
-Ciudad: ${cliente.ciudad}
+${datosEntrega}
 
 💳 *Método de pago:* ${cliente.metodoPago}${cliente.notas ? `\n📝 *Notas:* ${cliente.notas}` : ''}
 
@@ -112,8 +128,7 @@ ${productosLineas}
 
 📦 *Resumen*
 Subtotal: ${formatPrecio(subtotal)}
-Envío: ${envioTexto}
-⏱️ Entrega: ${tiempoEntrega}
+${resumenEnvio}
 
 *TOTAL: ${formatPrecio(total)}* 💰
 
