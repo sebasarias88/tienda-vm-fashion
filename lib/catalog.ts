@@ -6,6 +6,12 @@ export type CatalogType = 'detal' | 'mayoreo'
 /** Monto mínimo de compra para el catálogo mayorista (COP). */
 export const MAYOREO_MIN_COMPRA = 200000
 
+/**
+ * Si es false, se muestra el aviso de mínimo pero no se bloquea el checkout.
+ * Volver a true cuando el cliente quiera exigir el mínimo otra vez.
+ */
+export const MAYOREO_MIN_COMPRA_ENFORCED = false
+
 /** Monto de recompra mayorista (COP) — informado en la barra superior. */
 export const MAYOREO_RECOMPRA = 100000
 
