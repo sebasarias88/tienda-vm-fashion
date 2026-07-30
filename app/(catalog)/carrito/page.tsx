@@ -15,7 +15,12 @@ import {
   variacionesCarritoClassName,
 } from '@/lib/cart'
 import { parseCopValue } from '@/lib/currency'
-import { catalogPath, MAYOREO_MIN_COMPRA, type CatalogType } from '@/lib/catalog'
+import {
+  catalogPath,
+  MAYOREO_MIN_COMPRA,
+  MAYOREO_MIN_COMPRA_ENFORCED,
+  type CatalogType,
+} from '@/lib/catalog'
 import {
   calcularCargoMetodoPago,
   formatCargoLabel,
@@ -430,6 +435,9 @@ export default function CarritoPage() {
   const minimoMayoreo = catalogType === 'mayoreo' ? MAYOREO_MIN_COMPRA : 0
   const cumpleMinimo = subtotal >= minimoMayoreo
   const faltaParaMinimo = Math.max(0, minimoMayoreo - subtotal)
+  /** Aviso sí; bloqueo solo si MAYOREO_MIN_COMPRA_ENFORCED está activo. */
+  const bloquearPorMinimo =
+    catalogType === 'mayoreo' && MAYOREO_MIN_COMPRA_ENFORCED && !cumpleMinimo
 
   const seleccionarTipoEntrega = (tipo: TipoEntrega) => {
     setDatos(d => ({
@@ -466,7 +474,7 @@ export default function CarritoPage() {
       toast.error('Tu carrito está vacío')
       return
     }
-    if (catalogType === 'mayoreo' && !cumpleMinimo) {
+    if (bloquearPorMinimo) {
       toast.error(
         `La compra mínima mayorista es ${formatPrecio(minimoMayoreo)}`,
       )
@@ -536,6 +544,7 @@ export default function CarritoPage() {
           minimoMayoreo={minimoMayoreo}
           cumpleMinimo={cumpleMinimo}
           faltaParaMinimo={faltaParaMinimo}
+          bloquearPorMinimo={bloquearPorMinimo}
           datos={datos}
           setDatos={setDatos}
           errores={errores}
@@ -766,13 +775,11 @@ export default function CarritoPage() {
                   </p>
                   <motion.button
                     type="button"
-                    whileTap={catalogType === 'mayoreo' && !cumpleMinimo ? undefined : { scale: 0.98 }}
+                    whileTap={bloquearPorMinimo ? undefined : { scale: 0.98 }}
                     onClick={handleContinuar}
-                    disabled={catalogType === 'mayoreo' && !cumpleMinimo}
+                    disabled={bloquearPorMinimo}
                     className={`catalog-gold-cta flex w-full items-center justify-center gap-2 rounded-[2px] py-4 text-[11px] font-medium uppercase tracking-[2.5px] ${
-                      catalogType === 'mayoreo' && !cumpleMinimo
-                        ? 'cursor-not-allowed opacity-50'
-                        : ''
+                      bloquearPorMinimo ? 'cursor-not-allowed opacity-50' : ''
                     }`}
                   >
                     Continuar

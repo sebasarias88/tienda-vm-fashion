@@ -57,6 +57,7 @@ type CarritoMobileProps = {
   minimoMayoreo: number
   cumpleMinimo: boolean
   faltaParaMinimo: number
+  bloquearPorMinimo: boolean
   datos: DatosCliente
   setDatos: React.Dispatch<React.SetStateAction<DatosCliente>>
   errores: Partial<Record<keyof DatosCliente, string>>
@@ -123,6 +124,7 @@ export default function CarritoMobile({
   minimoMayoreo,
   cumpleMinimo,
   faltaParaMinimo,
+  bloquearPorMinimo,
   datos,
   setDatos,
   errores,
@@ -272,7 +274,7 @@ export default function CarritoMobile({
                   totalValue={formatPrecio(subtotal)}
                   primaryLabel="Continuar"
                   onPrimary={handleContinuar}
-                  primaryDisabled={catalogType === 'mayoreo' && !cumpleMinimo}
+                  primaryDisabled={bloquearPorMinimo}
                   hint={
                     catalogType === 'mayoreo' && !cumpleMinimo
                       ? `Mínimo ${formatPrecio(minimoMayoreo)} — faltan ${formatPrecio(faltaParaMinimo)}`
