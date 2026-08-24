@@ -160,21 +160,18 @@ export default function ProductosPage() {
     campo: 'disponible_detal' | 'disponible_mayoreo',
   ) => {
     const nuevoValor = !p[campo]
-    const detal = campo === 'disponible_detal' ? nuevoValor : p.disponible_detal
-    const mayoreo = campo === 'disponible_mayoreo' ? nuevoValor : p.disponible_mayoreo
 
     const { error } = await supabase
       .from('productos')
       .update({
         [campo]: nuevoValor,
-        disponible: detal || mayoreo,
       })
       .eq('id', p.id)
 
     if (error) toast.error('Error al actualizar')
     else {
       const etiqueta = campo === 'disponible_detal' ? 'Detal' : 'Mayorista'
-      toast.success(`${etiqueta} ${nuevoValor ? 'activado' : 'desactivado'}`)
+      toast.success(`${etiqueta} ${nuevoValor ? 'disponible' : 'agotado'}`)
       fetchProductos()
     }
   }
@@ -253,8 +250,7 @@ export default function ProductosPage() {
         />
       ) : (
       <AdminTable
-        minWidth="1040px"
-        fixed
+        minWidth="1180px"
         footer={
           <AdminTablePagination
             page={currentPage}
@@ -267,13 +263,13 @@ export default function ProductosPage() {
         <AdminTableHead>
           <AdminTableHeaderRow>
             <AdminTableTh className="w-[7rem]">Imagen</AdminTableTh>
-            <AdminTableTh className="w-[22%]">Producto</AdminTableTh>
-            <AdminTableTh className="w-[10%]">Marca</AdminTableTh>
-            <AdminTableTh className="w-[18%]">Categoría</AdminTableTh>
-            <AdminTableTh className="w-[7.5rem]">Precio detal</AdminTableTh>
-            <AdminTableTh className="w-[7.5rem]">Precio mayorista</AdminTableTh>
-            <AdminTableTh className="w-[7.5rem]">Estado</AdminTableTh>
-            <AdminTableTh className="w-[7.5rem]">Destacado</AdminTableTh>
+            <AdminTableTh>Producto</AdminTableTh>
+            <AdminTableTh>Marca</AdminTableTh>
+            <AdminTableTh>Categoría</AdminTableTh>
+            <AdminTableTh>Precio detal</AdminTableTh>
+            <AdminTableTh>Precio mayorista</AdminTableTh>
+            <AdminTableTh>Estado</AdminTableTh>
+            <AdminTableTh>Destacado</AdminTableTh>
             <AdminTableTh className="w-[5.5rem] text-center">Acciones</AdminTableTh>
           </AdminTableHeaderRow>
         </AdminTableHead>
@@ -312,14 +308,14 @@ export default function ProductosPage() {
                   <AdminTableImage src={p.imagenes?.[0]} alt={p.nombre} />
                 </AdminTableTd>
 
-                <AdminTableTd className="max-w-0">
+                <AdminTableTd className="min-w-[12rem] max-w-[16rem]">
                   <AdminTablePrimary
                     title={p.nombre}
                     subtitle={p.sku ? `SKU · ${p.sku}` : undefined}
                   />
                 </AdminTableTd>
 
-                <AdminTableTd className="max-w-0">
+                <AdminTableTd className="min-w-[7rem] max-w-[10rem]">
                   {p.marca ? (
                     <span className="truncate text-[12px] font-light text-[var(--text-secondary)]">
                       {p.marca}
@@ -329,7 +325,7 @@ export default function ProductosPage() {
                   )}
                 </AdminTableTd>
 
-                <AdminTableTd className="max-w-0">
+                <AdminTableTd className="min-w-[11rem] max-w-[14rem]">
                   {p.categoria ? (
                     <AdminTableCategory
                       name={p.categoria.nombre}
@@ -340,7 +336,7 @@ export default function ProductosPage() {
                   )}
                 </AdminTableTd>
 
-                <AdminTableTd>
+                <AdminTableTd className="whitespace-nowrap">
                   <AdminTablePrice
                     value={formatPrecio(p.precio)}
                     previous={p.precio_antes ? formatPrecio(p.precio_antes) : null}
@@ -348,7 +344,7 @@ export default function ProductosPage() {
                   />
                 </AdminTableTd>
 
-                <AdminTableTd>
+                <AdminTableTd className="whitespace-nowrap">
                   {p.precio_mayoreo != null ? (
                     <AdminTablePrice
                       value={formatPrecio(p.precio_mayoreo)}
@@ -362,7 +358,7 @@ export default function ProductosPage() {
                   )}
                 </AdminTableTd>
 
-                <AdminTableTd>
+                <AdminTableTd className="min-w-[8.5rem]">
                   <div className="flex flex-col gap-1.5">
                     <CatalogToggle
                       label="Detal"
@@ -379,7 +375,7 @@ export default function ProductosPage() {
                   </div>
                 </AdminTableTd>
 
-                <AdminTableTd>
+                <AdminTableTd className="whitespace-nowrap">
                   {p.destacado ? (
                     <AdminTableStatus
                       label="Destacado"
@@ -566,7 +562,11 @@ function CatalogToggle({
     <button
       type="button"
       onClick={onClick}
-      title={active ? `Visible en ${label.toLowerCase()} — click para ocultar` : `Oculto en ${label.toLowerCase()} — click para mostrar`}
+      title={
+        active
+          ? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
+          : `Agotado en ${label.toLowerCase()} — click para habilitar venta`
+      }
       aria-pressed={active}
       className={`inline-flex w-[5rem] items-center justify-center rounded-full border px-2.5 py-1 text-[10px] font-light uppercase tracking-[1.2px] transition-all duration-200 ${
         active

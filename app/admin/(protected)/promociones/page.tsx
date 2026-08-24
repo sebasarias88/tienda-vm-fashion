@@ -313,7 +313,7 @@ export default function PromocionesPage() {
           </Button>
         </div>
       ) : (
-        <AdminTable minWidth="920px">
+        <AdminTable minWidth="980px">
           <AdminTableHead>
             <AdminTableHeaderRow>
               <AdminTableTh className="w-16">#</AdminTableTh>

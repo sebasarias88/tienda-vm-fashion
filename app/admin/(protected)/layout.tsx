@@ -17,7 +17,7 @@ export default async function AdminProtectedLayout({
     <div className="admin-shell min-h-screen bg-[var(--bg-base)]">
       <AdminSidebar />
       <MobileAdminShell>
-        <main className="min-h-screen md:ml-64 max-md:pt-[calc(5.25rem+1.25rem+env(safe-area-inset-top,0px))]">
+        <main className="min-h-screen min-w-0 overflow-x-hidden md:ml-64 max-md:pt-[calc(5.25rem+1.25rem+env(safe-area-inset-top,0px))]">
           {children}
         </main>
       </MobileAdminShell>

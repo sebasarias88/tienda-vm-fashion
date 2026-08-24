@@ -5,6 +5,7 @@ import { buildMetadata } from '@/lib/seo'
 import { catalogPath } from '@/lib/catalog'
 import { getSiteConfig, getSiteName } from '@/lib/site-config'
 import { withProductoCategorias } from '@/lib/producto-categorias'
+import { PRODUCTO_VARIACIONES_SELECT, withProductoVariaciones } from '@/lib/variaciones'
 import type { Categoria, Producto } from '@/types'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 
@@ -67,9 +68,8 @@ export default async function MayoreoProductosPage({
       supabase
         .from('productos')
         .select(
-          '*, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo))',
+          `*, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)), ${PRODUCTO_VARIACIONES_SELECT}`,
         )
-        .eq('disponible_mayoreo', true)
         .order('orden', { ascending: true })
         .order('created_at', { ascending: false }),
     ])
@@ -87,7 +87,7 @@ export default async function MayoreoProductosPage({
 
   return (
     <ProductosClient
-      productos={withProductoCategorias(productos)}
+      productos={withProductoVariaciones(withProductoCategorias(productos))}
       categorias={categorias}
       initialQ={q || ''}
       initialCategoria={categoria || ''}

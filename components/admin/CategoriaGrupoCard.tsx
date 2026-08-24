@@ -107,7 +107,7 @@ export default function CategoriaGrupoCard({
       className="group overflow-hidden rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[rgba(201,168,76,0.4)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
     >
       {/* Cabecera — categoría principal */}
-      <div className="relative flex items-center gap-3 bg-gradient-to-r from-[rgba(201,168,76,0.06)] to-transparent p-3.5 sm:gap-4 sm:p-4">
+      <div className="relative flex min-w-0 items-center gap-3 overflow-x-auto bg-gradient-to-r from-[rgba(201,168,76,0.06)] to-transparent p-3.5 sm:gap-4 sm:p-4">
         <span className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-[var(--gold-bright)] via-[var(--gold)] to-[rgba(201,168,76,0.1)]" />
 
         <Thumb
@@ -117,7 +117,7 @@ export default function CategoriaGrupoCard({
           fallback={<FolderTree size={20} />}
         />
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-[10rem] flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="truncate text-[15px] font-medium tracking-[0.2px] text-[var(--text-primary)]">
               {root.nombre}
@@ -163,7 +163,7 @@ export default function CategoriaGrupoCard({
           {subsVisibles.map(sub => (
             <div
               key={sub.id}
-              className="group/sub relative flex items-center gap-3 border-b border-[var(--border-card)] py-2.5 pl-6 pr-3.5 transition-colors last:border-b-0 hover:bg-[rgba(201,168,76,0.05)] sm:pl-9 sm:pr-4"
+              className="group/sub relative flex min-w-0 items-center gap-3 overflow-x-auto border-b border-[var(--border-card)] py-2.5 pl-6 pr-3.5 transition-colors last:border-b-0 hover:bg-[rgba(201,168,76,0.05)] sm:pl-9 sm:pr-4"
             >
               <CornerDownRight
                 size={14}

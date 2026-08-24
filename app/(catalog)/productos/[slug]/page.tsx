@@ -4,10 +4,14 @@ import { notFound } from 'next/navigation'
 import ProductoDetalle from '@/components/catalog/ProductoDetalle'
 import ProductosRelacionados from '@/components/catalog/ProductosRelacionados'
 import ProductPageSeo from '@/components/seo/ProductPageSeo'
-import { normalizarVariacionesProducto } from '@/lib/variaciones'
+import {
+  normalizarVariacionesProducto,
+  PRODUCTO_VARIACIONES_SELECT,
+  withProductoVariaciones,
+} from '@/lib/variaciones'
 import { buildProductMetadata } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
-import { ProductoSeccion, VariacionTipo } from '@/types'
+import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 
 export async function generateMetadata({
   params,
@@ -43,13 +47,13 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     .single()
 
   if (error || !producto) notFound()
-  if (producto.disponible_detal === false) notFound()
 
   const { data: relacionados } = await supabase
     .from('productos')
-    .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
+    .select(
+      `*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`,
+    )
     .eq('categoria_id', producto.categoria_id)
-    .eq('disponible', true)
     .neq('id', producto.id)
     .limit(4)
 
@@ -71,14 +75,16 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
   return (
     <>
-      <ProductPageSeo config={config} producto={producto} />
+      <ProductPageSeo config={config} producto={producto} variaciones={variaciones} />
       <ProductoDetalle
         producto={producto}
         variaciones={variaciones}
         secciones={(secciones || []) as ProductoSeccion[]}
       />
       {relacionados && relacionados.length > 0 && (
-        <ProductosRelacionados productos={relacionados} />
+        <ProductosRelacionados
+          productos={withProductoVariaciones(relacionados as Producto[])}
+        />
       )}
     </>
   )

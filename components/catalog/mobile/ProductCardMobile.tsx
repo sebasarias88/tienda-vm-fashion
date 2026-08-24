@@ -10,8 +10,8 @@ import {
   formatPrecio,
   getPrecioDetalInfo,
   getProductoPrecios,
-  type CatalogType,
 } from '@/lib/catalog'
+import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
@@ -37,6 +37,7 @@ export default function ProductCardMobile({
   const agregar = useCarrito(s => s.agregar)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const isMayoreo = catalogType === 'mayoreo'
+  const agotado = productoAgotadoEnCatalogo(producto, catalogType)
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
@@ -49,7 +50,7 @@ export default function ProductCardMobile({
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (!producto.disponible) return
+    if (agotado) return
     agregar(producto)
     setQuickAddOpen(true)
   }
@@ -81,18 +82,18 @@ export default function ProductCardMobile({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[rgba(34,34,34,0.4)] to-transparent" />
 
           <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between gap-1 p-2">
-            {!producto.disponible ? (
+            {agotado ? (
               <span className="rounded-lg border border-white/20 bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[1px] text-[var(--text-inverse)] backdrop-blur-sm">
                 Agotado
               </span>
             ) : (
               <span />
             )}
-            {descuentoCategoria && producto.disponible && !consultar ? (
+            {descuentoCategoria && !agotado && !consultar ? (
               <span className="rounded-lg border border-[var(--border)] bg-[var(--badge-oferta-bg)]/95 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[1px] text-[var(--gold)] backdrop-blur-sm">
                 -{pctDescuento}%
               </span>
-            ) : precioAntes && producto.disponible && !consultar ? (
+            ) : precioAntes && !agotado && !consultar ? (
               <span className="rounded-lg border border-[var(--border)] bg-[var(--badge-oferta-bg)]/95 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[1px] text-[var(--gold)] backdrop-blur-sm">
                 Oferta
               </span>
@@ -103,11 +104,11 @@ export default function ProductCardMobile({
             type="button"
             whileTap={{ scale: 0.88 }}
             onClick={handleAgregar}
-            disabled={!producto.disponible}
+            disabled={agotado}
             className={`mobile-product-card-add absolute bottom-3 right-3 z-[1] ${
-              producto.disponible ? '' : 'mobile-product-card-add--disabled'
+              agotado ? 'mobile-product-card-add--disabled' : ''
             }`}
-            aria-label={producto.disponible ? `Agregar ${producto.nombre}` : 'Agotado'}
+            aria-label={agotado ? 'Agotado' : `Agregar ${producto.nombre}`}
           >
             <ShoppingBag size={18} strokeWidth={1.75} className="mobile-product-card-add__icon" aria-hidden />
           </motion.button>
@@ -125,7 +126,7 @@ export default function ProductCardMobile({
             )}
             <h3
               className={`line-clamp-2 text-[12px] font-medium leading-[1.35] ${
-                producto.disponible ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+                agotado ? 'text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
               }`}
               title={producto.nombre.trim()}
             >
@@ -145,7 +146,7 @@ export default function ProductCardMobile({
               <div className="flex items-baseline gap-2">
                 <span
                   className={`text-[15px] font-semibold leading-none tracking-tight ${
-                    producto.disponible ? 'text-[var(--gold)]' : 'text-[var(--text-faint)]'
+                    agotado ? 'text-[var(--text-faint)]' : 'text-[var(--gold)]'
                   }`}
                 >
                   {formatPrecio(precio!)}
