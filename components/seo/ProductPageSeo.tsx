@@ -1,4 +1,4 @@
-import type { Producto } from '@/types'
+import type { Producto, VariacionTipo } from '@/types'
 import type { CatalogType } from '@/lib/catalog'
 import { catalogPath } from '@/lib/catalog'
 import {
@@ -12,12 +12,14 @@ type ProductPageSeoProps = {
   config: SiteConfigMap
   producto: Producto
   catalogType?: CatalogType
+  variaciones?: VariacionTipo[]
 }
 
 export default function ProductPageSeo({
   config,
   producto,
   catalogType = 'detal',
+  variaciones,
 }: ProductPageSeoProps) {
   const siteName = getSiteName(config)
   const productosPath = catalogPath(catalogType, '/productos')
@@ -26,7 +28,7 @@ export default function ProductPageSeo({
   return (
     <JsonLd
       data={[
-        productJsonLd(config, producto, catalogType),
+        productJsonLd(config, producto, catalogType, variaciones),
         breadcrumbJsonLd([
           { name: 'Inicio', path: catalogPath(catalogType, '/') },
           { name: 'Productos', path: productosPath },

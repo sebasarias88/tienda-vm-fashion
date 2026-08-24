@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 import { getLineKey } from '@/lib/cart'
-import { buildVariacionesSeleccionadas } from '@/lib/variaciones'
+import { buildVariacionesSeleccionadas, opcionDisponibleEnCatalogo, productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import {
   ShoppingBag,
   Plus,
@@ -124,11 +124,16 @@ export default function ProductoDetalle({
   const [selectedVariaciones, setSelectedVariaciones] = useState<Record<string, string[]>>({})
 
   const tieneVariaciones = variaciones.length > 0
+  const agotado = productoAgotadoEnCatalogo(producto, catalogType, variaciones)
   const imagenes = producto.imagenes?.length ? producto.imagenes : []
   const hasVideo = Boolean(producto.video_url && producto.video_tipo)
   const showingVideo = imagenActiva === -1 && hasVideo
 
   const toggleOpcion = (tipoId: string, opcionId: string) => {
+    const tipo = variaciones.find(t => t.id === tipoId)
+    const opcion = tipo?.opciones?.find(o => o.id === opcionId)
+    if (!opcion || !opcionDisponibleEnCatalogo(opcion, catalogType)) return
+
     setSelectedVariaciones(prev => {
       const actuales = prev[tipoId] ?? []
       return {
@@ -152,7 +157,7 @@ export default function ProductoDetalle({
   })
 
   const handleAgregar = () => {
-    if (!producto.disponible) return
+    if (agotado) return
 
     if (tieneVariaciones) {
       const faltantes = variaciones.filter(
@@ -160,6 +165,18 @@ export default function ProductoDetalle({
       )
       if (faltantes.length > 0) {
         toast.error('Selecciona al menos una opción del producto')
+        return
+      }
+
+      const seleccionInvalida = variaciones.some(tipo => {
+        const ids = selectedVariaciones[tipo.id] ?? []
+        return ids.some(id => {
+          const opcion = tipo.opciones?.find(o => o.id === id)
+          return !opcion || !opcionDisponibleEnCatalogo(opcion, catalogType)
+        })
+      })
+      if (seleccionInvalida) {
+        toast.error('Hay opciones agotadas en tu selección')
         return
       }
     }
@@ -342,12 +359,12 @@ export default function ProductoDetalle({
                   showingVideo ? 'pointer-events-none' : ''
                 }`}
               >
-                {!producto.disponible && (
-                  <span className="rounded-lg bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-primary)] backdrop-blur-sm md:rounded-[2px]">
+                {agotado && (
+                  <span className="rounded-lg bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--text-inverse)] backdrop-blur-sm md:rounded-[2px]">
                     Agotado
                   </span>
                 )}
-                {descuento && producto.disponible && (
+                {descuento && !agotado && (
                   <span className="rounded-lg bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] font-light uppercase tracking-[1.5px] text-[var(--gold)] backdrop-blur-sm md:rounded-[2px]">
                     -{descuento}%
                   </span>
@@ -437,7 +454,7 @@ export default function ProductoDetalle({
               <ProductoPrecio
                 producto={producto}
                 catalogType={catalogType}
-                disponible={producto.disponible}
+                disponible={!agotado}
                 size="lg"
                 layout="stack"
               />
@@ -463,17 +480,17 @@ export default function ProductoDetalle({
                     <div className="flex flex-wrap gap-2.5">
                       {tipo.opciones?.map(opcion => {
                         const selected = selectedVariaciones[tipo.id]?.includes(opcion.id) ?? false
-                        const unavailable = !opcion.disponible
+                        const unavailable = !opcionDisponibleEnCatalogo(opcion, catalogType)
 
                         if (opcion.valor_color) {
                           return (
                             <button
                               key={opcion.id}
                               type="button"
-                              title={opcion.nombre}
+                              title={unavailable ? `${opcion.nombre} (Agotado)` : opcion.nombre}
                               disabled={unavailable}
                               onClick={() => toggleOpcion(tipo.id, opcion.id)}
-                              className={`rounded-full p-0.5 transition-all ${
+                              className={`relative rounded-full p-0.5 transition-all ${
                                 unavailable
                                   ? 'cursor-not-allowed opacity-40'
                                   : 'cursor-pointer'
@@ -490,6 +507,11 @@ export default function ProductoDetalle({
                                   borderColor: selected ? 'var(--gold)' : 'transparent',
                                 }}
                               />
+                              {unavailable && (
+                                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                  <span className="h-px w-7 rotate-45 bg-[var(--text-muted)]" />
+                                </span>
+                              )}
                             </button>
                           )
                         }
@@ -509,6 +531,7 @@ export default function ProductoDetalle({
                             }`}
                           >
                             {opcion.nombre}
+                            {unavailable ? ' · Agotado' : ''}
                           </button>
                         )
                       })}
@@ -521,7 +544,7 @@ export default function ProductoDetalle({
 
             <div className="my-8 h-px bg-[rgba(201,168,76,0.18)]" />
 
-            {producto.disponible ? (
+            {!agotado ? (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-4">
                   <span className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">

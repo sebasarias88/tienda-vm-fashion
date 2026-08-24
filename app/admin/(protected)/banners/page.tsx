@@ -258,7 +258,7 @@ export default function BannersPage() {
           </Button>
         </div>
       ) : (
-        <AdminTable minWidth="880px">
+        <AdminTable minWidth="960px">
           <AdminTableHead>
             <AdminTableHeaderRow>
               <AdminTableTh className="w-16">#</AdminTableTh>

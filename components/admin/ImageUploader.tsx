@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { ImageIcon, X, Loader2, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const MAX_IMAGENES = 10
+const MAX_IMAGENES = 20
 
 type ImageUploaderProps = {
   imagenes: string[]

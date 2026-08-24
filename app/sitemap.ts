@@ -9,7 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: productos } = await supabase
     .from('productos')
     .select('slug, updated_at')
-    .eq('disponible', true)
     .order('updated_at', { ascending: false })
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -39,20 +38,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const productRoutes: MetadataRoute.Sitemap = (productos ?? []).flatMap(producto => [
-    {
-      url: toAbsoluteUrl(`/productos/${producto.slug}`),
-      lastModified: producto.updated_at ? new Date(producto.updated_at) : new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: toAbsoluteUrl(catalogPath('mayoreo', `/productos/${producto.slug}`)),
-      lastModified: producto.updated_at ? new Date(producto.updated_at) : new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    },
-  ])
+  const productRoutes: MetadataRoute.Sitemap = (productos ?? []).flatMap(producto => {
+    const lastModified = producto.updated_at ? new Date(producto.updated_at) : new Date()
+    return [
+      {
+        url: toAbsoluteUrl(`/productos/${producto.slug}`),
+        lastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: toAbsoluteUrl(catalogPath('mayoreo', `/productos/${producto.slug}`)),
+        lastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      },
+    ]
+  })
 
   return [...staticRoutes, ...productRoutes]
 }

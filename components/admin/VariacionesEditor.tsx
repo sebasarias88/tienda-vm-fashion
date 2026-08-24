@@ -153,7 +153,8 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
         tipo_id: tipoId,
         nombre: trimmed,
         valor_color: colorTrimmed || null,
-        disponible: true,
+        disponible_detal: true,
+        disponible_mayoreo: true,
         orden,
       },
     ])
@@ -186,10 +187,27 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
     notifyChange()
   }
 
-  const handleToggleDisponible = async (opcionId: string, disponible: boolean) => {
+  const handleToggleCatalogo = async (
+    opcionId: string,
+    campo: 'disponible_detal' | 'disponible_mayoreo',
+    valorActual: boolean,
+  ) => {
+    const opcion = tipos
+      .flatMap(t => t.opciones || [])
+      .find(o => o.id === opcionId)
+    if (!opcion) return
+
+    const nextDetal =
+      campo === 'disponible_detal' ? !valorActual : opcion.disponible_detal
+    const nextMayoreo =
+      campo === 'disponible_mayoreo' ? !valorActual : opcion.disponible_mayoreo
+
     const { error } = await supabase
       .from('variacion_opciones')
-      .update({ disponible: !disponible })
+      .update({
+        disponible_detal: nextDetal,
+        disponible_mayoreo: nextMayoreo,
+      })
       .eq('id', opcionId)
 
     if (error) {
@@ -278,11 +296,16 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
 
               <div className="flex flex-wrap items-center gap-2">
                 {tipo.opciones && tipo.opciones.length > 0 ? (
-                  tipo.opciones.map(opcion => (
+                  tipo.opciones.map(opcion => {
+                    const onDetal = opcion.disponible_detal
+                    const onMayoreo = opcion.disponible_mayoreo
+                    const algunaActiva = onDetal || onMayoreo
+
+                    return (
                     <div
                       key={opcion.id}
                       className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${
-                        opcion.disponible
+                        algunaActiva
                           ? 'border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.08)]'
                           : 'border-[var(--border-subtle)] bg-[rgba(248,246,241,0.04)] opacity-60'
                       }`}
@@ -297,15 +320,33 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                       <span className="text-[12px] text-[var(--text-primary)]">{opcion.nombre}</span>
                       <button
                         type="button"
-                        onClick={() => handleToggleDisponible(opcion.id, opcion.disponible)}
+                        onClick={() =>
+                          handleToggleCatalogo(opcion.id, 'disponible_detal', onDetal)
+                        }
                         className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-[0.5px] transition-colors ${
-                          opcion.disponible
+                          onDetal
                             ? 'text-emerald-400 hover:bg-[rgba(74,222,128,0.12)]'
                             : 'text-[var(--text-subtle)] hover:bg-[rgba(248,246,241,0.06)]'
                         }`}
-                        title={opcion.disponible ? 'Marcar no disponible' : 'Marcar disponible'}
+                        title={onDetal ? 'Desactivar en Detal' : 'Activar en Detal'}
                       >
-                        {opcion.disponible ? 'On' : 'Off'}
+                        Detal
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleToggleCatalogo(opcion.id, 'disponible_mayoreo', onMayoreo)
+                        }
+                        className={`rounded px-1.5 py-0.5 text-[9px] uppercase tracking-[0.5px] transition-colors ${
+                          onMayoreo
+                            ? 'text-emerald-400 hover:bg-[rgba(74,222,128,0.12)]'
+                            : 'text-[var(--text-subtle)] hover:bg-[rgba(248,246,241,0.06)]'
+                        }`}
+                        title={
+                          onMayoreo ? 'Desactivar en Mayorista' : 'Activar en Mayorista'
+                        }
+                      >
+                        May
                       </button>
                       <button
                         type="button"
@@ -316,7 +357,8 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
                         <X size={12} />
                       </button>
                     </div>
-                  ))
+                    )
+                  })
                 ) : (
                   <p className="text-[11px] font-light italic text-[var(--text-subtle)]">
                     Sin opciones — agrega la primera abajo
@@ -414,7 +456,8 @@ export default function VariacionesEditor({ productoId, onChange }: VariacionesE
           </Button>
         </div>
         <p className="admin-form-hint mt-3">
-          El color hex es opcional y sirve para mostrar un círculo de muestra en la tienda.
+          Usa Detal / May en cada opción para activarla o agotarla por catálogo. El color hex
+          es opcional y muestra un círculo de muestra en la tienda.
         </p>
       </div>
     </div>

@@ -366,7 +366,7 @@ export default function DashboardView({
               </Link>
             }
           />
-          <AdminTable minWidth="640px">
+          <AdminTable minWidth="720px">
             <AdminTableHead>
               <AdminTableHeaderRow>
                 <AdminTableTh>Producto</AdminTableTh>

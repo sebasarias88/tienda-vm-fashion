@@ -21,18 +21,18 @@ export function AdminTableShell({
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-[2px] border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] ${className}`}
+      className={`relative min-w-0 overflow-hidden rounded-[2px] border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] ${className}`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-gradient-to-r from-transparent via-[rgba(201,168,76,0.75)] to-transparent" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.035),transparent_55%)]" />
-      <div className="relative">{children}</div>
+      <div className="relative min-w-0">{children}</div>
     </div>
   )
 }
 
 export function AdminTable({
   children,
-  minWidth = '920px',
+  minWidth = '960px',
   fixed = false,
   footer,
 }: {
@@ -43,10 +43,10 @@ export function AdminTable({
 }) {
   return (
     <AdminTableShell>
-      <div className="overflow-x-auto">
+      <div className="admin-table-scroll">
         <table
-          className={`w-full ${fixed ? 'table-fixed' : ''}`}
-          style={{ minWidth }}
+          className={fixed ? 'table-fixed' : 'table-auto'}
+          style={{ minWidth, width: '100%' }}
         >
           {children}
         </table>
@@ -83,7 +83,7 @@ export function AdminTableTh({
 }) {
   return (
     <th
-      className={`px-5 py-4 text-left text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)] ${className}`}
+      className={`whitespace-nowrap px-5 py-4 text-left text-[10px] font-semibold uppercase tracking-[2px] text-[var(--gold)] ${className}`}
     >
       {children}
     </th>

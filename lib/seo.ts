@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import type { Producto } from '@/types'
+import type { Producto, VariacionTipo } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
+import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import {
   getSiteDescription,
   getSiteKeywords,
@@ -99,12 +100,14 @@ export function productJsonLd(
   config: SiteConfigMap,
   producto: Producto,
   catalogType: CatalogType = 'detal',
+  variaciones?: VariacionTipo[] | null,
 ) {
   const siteName = getSiteName(config)
   const url = toAbsoluteUrl(catalogPath(catalogType, `/productos/${producto.slug}`))
   const image = producto.imagenes?.[0] ? toAbsoluteUrl(producto.imagenes[0]) : undefined
   const price = catalogType === 'mayoreo' ? producto.precio_mayoreo : producto.precio
   const hasPrice = price != null && price > 0
+  const agotado = productoAgotadoEnCatalogo(producto, catalogType, variaciones)
 
   return {
     '@context': 'https://schema.org',
@@ -123,9 +126,9 @@ export function productJsonLd(
             url,
             priceCurrency: 'COP',
             price,
-            availability: producto.disponible
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
+            availability: agotado
+              ? 'https://schema.org/OutOfStock'
+              : 'https://schema.org/InStock',
             seller: { '@type': 'Organization', name: siteName },
           },
         }

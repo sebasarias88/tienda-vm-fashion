@@ -9,8 +9,8 @@ import {
   formatPrecio,
   getPrecioDetalInfo,
   getProductoPrecios,
-  type CatalogType,
 } from '@/lib/catalog'
+import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -40,6 +40,7 @@ export default function ProductCard({
 }) {
   const agregar = useCarrito(s => s.agregar)
   const isMayoreo = catalogType === 'mayoreo'
+  const agotado = productoAgotadoEnCatalogo(producto, catalogType)
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
@@ -52,7 +53,7 @@ export default function ProductCard({
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (!producto.disponible) return
+    if (agotado) return
     agregar(producto)
     toast.success(`${producto.nombre} agregado al carrito`)
   }
@@ -79,25 +80,25 @@ export default function ProductCard({
               onClick={handleAgregar}
               initial={false}
               className="pointer-events-auto catalog-gold-cta flex translate-y-2 items-center gap-2 rounded-[2px] px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] transition-all duration-200 group-hover:translate-y-0"
-              disabled={!producto.disponible}
+              disabled={agotado}
             >
               <ShoppingBag size={13} />
-              {producto.disponible ? 'Agregar' : 'Agotado'}
+              {agotado ? 'Agotado' : 'Agregar'}
             </motion.button>
           </div>
 
           <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between gap-2">
-            {!producto.disponible && (
+            {agotado && (
               <span className="shrink-0 rounded-[2px] border border-white/30 bg-[var(--badge-agotado-bg)] px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-[var(--text-inverse)]">
                 Agotado
               </span>
             )}
-            {descuentoCategoria && producto.disponible && !consultar && (
+            {descuentoCategoria && !agotado && !consultar && (
               <span className="ml-auto shrink-0 rounded-[2px] border border-[var(--border)] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-[var(--gold)]">
                 -{pctDescuento}%
               </span>
             )}
-            {!descuentoCategoria && precioAntes && producto.disponible && !consultar && (
+            {!descuentoCategoria && precioAntes && !agotado && !consultar && (
               <span className="ml-auto shrink-0 rounded-[2px] border border-[var(--border)] bg-[var(--badge-oferta-bg)] px-2.5 py-1 text-[9px] uppercase tracking-[1.5px] text-[var(--gold)]">
                 Oferta
               </span>
@@ -117,7 +118,7 @@ export default function ProductCard({
 
           <h3
             className={`truncate text-sm font-medium leading-snug ${
-              producto.disponible ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+              agotado ? 'text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
             }`}
             title={producto.nombre.trim()}
           >
@@ -138,7 +139,7 @@ export default function ProductCard({
               <div className="flex items-baseline gap-2.5">
                 <span
                   className={`text-base font-light leading-none ${
-                    producto.disponible ? 'text-[var(--gold)]' : 'text-[var(--text-faint)]'
+                    agotado ? 'text-[var(--text-faint)]' : 'text-[var(--gold)]'
                   }`}
                 >
                   {formatPrecio(precio!)}

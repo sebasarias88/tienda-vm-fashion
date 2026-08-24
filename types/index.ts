@@ -29,7 +29,8 @@ export type VariacionOpcion = {
   tipo_id: string
   nombre: string
   valor_color: string | null
-  disponible: boolean
+  disponible_detal: boolean
+  disponible_mayoreo: boolean
   orden: number
 }
 
@@ -76,6 +77,8 @@ export type Producto = {
   orden: number
   created_at: string
   updated_at: string
+  /** Opcional: cargado en listados para calcular Agotado por catálogo */
+  variaciones?: VariacionTipo[]
 }
 
 export type Configuracion = {

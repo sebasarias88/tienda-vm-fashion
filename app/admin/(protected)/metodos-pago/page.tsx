@@ -309,7 +309,7 @@ export default function MetodosPagoPage() {
                   <div className="h-px flex-1 bg-[rgba(201,168,76,0.08)]" />
                 </div>
 
-                <AdminTable minWidth="720px">
+        <AdminTable minWidth="900px">
                   <AdminTableHead>
                     <AdminTableHeaderRow>
                       <AdminTableTh>Método de pago</AdminTableTh>

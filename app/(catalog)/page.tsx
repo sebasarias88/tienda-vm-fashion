@@ -16,6 +16,7 @@ import {
   normalizeSeoDescription,
 } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
+import { PRODUCTO_VARIACIONES_SELECT, withProductoVariaciones } from '@/lib/variaciones'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -67,20 +68,17 @@ export default async function HomePage() {
       supabase.from('categorias').select('*, subcategorias:categorias!padre_id(*)')
         .is('padre_id', null).eq('activa', true).order('orden'),
       supabase.from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_detal', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .eq('destacado', true)
         .order('orden')
         .limit(10),
       supabase.from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_detal', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .not('precio_antes', 'is', null)
         .order('orden')
         .limit(10),
       supabase.from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_detal', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .order('created_at', { ascending: false })
         .limit(10),
     ])
@@ -89,12 +87,12 @@ export default async function HomePage() {
     banners = (bannersData as Banner[] | null) || []
     promociones = (promocionesData as Promocion[] | null) || []
     categorias = (categoriasData as Categoria[] | null) || []
-    destacados = (destacadosData as Producto[] | null) || []
-    ofertas = ((ofertasData as Producto[] | null) || []).filter(
+    destacados = withProductoVariaciones((destacadosData as Producto[] | null) || [])
+    ofertas = withProductoVariaciones(((ofertasData as Producto[] | null) || []).filter(
       p => p.precio_antes != null && p.precio_antes > p.precio,
-    )
+    ))
     const destacadosIds = new Set(destacados.map(p => p.id))
-    novedades = uniqueById((novedadesData as Producto[] | null) || []).filter(
+    novedades = uniqueById(withProductoVariaciones((novedadesData as Producto[] | null) || [])).filter(
       p => !destacadosIds.has(p.id),
     ).slice(0, 10)
   } catch (error) {

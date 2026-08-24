@@ -171,7 +171,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       precio_antes_mayoreo: parseCopInput(form.precio_antes_mayoreo),
       disponible_detal: form.disponible_detal,
       disponible_mayoreo: form.disponible_mayoreo,
-      disponible: form.disponible_detal || form.disponible_mayoreo,
+      // Stock/Agotado es independiente de la visibilidad por catálogo
+      disponible: producto?.disponible ?? true,
       destacado: form.destacado,
       categoria_id: mainCatId,
       imagenes: form.imagenes,
@@ -405,18 +406,18 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         />
       </FormSection>
 
-      <FormSection title="Visibilidad">
+      <FormSection title="Disponibilidad por catálogo">
         <div className="grid grid-cols-2 gap-3">
           {[
             {
               key: 'disponible_detal' as const,
-              label: 'Disponible en Detal',
-              desc: 'Visible en el catálogo al detal',
+              label: 'Venta en Detal',
+              desc: 'Si está apagado, aparece en detal con etiqueta Agotado',
             },
             {
               key: 'disponible_mayoreo' as const,
-              label: 'Disponible en Mayorista',
-              desc: 'Visible en el catálogo mayorista',
+              label: 'Venta en Mayorista',
+              desc: 'Si está apagado, aparece en mayorista con etiqueta Agotado',
             },
           ].map(({ key, label, desc }) => (
             <div

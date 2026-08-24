@@ -12,6 +12,7 @@ import ProcesoPedido from '@/components/catalog/ProcesoPedido'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteName, normalizeSeoDescription } from '@/lib/site-config'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
+import { PRODUCTO_VARIACIONES_SELECT, withProductoVariaciones } from '@/lib/variaciones'
 import type { Banner, Categoria, Producto, Promocion } from '@/types'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -76,22 +77,19 @@ export default async function MayoreoHomePage() {
         .order('orden'),
       supabase
         .from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_mayoreo', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .eq('destacado', true)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_mayoreo', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .not('precio_antes_mayoreo', 'is', null)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
-        .select('*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo)')
-        .eq('disponible_mayoreo', true)
+        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
         .order('created_at', { ascending: false })
         .limit(10),
     ])
@@ -107,14 +105,14 @@ export default async function MayoreoHomePage() {
         .filter(s => s.activa !== false)
         .sort((a, b) => a.orden - b.orden),
     }))
-    destacados = (destacadosData as Producto[] | null) || []
-    ofertas = ((ofertasData as Producto[] | null) || []).filter(p => {
+    destacados = withProductoVariaciones((destacadosData as Producto[] | null) || [])
+    ofertas = withProductoVariaciones(((ofertasData as Producto[] | null) || []).filter(p => {
       const antes = p.precio_antes_mayoreo
       const actual = p.precio_mayoreo ?? p.precio
       return antes != null && actual != null && antes > actual
-    })
+    }))
     const destacadosIds = new Set(destacados.map(p => p.id))
-    novedades = uniqueById((novedadesData as Producto[] | null) || [])
+    novedades = uniqueById(withProductoVariaciones((novedadesData as Producto[] | null) || []))
       .filter(p => !destacadosIds.has(p.id))
       .slice(0, 10)
   } catch (error) {

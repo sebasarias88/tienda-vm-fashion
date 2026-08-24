@@ -1637,6 +1637,15 @@ header nav a {
   padding-top: 0.25rem;
 }
 
+/* Scroll horizontal de tablas admin (también fuera de md por si se reutiliza) */
+.admin-table-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ── Admin desktop (md+) ── */
 @media (min-width: 768px) {
   .admin-shell {
@@ -1664,6 +1673,27 @@ header nav a {
 
   .admin-shell tbody .admin-table-row:hover {
     background-color: color-mix(in srgb, var(--gold) 5.5%, transparent);
+  }
+
+  .admin-table-scroll {
+    scrollbar-gutter: stable;
+  }
+
+  .admin-table-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .admin-table-scroll::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--bg-muted) 70%, transparent);
+  }
+
+  .admin-table-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--gold) 45%, var(--border-card));
+  }
+
+  .admin-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--gold) 70%, var(--border-card));
   }
 
   .admin-sidebar .gold-shimmer {
