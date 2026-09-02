@@ -157,7 +157,7 @@ export default function CarritoMobile({
 }: CarritoMobileProps) {
   const stickySpacer =
     step === 'exito'
-      ? 'h-[calc(1rem+env(safe-area-inset-bottom,0px))]'
+      ? 'h-[calc(1.5rem+env(safe-area-inset-bottom,0px))]'
       : step === 'resumen'
       ? 'h-[calc(10.5rem+env(safe-area-inset-bottom,0px))]'
       : step === 'datos'
@@ -165,7 +165,7 @@ export default function CarritoMobile({
         : 'h-[calc(7.5rem+env(safe-area-inset-bottom,0px))]'
 
   return (
-    <div className="mobile-catalog-page mobile-cart-page relative z-10 mx-auto max-w-lg px-4 pb-2">
+    <div className="mobile-catalog-page mobile-cart-page relative z-10 mx-auto max-w-lg px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -806,13 +806,16 @@ export default function CarritoMobile({
         )}
 
         {step === 'exito' && (
-          <CartCheckoutSuccess
-            productosHref={productosHref}
-            onConfirmSent={onConfirmPedidoEnviado}
-            onReopenWhatsApp={onReabrirWhatsApp}
-            onBackToReview={onVolverAlResumen}
-            layout="mobile"
-          />
+          <>
+            <CartCheckoutSuccess
+              productosHref={productosHref}
+              onConfirmSent={onConfirmPedidoEnviado}
+              onReopenWhatsApp={onReabrirWhatsApp}
+              onBackToReview={onVolverAlResumen}
+              layout="mobile"
+            />
+            <div className={stickySpacer} aria-hidden />
+          </>
         )}
       </AnimatePresence>
     </div>

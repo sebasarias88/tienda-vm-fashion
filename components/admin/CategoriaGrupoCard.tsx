@@ -12,7 +12,11 @@ import {
 } from 'lucide-react'
 import { Categoria } from '@/types'
 import { AdminTableStatus, AdminTableActions } from '@/components/admin/AdminTable'
-import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import {
+  categoriaTieneDescuentoActivo,
+  getPorcentajeDescuentoActivo,
+  resolveDescuentoCategoria,
+} from '@/lib/descuentos'
 
 type GrupoCategoria = { root: Categoria; subs: Categoria[] }
 
@@ -128,12 +132,12 @@ export default function CategoriaGrupoCard({
             </span>
             {categoriaTieneDescuentoActivo(root, 'detal') && (
               <span className="inline-flex shrink-0 items-center rounded-full border border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.12)] px-2 py-0.5 text-[10px] font-medium text-[var(--gold)]">
-                D -{root.descuento_porcentaje}%
+                D -{getPorcentajeDescuentoActivo(root, 'detal')}%
               </span>
             )}
             {categoriaTieneDescuentoActivo(root, 'mayoreo') && (
               <span className="inline-flex shrink-0 items-center rounded-full border border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] px-2 py-0.5 text-[10px] font-medium text-blue-400">
-                M -{root.descuento_porcentaje_mayoreo}%
+                M -{getPorcentajeDescuentoActivo(root, 'mayoreo')}%
               </span>
             )}
           </div>
@@ -179,16 +183,26 @@ export default function CategoriaGrupoCard({
                   <p className="truncate text-[13px] font-normal text-[var(--text-primary)]">
                     {sub.nombre}
                   </p>
-                  {categoriaTieneDescuentoActivo(sub, 'detal') && (
-                    <span className="text-[10px] font-medium text-[var(--gold)]">
-                      D -{sub.descuento_porcentaje}%
-                    </span>
-                  )}
-                  {categoriaTieneDescuentoActivo(sub, 'mayoreo') && (
-                    <span className="text-[10px] font-medium text-blue-400">
-                      M -{sub.descuento_porcentaje_mayoreo}%
-                    </span>
-                  )}
+                  {(() => {
+                    const detal = resolveDescuentoCategoria(sub, 'detal', root)
+                    const mayoreo = resolveDescuentoCategoria(sub, 'mayoreo', root)
+                    return (
+                      <>
+                        {detal && (
+                          <span className="text-[10px] font-medium text-[var(--gold)]">
+                            D -{detal.porcentaje}%
+                            {detal.heredadoDePadre ? ' (padre)' : ''}
+                          </span>
+                        )}
+                        {mayoreo && (
+                          <span className="text-[10px] font-medium text-blue-400">
+                            M -{mayoreo.porcentaje}%
+                            {mayoreo.heredadoDePadre ? ' (padre)' : ''}
+                          </span>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
               </div>
               <AdminTableStatus

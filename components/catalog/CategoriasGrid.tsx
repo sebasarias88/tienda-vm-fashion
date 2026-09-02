@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { ArrowRight, ArrowUpRight, Tag } from 'lucide-react'
-import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import { getPorcentajeDescuentoGrupoCategoria } from '@/lib/descuentos'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
 import CatalogImage from '@/components/catalog/CatalogImage'
 
@@ -88,9 +88,8 @@ function CategoriaCard({
 }) {
   const [hovered, setHovered] = useState(false)
   const subcats = cat.subcategorias || []
-  const conDescuento = categoriaTieneDescuentoActivo(cat, catalogType)
-  const pctDescuento =
-    catalogType === 'mayoreo' ? cat.descuento_porcentaje_mayoreo : cat.descuento_porcentaje
+  const pctDescuento = getPorcentajeDescuentoGrupoCategoria(cat, catalogType)
+  const conDescuento = pctDescuento != null
 
   return (
     <motion.div
@@ -124,7 +123,7 @@ function CategoriaCard({
           </div>
         )}
 
-        {conDescuento && (
+        {conDescuento && pctDescuento != null && (
           <div className="absolute left-2 top-2 z-[1] bg-[var(--gold)] px-2 py-1 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--text-on-gold)]">
             -{pctDescuento}%
           </div>

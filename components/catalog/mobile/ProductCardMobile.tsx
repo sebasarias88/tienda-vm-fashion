@@ -13,7 +13,10 @@ import {
   getProductoPrecios,
 } from '@/lib/catalog'
 import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
-import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import {
+  productoTieneDescuentoCategoria,
+  getPorcentajeDescuentoProducto,
+} from '@/lib/descuentos'
 import CatalogImage from '@/components/catalog/CatalogImage'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
@@ -46,11 +49,8 @@ export default function ProductCardMobile({
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
-  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
-  const pctDescuento =
-    catalogType === 'mayoreo'
-      ? producto.categoria?.descuento_porcentaje_mayoreo
-      : producto.categoria?.descuento_porcentaje
+  const descuentoCategoria = productoTieneDescuentoCategoria(producto, catalogType)
+  const pctDescuento = getPorcentajeDescuentoProducto(producto, catalogType)
 
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()

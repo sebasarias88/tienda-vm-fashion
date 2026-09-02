@@ -12,10 +12,14 @@ import {
   getProductoPrecios,
 } from '@/lib/catalog'
 import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
-import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import {
+  productoTieneDescuentoCategoria,
+  getPorcentajeDescuentoProducto,
+} from '@/lib/descuentos'
 import CatalogImage from '@/components/catalog/CatalogImage'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { toastProductoAgregado } from '@/lib/toastCatalog'
 
 const MAX_TITULO_CARD = 52
 
@@ -49,11 +53,8 @@ export default function ProductCard({
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
   const precioDetalInfo = isMayoreo ? getPrecioDetalInfo(producto) : null
   const productHref = catalogPath(catalogType, `/productos/${producto.slug}`)
-  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
-  const pctDescuento =
-    catalogType === 'mayoreo'
-      ? producto.categoria?.descuento_porcentaje_mayoreo
-      : producto.categoria?.descuento_porcentaje
+  const descuentoCategoria = productoTieneDescuentoCategoria(producto, catalogType)
+  const pctDescuento = getPorcentajeDescuentoProducto(producto, catalogType)
 
   const handleAgregar = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -64,7 +65,7 @@ export default function ProductCard({
       return
     }
     agregar(producto)
-    toast.success(`${producto.nombre} agregado al carrito`)
+    toastProductoAgregado(producto.nombre)
   }
 
   return (

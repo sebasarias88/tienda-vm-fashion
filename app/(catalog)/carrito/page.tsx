@@ -293,8 +293,9 @@ export default function CarritoPage() {
     metodos_pago: ['Efectivo contra entrega', 'Nequi', 'Daviplata', 'Transferencia bancaria'],
   })
   const [loadingConfig, setLoadingConfig] = useState(true)
-  const [enviando, setEnviando] = useState(false)
   const [whatsappMensaje, setWhatsappMensaje] = useState<string | null>(null)
+  const [idsConVariaciones, setIdsConVariaciones] = useState<Set<string>>(new Set())
+  const [variantesPrecargadas, setVariantesPrecargadas] = useState(false)
   const [metodosConfig, setMetodosConfig] = useState<MetodoPagoConfig[]>([])
   const [metodoPagoConfig, setMetodoPagoConfig] = useState<MetodoPagoConfig | null>(null)
 
@@ -367,6 +368,28 @@ export default function CarritoPage() {
     setMounted(true)
     void fetchConfig()
   }, [fetchConfig])
+
+  useEffect(() => {
+    if (step !== 'resumen' || items.length === 0) {
+      setVariantesPrecargadas(false)
+      setIdsConVariaciones(new Set())
+      return
+    }
+
+    let cancelled = false
+    const productoIds = [...new Set(items.map(i => i.producto.id))]
+
+    void getProductIdsWithVariaciones(supabase, productoIds).then(ids => {
+      if (!cancelled) {
+        setIdsConVariaciones(ids)
+        setVariantesPrecargadas(true)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [step, items])
 
   useEffect(() => {
     if (!datos.metodoPago) {
@@ -517,9 +540,12 @@ export default function CarritoPage() {
     scrollTop()
   }
 
-  const handleEnviarWhatsApp = async () => {
-    const productoIds = [...new Set(items.map(i => i.producto.id))]
-    const idsConVariaciones = await getProductIdsWithVariaciones(supabase, productoIds)
+  const handleEnviarWhatsApp = () => {
+    if (!variantesPrecargadas) {
+      toast.error('Preparando pedido, intenta de nuevo en un momento')
+      return
+    }
+
     const sinVariaciones = findItemsSinVariaciones(items, idsConVariaciones)
 
     if (sinVariaciones.length > 0) {
@@ -530,7 +556,6 @@ export default function CarritoPage() {
       return
     }
 
-    setEnviando(true)
     const mensaje = generarMensajeWhatsApp(
       items,
       datos,
@@ -539,13 +564,11 @@ export default function CarritoPage() {
       catalogType,
       cargoAdicional,
     )
+
     setWhatsappMensaje(mensaje)
-    setTimeout(() => {
-      abrirWhatsApp(mensaje, config.whatsapp_numero)
-      setEnviando(false)
-      setStep('exito')
-      scrollTop()
-    }, 800)
+    abrirWhatsApp(mensaje, config.whatsapp_numero)
+    setStep('exito')
+    scrollTop()
   }
 
   const handleConfirmarPedidoEnviado = () => {
@@ -606,7 +629,7 @@ export default function CarritoPage() {
           setErrores={setErrores}
           config={config}
           loadingConfig={loadingConfig}
-          enviando={enviando}
+          enviando={!variantesPrecargadas}
           costoEnvio={costoEnvio}
           envioGratis={envioGratis}
           tiempoEntrega={tiempoEntrega}
@@ -1390,13 +1413,13 @@ export default function CarritoPage() {
                   type="button"
                   whileTap={{ scale: 0.98 }}
                   onClick={handleEnviarWhatsApp}
-                  disabled={enviando}
+                  disabled={!variantesPrecargadas}
                   className="flex flex-1 items-center justify-center gap-2 rounded-[2px] bg-[#25D366] py-4 text-[11px] font-medium uppercase tracking-[2px] text-white transition-colors hover:bg-[#22c55e] disabled:opacity-60"
                 >
-                  {enviando ? (
+                  {!variantesPrecargadas ? (
                     <>
                       <Loader2 size={14} className="animate-spin" />
-                      Abriendo WhatsApp...
+                      Preparando...
                     </>
                   ) : (
                     <>
