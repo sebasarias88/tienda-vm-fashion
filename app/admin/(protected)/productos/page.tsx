@@ -41,6 +41,8 @@ import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
 import MobileProductCard from '@/components/admin/mobile/MobileProductCard'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
 import AdminLoadError from '@/components/admin/AdminLoadError'
+import { useDebouncedValue } from '@/lib/useDebounce'
+import { productIdsMatchingSearch } from '@/lib/productSearch'
 
 type CategoriaInfo = { nombre: string; padre_id: string | null }
 
@@ -55,6 +57,7 @@ export default function ProductosPage() {
   const [selected, setSelected] = useState<Producto | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(search, 350)
   const [filtroDisponible, setFiltroDisponible] = useState<'todos' | 'disponible' | 'agotado'>('todos')
   const [page, setPage] = useState(1)
 
@@ -62,7 +65,7 @@ export default function ProductosPage() {
     setLoading(true)
     const from = (page - 1) * ADMIN_TABLE_PAGE_SIZE
     const to = from + ADMIN_TABLE_PAGE_SIZE - 1
-    const q = search.trim()
+    const q = debouncedSearch.trim()
 
     let query = supabase
       .from('productos')
@@ -74,7 +77,28 @@ export default function ProductosPage() {
 
     if (filtroDisponible === 'disponible') query = query.eq('disponible', true)
     if (filtroDisponible === 'agotado') query = query.eq('disponible', false)
-    if (q) query = query.or(`nombre.ilike.%${q}%,sku.ilike.%${q}%`)
+
+    if (q) {
+      const searchIds = await productIdsMatchingSearch(supabase, q)
+      if (searchIds !== null) {
+        if (searchIds.length === 0) {
+          setProductos([])
+          setTotalCount(0)
+          const { data: cats } = await supabase.from('categorias').select('id, nombre, padre_id')
+          const map: Record<string, CategoriaInfo> = {}
+          ;(cats || []).forEach((c: { id: string; nombre: string; padre_id: string | null }) => {
+            map[c.id] = { nombre: c.nombre, padre_id: c.padre_id ?? null }
+          })
+          setCategoriasMap(map)
+          setLoadError(false)
+          setLoading(false)
+          return
+        }
+        query = query.in('id', searchIds)
+      } else {
+        query = query.or(`nombre.ilike.%${q}%,sku.ilike.%${q}%`)
+      }
+    }
 
     const [{ data, error, count }, { data: cats }] = await Promise.all([
       query.range(from, to),
@@ -95,11 +119,11 @@ export default function ProductosPage() {
       setLoadError(false)
     }
     setLoading(false)
-  }, [filtroDisponible, page, search])
+  }, [filtroDisponible, page, debouncedSearch])
 
   useEffect(() => {
     setPage(1)
-  }, [search, filtroDisponible])
+  }, [debouncedSearch, filtroDisponible])
 
   useEffect(() => {
     fetchProductos()
@@ -170,11 +194,12 @@ export default function ProductosPage() {
   ) => {
     const nuevoValor = !p[campo]
 
+    const update: Record<string, boolean> = { [campo]: nuevoValor }
+    if (nuevoValor) update.disponible = true
+
     const { error } = await supabase
       .from('productos')
-      .update({
-        [campo]: nuevoValor,
-      })
+      .update(update)
       .eq('id', p.id)
 
     if (error) toast.error('Error al actualizar')
@@ -370,6 +395,12 @@ export default function ProductosPage() {
                 <AdminTableTd className="min-w-[8.5rem]">
                   <div className="flex flex-col gap-1.5">
                     <CatalogToggle
+                      label="Stock"
+                      active={p.disponible}
+                      tone="stock"
+                      onClick={() => toggleDisponible(p)}
+                    />
+                    <CatalogToggle
                       label="Detal"
                       active={p.disponible_detal}
                       tone="detal"
@@ -547,9 +578,11 @@ export default function ProductosPage() {
   )
 }
 
-type CatalogToggleTone = 'detal' | 'mayoreo'
+type CatalogToggleTone = 'stock' | 'detal' | 'mayoreo'
 
 const CATALOG_TOGGLE_STYLES: Record<CatalogToggleTone, string> = {
+  stock:
+    'border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)] shadow-[0_0_0_1px_rgba(201,168,76,0.06),inset_0_1px_0_rgba(201,168,76,0.12)]',
   detal:
     'border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.1)] text-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.06),inset_0_1px_0_rgba(52,211,153,0.12)]',
   mayoreo:

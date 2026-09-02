@@ -20,3 +20,18 @@ export const getCategoriasActivas = cache(async (): Promise<Categoria[]> => {
       .sort((a, b) => a.orden - b.orden),
   }))
 })
+
+/** Marcas distintas de productos — dedupe por request vía React.cache. */
+export const getMarcasDisponibles = cache(async (): Promise<string[]> => {
+  const supabase = createSupabasePublic()
+  const { data } = await supabase
+    .from('productos')
+    .select('marca')
+    .not('marca', 'is', null)
+
+  const set = new Set<string>()
+  ;(data || []).forEach((r: { marca: string | null }) => {
+    if (r.marca) set.add(r.marca)
+  })
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'es'))
+})

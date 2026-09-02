@@ -2,6 +2,9 @@ import type { Categoria, Producto } from '@/types'
 import { createSupabasePublic } from '@/lib/supabase-public'
 import { withProductoCategorias } from '@/lib/producto-categorias'
 import { PRODUCTO_LIST_SELECT, withCardImagenes } from '@/lib/productQueries'
+import { withProductoVariacionesFlag } from '@/lib/variaciones'
+import { getMarcasDisponibles } from '@/lib/catalog-data'
+import { intersectIds, productIdsMatchingSearch } from '@/lib/productSearch'
 
 export const CATALOG_PAGE_SIZE = 24
 
@@ -23,6 +26,41 @@ export function resolveCategoriaIds(
 
 function sanitizeIlike(value: string): string {
   return value.replace(/[%_,.()]/g, ' ').trim()
+}
+
+function buildTextSearchOr(q: string, productIdsByCategoria: string[]): string {
+  const parts = [
+    `nombre.ilike.%${q}%`,
+    `sku.ilike.%${q}%`,
+    `marca.ilike.%${q}%`,
+  ]
+  if (productIdsByCategoria.length > 0) {
+    parts.push(`id.in.(${productIdsByCategoria.join(',')})`)
+  }
+  return parts.join(',')
+}
+
+async function getProductIdsByCategoriaNombre(
+  supabase: ReturnType<typeof createSupabasePublic>,
+  q: string,
+): Promise<string[]> {
+  const { data: matchingCats } = await supabase
+    .from('categorias')
+    .select('id')
+    .ilike('nombre', `%${q}%`)
+
+  if (!matchingCats?.length) return []
+
+  const catIds = matchingCats.map(c => c.id)
+  const [{ data: byPrimary }, { data: links }] = await Promise.all([
+    supabase.from('productos').select('id').in('categoria_id', catIds),
+    supabase.from('producto_categorias').select('producto_id').in('categoria_id', catIds),
+  ])
+
+  const ids = new Set<string>()
+  ;(byPrimary || []).forEach((r: { id: string }) => ids.add(r.id))
+  ;(links || []).forEach((r: { producto_id: string }) => ids.add(r.producto_id))
+  return Array.from(ids)
 }
 
 /**
@@ -52,20 +90,17 @@ export async function getCatalogProductosPage(options: {
   const catalogType = options.catalogType ?? 'detal'
   const orden = options.orden ?? 'relevancia'
 
-  const marcasPromise = supabase
-    .from('productos')
-    .select('marca')
-    .not('marca', 'is', null)
+  const marcasPromise = getMarcasDisponibles()
 
   let idFilter: string[] | null = null
   if (options.categoriaSlug?.trim()) {
     const catIds = resolveCategoriaIds(options.categoriaSlug.trim(), options.categorias)
     if (catIds.length === 0) {
-      const { data: marcasRows } = await marcasPromise
+      const marcasDisponibles = await marcasPromise
       return {
         productos: [],
         total: 0,
-        marcasDisponibles: uniqueMarcas(marcasRows),
+        marcasDisponibles,
         page: 1,
         pageSize,
       }
@@ -82,14 +117,43 @@ export async function getCatalogProductosPage(options: {
     idFilter = Array.from(ids)
 
     if (idFilter.length === 0) {
-      const { data: marcasRows } = await marcasPromise
+      const marcasDisponibles = await marcasPromise
       return {
         productos: [],
         total: 0,
-        marcasDisponibles: uniqueMarcas(marcasRows),
+        marcasDisponibles,
         page: 1,
         pageSize,
       }
+    }
+  }
+
+  const q = sanitizeIlike(options.q || '')
+  let productIdsByCategoria: string[] = []
+  let useIlikeFallback = false
+
+  if (q) {
+    const rpcIds = await productIdsMatchingSearch(supabase, q)
+    if (rpcIds !== null) {
+      if (idFilter) {
+        idFilter = intersectIds(rpcIds, idFilter)
+      } else {
+        idFilter = rpcIds
+      }
+    } else {
+      useIlikeFallback = true
+      productIdsByCategoria = await getProductIdsByCategoriaNombre(supabase, q)
+    }
+  }
+
+  if (q && idFilter && idFilter.length === 0) {
+    const marcasDisponibles = await marcasPromise
+    return {
+      productos: [],
+      total: 0,
+      marcasDisponibles,
+      page: 1,
+      pageSize,
     }
   }
 
@@ -99,11 +163,8 @@ export async function getCatalogProductosPage(options: {
 
   if (idFilter) {
     query = query.in('id', idFilter)
-  }
-
-  const q = sanitizeIlike(options.q || '')
-  if (q) {
-    query = query.or(`nombre.ilike.%${q}%,sku.ilike.%${q}%,marca.ilike.%${q}%`)
+  } else if (q && useIlikeFallback) {
+    query = query.or(buildTextSearchOr(q, productIdsByCategoria))
   }
 
   const marcas = (options.marcas || []).map(m => m.trim()).filter(Boolean)
@@ -130,7 +191,7 @@ export async function getCatalogProductosPage(options: {
         .order('created_at', { ascending: false })
   }
 
-  const [{ data, count, error }, { data: marcasRows }] = await Promise.all([
+  const [{ data, count, error }, marcasDisponibles] = await Promise.all([
     query.range(from, to),
     marcasPromise,
   ])
@@ -140,7 +201,7 @@ export async function getCatalogProductosPage(options: {
     return {
       productos: [],
       total: 0,
-      marcasDisponibles: uniqueMarcas(marcasRows),
+      marcasDisponibles,
       page,
       pageSize,
     }
@@ -156,7 +217,9 @@ export async function getCatalogProductosPage(options: {
     const retryTo = retryFrom + pageSize - 1
     let retry = supabase.from('productos').select(PRODUCTO_LIST_SELECT, { count: 'exact' })
     if (idFilter) retry = retry.in('id', idFilter)
-    if (q) retry = retry.or(`nombre.ilike.%${q}%,sku.ilike.%${q}%,marca.ilike.%${q}%`)
+    else if (q && useIlikeFallback) {
+      retry = retry.or(buildTextSearchOr(q, productIdsByCategoria))
+    }
     if (marcas.length === 1) retry = retry.eq('marca', marcas[0])
     else if (marcas.length > 1) retry = retry.in('marca', marcas)
     switch (orden) {
@@ -176,7 +239,7 @@ export async function getCatalogProductosPage(options: {
     return {
       productos: mapListRows(retryData),
       total,
-      marcasDisponibles: uniqueMarcas(marcasRows),
+      marcasDisponibles,
       page: safePage,
       pageSize,
     }
@@ -185,26 +248,15 @@ export async function getCatalogProductosPage(options: {
   return {
     productos: mapListRows(data),
     total,
-    marcasDisponibles: uniqueMarcas(marcasRows),
+    marcasDisponibles,
     page: safePage,
     pageSize,
   }
 }
 
 function mapListRows(rows: unknown): Producto[] {
-  return withCardImagenes(
-    withProductoCategorias(
-      (rows as unknown as Parameters<typeof withProductoCategorias>[0]) ?? [],
-    ),
-  )
-}
-
-function uniqueMarcas(
-  rows: { marca: string | null }[] | null | undefined,
-): string[] {
-  const set = new Set<string>()
-  ;(rows || []).forEach(r => {
-    if (r.marca) set.add(r.marca)
-  })
-  return Array.from(set).sort((a, b) => a.localeCompare(b, 'es'))
+  const raw = (rows ?? []) as Parameters<typeof withProductoVariacionesFlag>[0]
+  const flagged = withProductoVariacionesFlag(raw)
+  const withCats = withProductoCategorias(flagged as Parameters<typeof withProductoCategorias>[0])
+  return withCardImagenes(withCats) as Producto[]
 }

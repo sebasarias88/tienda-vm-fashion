@@ -63,8 +63,20 @@ export function withProductoVariaciones<T extends Producto & { variacion_tipos?:
     return {
       ...rest,
       variaciones: normalizarVariacionesProducto(variacion_tipos),
+      tiene_variaciones: (variacion_tipos?.length ?? 0) > 0,
     }
   })
+}
+
+export function withProductoVariacionesFlag<
+  T extends { variacion_tipos?: { id: string }[] | null },
+>(productos: T[] | null | undefined): (Omit<T, 'variacion_tipos'> & {
+  tiene_variaciones: boolean
+})[] {
+  return (productos || []).map(({ variacion_tipos, ...rest }) => ({
+    ...rest,
+    tiene_variaciones: (variacion_tipos?.length ?? 0) > 0,
+  }))
 }
 
 export function buildVariacionesSeleccionadas(

@@ -18,14 +18,15 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
-  const uploadFile = async (file: File): Promise<string | null> => {
+  const uploadFile = async (
+    file: File,
+  ): Promise<{ url: string | null; fileName: string; error?: string }> => {
     let optimized: File
     try {
       optimized = await optimizeImageFile(file)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'No se pudo procesar la imagen'
-      toast.error(msg)
-      return null
+      return { url: null, fileName: file.name, error: msg }
     }
 
     const path = `productos/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
@@ -37,10 +38,12 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
         contentType: optimized.type || 'image/webp',
       })
 
-    if (error) return null
+    if (error) {
+      return { url: null, fileName: file.name, error: error.message }
+    }
 
     const { data } = supabase.storage.from('productos').getPublicUrl(path)
-    return data.publicUrl
+    return { url: data.publicUrl, fileName: file.name }
   }
 
   const handleFiles = async (files: FileList | File[]) => {
@@ -61,17 +64,25 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
 
     setUploading(true)
     const urls: string[] = []
+    let failedCount = 0
 
     for (const file of arr) {
-      const url = await uploadFile(file)
-      if (url) urls.push(url)
+      const result = await uploadFile(file)
+      if (result.url) {
+        urls.push(result.url)
+      } else {
+        failedCount += 1
+        toast.error(
+          `Error al subir "${result.fileName}"${result.error ? `: ${result.error}` : ''}`,
+        )
+      }
     }
 
     if (urls.length) {
       onChange([...imagenes, ...urls])
       toast.success(`${urls.length} imagen${urls.length > 1 ? 'es' : ''} subida${urls.length > 1 ? 's' : ''}`)
-    } else {
-      toast.error('Error al subir imágenes')
+    } else if (failedCount > 0) {
+      toast.error('No se pudo subir ninguna imagen')
     }
     setUploading(false)
   }

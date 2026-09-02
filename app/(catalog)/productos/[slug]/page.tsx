@@ -5,7 +5,8 @@ import ProductoDetalle from '@/components/catalog/ProductoDetalle'
 import ProductosRelacionados from '@/components/catalog/ProductosRelacionados'
 import ProductPageSeo from '@/components/seo/ProductPageSeo'
 import { normalizarVariacionesProducto } from '@/lib/variaciones'
-import { PRODUCTO_SHELF_SELECT, withCardImagenes } from '@/lib/productQueries'
+import { PRODUCTO_SHELF_SELECT } from '@/lib/productQueries'
+import { mapShelfProductos } from '@/lib/mapShelfProductos'
 import { buildProductMetadata } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
@@ -78,7 +79,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
       />
       {relacionados && relacionados.length > 0 && (
         <ProductosRelacionados
-          productos={withCardImagenes(relacionados as unknown as Producto[])}
+          productos={mapShelfProductos(relacionados as unknown as Producto[])}
         />
       )}
     </>

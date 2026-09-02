@@ -79,6 +79,8 @@ export type Producto = {
   updated_at: string
   /** Opcional: cargado en listados para calcular Agotado por catálogo */
   variaciones?: VariacionTipo[]
+  /** true si el producto tiene al menos un tipo de variación (talla, color, etc.) */
+  tiene_variaciones?: boolean
 }
 
 export type Configuracion = {

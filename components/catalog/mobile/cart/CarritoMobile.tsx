@@ -19,6 +19,7 @@ import { type CatalogType } from '@/lib/catalog'
 import { formatCargoLabel } from '@/lib/metodosPago'
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import MobileCartSteps, { type Step } from '@/components/catalog/mobile/cart/MobileCartSteps'
+import CartCheckoutSuccess from '@/components/catalog/cart/CartCheckoutSuccess'
 import MobileCartItem, { formatPrecio } from '@/components/catalog/mobile/cart/MobileCartItem'
 import MobileCartSummary from '@/components/catalog/mobile/cart/MobileCartSummary'
 import MobileCartStickyBar from '@/components/catalog/mobile/cart/MobileCartStickyBar'
@@ -81,6 +82,9 @@ type CarritoMobileProps = {
   handleContinuar: () => void
   handleConfirmar: () => void
   handleEnviarWhatsApp: () => void
+  onConfirmPedidoEnviado: () => void
+  onReabrirWhatsApp: () => void
+  onVolverAlResumen: () => void
   inputClass: (campo: keyof DatosCliente) => string
 }
 
@@ -146,9 +150,15 @@ export default function CarritoMobile({
   handleContinuar,
   handleConfirmar,
   handleEnviarWhatsApp,
+  onConfirmPedidoEnviado,
+  onReabrirWhatsApp,
+  onVolverAlResumen,
+  inputClass,
 }: CarritoMobileProps) {
   const stickySpacer =
-    step === 'resumen'
+    step === 'exito'
+      ? 'h-[calc(1rem+env(safe-area-inset-bottom,0px))]'
+      : step === 'resumen'
       ? 'h-[calc(10.5rem+env(safe-area-inset-bottom,0px))]'
       : step === 'datos'
         ? 'h-[calc(9rem+env(safe-area-inset-bottom,0px))]'
@@ -166,10 +176,19 @@ export default function CarritoMobile({
           <span className="catalog-eyebrow text-[10px] tracking-[2.5px]">Mi pedido</span>
         </div>
         <h1 className="text-[1.5rem] font-thin uppercase tracking-[1px] text-[var(--text-primary)]">
-          Tu <span className="gold-shimmer">carrito</span>
+          {step === 'exito' ? (
+            <>
+              Pedido <span className="gold-shimmer">listo</span>
+            </>
+          ) : (
+            <>
+              Tu <span className="gold-shimmer">carrito</span>
+            </>
+          )}
         </h1>
       </motion.div>
 
+      {step !== 'exito' ? (
       <div className="mb-6">
         <MobileCartSteps
           step={step}
@@ -177,6 +196,7 @@ export default function CarritoMobile({
           onStepClick={setStep}
         />
       </div>
+      ) : null}
 
       <AnimatePresence mode="wait">
         {step === 'carrito' && (
@@ -783,6 +803,16 @@ export default function CarritoMobile({
               onSecondary={() => setStep('datos')}
             />
           </motion.div>
+        )}
+
+        {step === 'exito' && (
+          <CartCheckoutSuccess
+            productosHref={productosHref}
+            onConfirmSent={onConfirmPedidoEnviado}
+            onReopenWhatsApp={onReabrirWhatsApp}
+            onBackToReview={onVolverAlResumen}
+            layout="mobile"
+          />
         )}
       </AnimatePresence>
     </div>

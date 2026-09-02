@@ -2,9 +2,9 @@
 
 import { Check } from 'lucide-react'
 
-type Step = 'carrito' | 'datos' | 'resumen'
+export type Step = 'carrito' | 'datos' | 'resumen' | 'exito'
 
-const STEPS: { id: Step; label: string }[] = [
+const STEPS: { id: Exclude<Step, 'exito'>; label: string }[] = [
   { id: 'carrito', label: 'Carrito' },
   { id: 'datos', label: 'Datos' },
   { id: 'resumen', label: 'Confirmar' },
@@ -84,5 +84,3 @@ export default function MobileCartSteps({ step, stepIndex, onStepClick }: Mobile
     </nav>
   )
 }
-
-export type { Step }

@@ -16,7 +16,8 @@ import {
 } from '@/lib/site-config'
 import { getCategoriasActivas } from '@/lib/catalog-data'
 import { createSupabasePublic } from '@/lib/supabase-public'
-import { PRODUCTO_SHELF_SELECT, withCardImagenes } from '@/lib/productQueries'
+import { PRODUCTO_SHELF_SELECT } from '@/lib/productQueries'
+import { mapShelfProductos } from '@/lib/mapShelfProductos'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
 import type { Banner, Producto, Promocion } from '@/types'
 
@@ -86,14 +87,14 @@ export default async function HomePage() {
 
     banners = (bannersData as Banner[] | null) || []
     promociones = (promocionesData as Promocion[] | null) || []
-    destacados = withCardImagenes((destacadosData as Producto[] | null) || [])
-    ofertas = withCardImagenes(
+    destacados = mapShelfProductos(destacadosData as Producto[] | null)
+    ofertas = mapShelfProductos(
       ((ofertasData as Producto[] | null) || []).filter(
         p => p.precio_antes != null && p.precio_antes > p.precio,
       ),
     )
     const destacadosIds = new Set(destacados.map(p => p.id))
-    novedades = uniqueById(withCardImagenes((novedadesData as Producto[] | null) || []))
+    novedades = uniqueById(mapShelfProductos(novedadesData as Producto[] | null))
       .filter(p => !destacadosIds.has(p.id))
       .slice(0, 10)
   } catch (error) {
