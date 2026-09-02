@@ -4,37 +4,41 @@ import { fileURLToPath } from "url";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
-function supabaseRemotePattern() {
+function getSupabaseRemotePatterns() {
+  const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
+    {
+      protocol: 'https',
+      hostname: '**.supabase.co',
+      pathname: '/storage/v1/object/public/**',
+    },
+  ]
+
   const raw =
     process.env.SUPABASE_URL?.trim() ??
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  if (!raw) {
-    return {
-      protocol: 'https' as const,
-      hostname: '*.supabase.co',
-      pathname: '/storage/v1/object/public/**',
+
+  if (raw) {
+    try {
+      const { hostname, protocol } = new URL(raw)
+      patterns.unshift({
+        protocol: (protocol.replace(':', '') || 'https') as 'http' | 'https',
+        hostname,
+        pathname: '/storage/v1/object/public/**',
+      })
+    } catch {
+      // El patrón **.supabase.co ya cubre cualquier proyecto.
     }
   }
-  try {
-    const { hostname, protocol } = new URL(raw)
-    return {
-      protocol: (protocol.replace(':', '') || 'https') as 'http' | 'https',
-      hostname,
-      pathname: '/storage/v1/object/public/**',
-    }
-  } catch {
-    return {
-      protocol: 'https' as const,
-      hostname: '*.supabase.co',
-      pathname: '/storage/v1/object/public/**',
-    }
-  }
+
+  return patterns
 }
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_URL:
+      process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
   turbopack: {
     root: projectRoot,
@@ -42,7 +46,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     qualities: [60, 70, 72, 75, 80],
-    remotePatterns: [supabaseRemotePattern()],
+    remotePatterns: getSupabaseRemotePatterns(),
   },
   async headers() {
     return [

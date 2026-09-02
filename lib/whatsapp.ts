@@ -89,7 +89,9 @@ export function generarMensajeWhatsApp(
           ? ` ~~${formatPrecio(precioAntes * item.cantidad)}~~`
           : ''
       const vars = formatVariacionesResumen(item.variacionesSeleccionadas)
-      const varsSuffix = vars ? ` | ${vars}` : ''
+      const varsSuffix = vars
+        ? ` | ${vars}`
+        : ''
       return `▸ ${item.producto.nombre} × ${item.cantidad} — ${linea}${tachado}${varsSuffix}`
     })
     .join('\n')

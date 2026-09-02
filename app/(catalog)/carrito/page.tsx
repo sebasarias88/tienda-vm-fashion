@@ -8,6 +8,10 @@ import { supabase } from '@/lib/supabase'
 import { DatosCliente, ItemCarrito, MetodoPagoConfig, TipoEntrega } from '@/types'
 import { generarMensajeWhatsApp, abrirWhatsApp } from '@/lib/whatsapp'
 import {
+  findItemsSinVariaciones,
+  getProductIdsWithVariaciones,
+} from '@/lib/cartCheckout'
+import {
   cartSubtotal,
   formatVariacionesResumen,
   itemLineKey,
@@ -27,6 +31,7 @@ import {
 } from '@/lib/metodosPago'
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
+import CartCheckoutSuccess from '@/components/catalog/cart/CartCheckoutSuccess'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import CatalogImage from '@/components/catalog/CatalogImage'
 import StickySidebar from '@/components/catalog/StickySidebar'
@@ -84,7 +89,17 @@ type Config = {
   metodos_pago: string[]
 }
 
-type Step = 'carrito' | 'datos' | 'resumen'
+type Step = 'carrito' | 'datos' | 'resumen' | 'exito'
+
+const DATOS_INICIALES: DatosCliente = {
+  nombre: '',
+  celular: '',
+  direccion: '',
+  ciudad: '',
+  tipoEntrega: '',
+  metodoPago: '',
+  notas: '',
+}
 
 const CIUDADES_ARMENIA = ['armenia', 'armenia quindío', 'armenia quindio']
 
@@ -279,18 +294,11 @@ export default function CarritoPage() {
   })
   const [loadingConfig, setLoadingConfig] = useState(true)
   const [enviando, setEnviando] = useState(false)
+  const [whatsappMensaje, setWhatsappMensaje] = useState<string | null>(null)
   const [metodosConfig, setMetodosConfig] = useState<MetodoPagoConfig[]>([])
   const [metodoPagoConfig, setMetodoPagoConfig] = useState<MetodoPagoConfig | null>(null)
 
-  const [datos, setDatos] = useState<DatosCliente>({
-    nombre: '',
-    celular: '',
-    direccion: '',
-    ciudad: '',
-    tipoEntrega: '',
-    metodoPago: '',
-    notas: '',
-  })
+  const [datos, setDatos] = useState<DatosCliente>(DATOS_INICIALES)
 
   const [errores, setErrores] = useState<Partial<Record<keyof DatosCliente, string>>>({})
 
@@ -436,8 +444,17 @@ export default function CarritoPage() {
   )
 
   const totalFinal = subtotal + costoEnvio + cargoAdicional
-  const stepIndex = STEPS.findIndex(s => s.id === step)
+  const stepIndex =
+    step === 'exito' ? STEPS.length : STEPS.findIndex(s => s.id === step)
   const stickyTop = catalogType === 'mayoreo' ? 100 : 96
+
+  const resetCheckout = useCallback(() => {
+    setDatos(DATOS_INICIALES)
+    setErrores({})
+    setWhatsappMensaje(null)
+    setMetodoPagoConfig(null)
+    setStep('carrito')
+  }, [])
 
   const minimoMayoreo = catalogType === 'mayoreo' ? MAYOREO_MIN_COMPRA : 0
   const cumpleMinimo = subtotal >= minimoMayoreo
@@ -500,7 +517,19 @@ export default function CarritoPage() {
     scrollTop()
   }
 
-  const handleEnviarWhatsApp = () => {
+  const handleEnviarWhatsApp = async () => {
+    const productoIds = [...new Set(items.map(i => i.producto.id))]
+    const idsConVariaciones = await getProductIdsWithVariaciones(supabase, productoIds)
+    const sinVariaciones = findItemsSinVariaciones(items, idsConVariaciones)
+
+    if (sinVariaciones.length > 0) {
+      const nombres = sinVariaciones.map(i => i.producto.nombre).join(', ')
+      toast.error(
+        `Selecciona talla/color antes de enviar: ${nombres}. Abre cada producto desde el carrito.`,
+      )
+      return
+    }
+
     setEnviando(true)
     const mensaje = generarMensajeWhatsApp(
       items,
@@ -510,12 +539,31 @@ export default function CarritoPage() {
       catalogType,
       cargoAdicional,
     )
+    setWhatsappMensaje(mensaje)
     setTimeout(() => {
       abrirWhatsApp(mensaje, config.whatsapp_numero)
-      vaciar()
       setEnviando(false)
-      toast.success('¡Pedido enviado! Revisa tu WhatsApp')
+      setStep('exito')
+      scrollTop()
     }, 800)
+  }
+
+  const handleConfirmarPedidoEnviado = () => {
+    vaciar()
+    resetCheckout()
+    toast.success('¡Gracias! Recibiremos tu pedido por WhatsApp.')
+    scrollTop()
+  }
+
+  const handleReabrirWhatsApp = () => {
+    if (whatsappMensaje) {
+      abrirWhatsApp(whatsappMensaje, config.whatsapp_numero)
+    }
+  }
+
+  const handleVolverAlResumen = () => {
+    setStep('resumen')
+    scrollTop()
   }
 
   const inputClass = (campo: keyof DatosCliente) =>
@@ -573,6 +621,9 @@ export default function CarritoPage() {
           handleContinuar={handleContinuar}
           handleConfirmar={handleConfirmar}
           handleEnviarWhatsApp={handleEnviarWhatsApp}
+          onConfirmPedidoEnviado={handleConfirmarPedidoEnviado}
+          onReabrirWhatsApp={handleReabrirWhatsApp}
+          onVolverAlResumen={handleVolverAlResumen}
           inputClass={inputClass}
         />
       </div>
@@ -593,11 +644,21 @@ export default function CarritoPage() {
             </span>
           </div>
           <h1 className="text-[1.75rem] font-thin uppercase leading-none tracking-[1.5px] text-[var(--text-primary)] sm:text-[2.125rem]">
-            Tu{' '}
-            <span className="gold-shimmer">carrito</span>
+            {step === 'exito' ? (
+              <>
+                Pedido{' '}
+                <span className="gold-shimmer">listo</span>
+              </>
+            ) : (
+              <>
+                Tu{' '}
+                <span className="gold-shimmer">carrito</span>
+              </>
+            )}
           </h1>
 
           {/* Steps */}
+          {step !== 'exito' ? (
           <div className="mt-8 flex flex-wrap items-center gap-x-1 gap-y-2">
             {STEPS.map((s, i) => (
               <div key={s.id} className="flex items-center">
@@ -626,6 +687,7 @@ export default function CarritoPage() {
               </div>
             ))}
           </div>
+          ) : null}
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -1350,6 +1412,17 @@ export default function CarritoPage() {
                 lo envíes por WhatsApp.
               </p>
             </motion.div>
+          )}
+
+          {/* STEP 4: ÉXITO */}
+          {step === 'exito' && (
+            <CartCheckoutSuccess
+              productosHref={productosHref}
+              onConfirmSent={handleConfirmarPedidoEnviado}
+              onReopenWhatsApp={handleReabrirWhatsApp}
+              onBackToReview={handleVolverAlResumen}
+              layout="desktop"
+            />
           )}
         </AnimatePresence>
       </div>

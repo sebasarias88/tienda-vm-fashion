@@ -56,6 +56,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     precio_antes_mayoreo: '',
     disponible_detal: true,
     disponible_mayoreo: true,
+    disponible: true,
     destacado: false,
     imagenes: [] as string[],
     video_url: '',
@@ -86,6 +87,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
           producto.precio_antes_mayoreo != null ? formatCopInput(producto.precio_antes_mayoreo) : '',
         disponible_detal: producto.disponible_detal ?? producto.disponible,
         disponible_mayoreo: producto.disponible_mayoreo ?? producto.disponible,
+        disponible: producto.disponible ?? true,
         destacado: producto.destacado,
         imagenes: producto.imagenes || [],
         video_url: producto.video_url || '',
@@ -161,6 +163,20 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
 
     setSaving(true)
     const mainCatId = categorias_ids[0] || null
+
+    let disponibleToSave = form.disponible
+    if (producto) {
+      const initialDisponible = producto.disponible ?? true
+      if (form.disponible === initialDisponible) {
+        const { data: fresh } = await supabase
+          .from('productos')
+          .select('disponible')
+          .eq('id', producto.id)
+          .single()
+        if (fresh) disponibleToSave = fresh.disponible ?? true
+      }
+    }
+
     const payload = {
       nombre: form.nombre.trim(),
       slug: form.slug.trim(),
@@ -171,8 +187,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       precio_antes_mayoreo: parseCopInput(form.precio_antes_mayoreo),
       disponible_detal: form.disponible_detal,
       disponible_mayoreo: form.disponible_mayoreo,
-      // Stock/Agotado es independiente de la visibilidad por catálogo
-      disponible: producto?.disponible ?? true,
+      disponible: disponibleToSave,
       destacado: form.destacado,
       categoria_id: mainCatId,
       imagenes: form.imagenes,
@@ -406,7 +421,24 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         />
       </FormSection>
 
-      <FormSection title="Disponibilidad por catálogo">
+      <FormSection title="Disponibilidad">
+        <div className="admin-form-panel mb-3 flex items-center justify-between px-4 py-3.5">
+          <div className="pr-4">
+            <p className="admin-form-panel__title">Stock global</p>
+            <p className="admin-form-panel__desc">
+              Si está apagado, el producto aparece como Agotado en ambos catálogos
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setForm(f => ({ ...f, disponible: !f.disponible }))}
+            className={`admin-toggle ${form.disponible ? 'admin-toggle--on' : 'admin-toggle--off'}`}
+            aria-pressed={form.disponible}
+          >
+            <span className="admin-toggle__thumb" />
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           {[
             {
@@ -430,7 +462,16 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
               </div>
               <button
                 type="button"
-                onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
+                onClick={() =>
+                  setForm(f => {
+                    const next = !f[key]
+                    return {
+                      ...f,
+                      [key]: next,
+                      ...(next ? { disponible: true } : {}),
+                    }
+                  })
+                }
                 className={`admin-toggle ${form[key] ? 'admin-toggle--on' : 'admin-toggle--off'}`}
                 aria-pressed={form[key]}
               >

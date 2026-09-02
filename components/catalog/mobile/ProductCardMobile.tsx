@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
 import { Producto } from '@/types'
 import {
@@ -38,6 +39,7 @@ export default function ProductCardMobile({
   priority?: boolean
 }) {
   const agregar = useCarrito(s => s.agregar)
+  const router = useRouter()
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const isMayoreo = catalogType === 'mayoreo'
   const agotado = productoAgotadoEnCatalogo(producto, catalogType)
@@ -54,6 +56,10 @@ export default function ProductCardMobile({
     e.preventDefault()
     e.stopPropagation()
     if (agotado) return
+    if (producto.tiene_variaciones) {
+      router.push(productHref)
+      return
+    }
     agregar(producto)
     setQuickAddOpen(true)
   }
@@ -114,7 +120,13 @@ export default function ProductCardMobile({
             className={`mobile-product-card-add absolute bottom-3 right-3 z-[1] ${
               agotado ? 'mobile-product-card-add--disabled' : ''
             }`}
-            aria-label={agotado ? 'Agotado' : `Agregar ${producto.nombre}`}
+            aria-label={
+              agotado
+                ? 'Agotado'
+                : producto.tiene_variaciones
+                  ? `Elegir opciones de ${producto.nombre}`
+                  : `Agregar ${producto.nombre}`
+            }
           >
             <ShoppingBag size={18} strokeWidth={1.75} className="mobile-product-card-add__icon" aria-hidden />
           </motion.button>

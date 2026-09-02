@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
 import { Producto } from '@/types'
 import {
@@ -42,6 +43,7 @@ export default function ProductCard({
   priority?: boolean
 }) {
   const agregar = useCarrito(s => s.agregar)
+  const router = useRouter()
   const isMayoreo = catalogType === 'mayoreo'
   const agotado = productoAgotadoEnCatalogo(producto, catalogType)
   const { precio, precioAntes, consultar } = getProductoPrecios(producto, catalogType)
@@ -57,6 +59,10 @@ export default function ProductCard({
     e.preventDefault()
     e.stopPropagation()
     if (agotado) return
+    if (producto.tiene_variaciones) {
+      router.push(productHref)
+      return
+    }
     agregar(producto)
     toast.success(`${producto.nombre} agregado al carrito`)
   }
@@ -90,7 +96,7 @@ export default function ProductCard({
               disabled={agotado}
             >
               <ShoppingBag size={13} />
-              {agotado ? 'Agotado' : 'Agregar'}
+              {agotado ? 'Agotado' : producto.tiene_variaciones ? 'Elegir opciones' : 'Agregar'}
             </motion.button>
           </div>
 

@@ -85,20 +85,40 @@ export default function MobileProductCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-[rgba(201,168,76,0.12)] px-3 py-2.5">
-        <button
-          type="button"
-          onClick={onToggleDisponible}
-          className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-2.5 text-[10px] uppercase tracking-[0.8px] ${
-            producto.disponible
-              ? 'text-emerald-400'
-              : 'text-red-400'
-          }`}
-        >
-          {producto.disponible ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-          {producto.disponible ? 'Disponible' : 'Agotado'}
-        </button>
-        <div className="flex items-center gap-1">
+      <div className="flex flex-col gap-2 border-t border-[rgba(201,168,76,0.12)] px-3 py-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onToggleDisponible}
+            className={`inline-flex min-h-[28px] items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] ${
+              producto.disponible
+                ? 'border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)]'
+                : 'border-[rgba(248,113,113,0.35)] bg-[rgba(248,113,113,0.08)] text-red-400'
+            }`}
+          >
+            {producto.disponible ? <CheckCircle2 size={11} /> : <XCircle size={11} />}
+            Stock
+          </button>
+          <span
+            className={`inline-flex min-h-[28px] items-center rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] ${
+              producto.disponible_detal
+                ? 'border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.1)] text-emerald-400'
+                : 'border-[var(--border-subtle)] text-[var(--text-faint)]'
+            }`}
+          >
+            Detal
+          </span>
+          <span
+            className={`inline-flex min-h-[28px] items-center rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] ${
+              producto.disponible_mayoreo
+                ? 'border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] text-blue-400'
+                : 'border-[var(--border-subtle)] text-[var(--text-faint)]'
+            }`}
+          >
+            Mayorista
+          </span>
+        </div>
+        <div className="flex items-center justify-end gap-1">
           <button
             type="button"
             onClick={onEdit}

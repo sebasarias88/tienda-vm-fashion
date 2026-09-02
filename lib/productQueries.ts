@@ -12,9 +12,12 @@ export const CATEGORIA_CARD_EMBED =
 export const PRODUCTO_CATEGORIAS_EMBED =
   'producto_categorias(categoria_id, categoria:categorias(id,nombre,slug,padre_id))'
 
-export const PRODUCTO_LIST_SELECT = `${PRODUCTO_CARD_COLUMNS}, ${CATEGORIA_CARD_EMBED}, ${PRODUCTO_CATEGORIAS_EMBED}`
+/** Solo ids de tipos de variación — para saber si el producto requiere elegir opciones en PDP. */
+export const PRODUCTO_VARIACIONES_FLAG_EMBED = 'variacion_tipos(id)'
 
-export const PRODUCTO_SHELF_SELECT = `${PRODUCTO_CARD_COLUMNS}, ${CATEGORIA_CARD_EMBED}`
+export const PRODUCTO_LIST_SELECT = `${PRODUCTO_CARD_COLUMNS}, ${CATEGORIA_CARD_EMBED}, ${PRODUCTO_CATEGORIAS_EMBED}, ${PRODUCTO_VARIACIONES_FLAG_EMBED}`
+
+export const PRODUCTO_SHELF_SELECT = `${PRODUCTO_CARD_COLUMNS}, ${CATEGORIA_CARD_EMBED}, ${PRODUCTO_VARIACIONES_FLAG_EMBED}`
 
 /** Solo primera imagen en memoria (URLs bastan para cards). */
 export function withCardImagenes<T extends { imagenes?: string[] | null }>(
