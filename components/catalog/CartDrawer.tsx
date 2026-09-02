@@ -13,6 +13,7 @@ import { catalogPath, getProductoPrecios, type CatalogType } from '@/lib/catalog
 import { X, ShoppingBag, Minus, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
+import CatalogImage from '@/components/catalog/CatalogImage'
 import { useScrollLock } from '@/lib/useScrollLock'
 
 type CartDrawerProps = {
@@ -114,10 +115,12 @@ export default function CartDrawer({
                       >
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
                           {producto.imagenes?.[0] ? (
-                            <img
+                            <CatalogImage
                               src={producto.imagenes[0]}
                               alt={producto.nombre}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full"
+                              sizes="64px"
+                              quality={60}
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">

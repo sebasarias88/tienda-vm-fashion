@@ -8,9 +8,8 @@ function getSupabaseEnv() {
 
   if (!url || !anonKey) {
     throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
-        'Add them in Vercel → Project → Settings → Environment Variables ' +
-        '(Production and Preview), then redeploy. ' +
+      'Missing Supabase env vars. Set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel ' +
+        '(or locally in .env). The browser client reads them via the next.config bridge. ' +
         'Values: Supabase → Project Settings → API.',
     )
   }

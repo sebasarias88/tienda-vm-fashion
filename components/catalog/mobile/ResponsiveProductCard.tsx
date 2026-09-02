@@ -9,20 +9,30 @@ import ProductCardMobile from '@/components/catalog/mobile/ProductCardMobile'
 type ResponsiveProductCardProps = {
   producto: Producto
   catalogType?: CatalogType
+  priority?: boolean
 }
 
 /** Muestra card táctil en móvil y card desktop sin cambios desde md */
 export default function ResponsiveProductCard({
   producto,
   catalogType = 'detal',
+  priority = false,
 }: ResponsiveProductCardProps) {
   return (
     <>
       <div className="h-full md:hidden">
-        <ProductCardMobile producto={producto} catalogType={catalogType} />
+        <ProductCardMobile
+          producto={producto}
+          catalogType={catalogType}
+          priority={priority}
+        />
       </div>
       <div className="hidden h-full md:block">
-        <ProductCard producto={producto} catalogType={catalogType} />
+        <ProductCard
+          producto={producto}
+          catalogType={catalogType}
+          priority={priority}
+        />
       </div>
     </>
   )

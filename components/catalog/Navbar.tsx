@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
+import { useCartHydrated } from '@/lib/useCartHydrated'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { Menu, X } from 'lucide-react'
@@ -28,10 +29,10 @@ export default function Navbar({
 }: NavbarProps) {
   const pathname = usePathname()
   const cantidad = useCarrito(s => s.cantidad())
+  const cartHydrated = useCartHydrated()
   const [scrolled, setScrolled] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const [heroOverImage, setHeroOverImage] = useState(false)
   const [heroLayout, setHeroLayout] = useState('')
 
@@ -62,10 +63,6 @@ export default function Navbar({
     }
     return pathname === href || pathname.startsWith(`${href}/`)
   }
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     const syncHero = () => {
@@ -181,7 +178,7 @@ export default function Navbar({
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCartOpen(true)}
-                aria-label={`Carrito${mounted && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
+                aria-label={`Carrito${cartHydrated && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
                 className={`relative inline-flex h-9 w-9 items-center justify-center border transition-colors ${
                   overHero
                     ? 'border-[color-mix(in_srgb,var(--gold)_50%,transparent)] bg-white/15 text-[#F8F6F1] backdrop-blur-sm hover:border-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--text-on-gold)]'
@@ -190,7 +187,7 @@ export default function Navbar({
                 style={{ borderRadius: 2 }}
               >
                 <LuxuryCartIcon size={15} />
-                {mounted && cantidad > 0 && (
+                {cartHydrated && cantidad > 0 && (
                   <span
                     className={`absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center px-1 text-[9px] font-semibold tabular-nums ${
                       overHero
@@ -199,6 +196,7 @@ export default function Navbar({
                     }`}
                     style={{ borderRadius: 2 }}
                     aria-hidden
+                    suppressHydrationWarning
                   >
                     {cantidad > 99 ? '99+' : cantidad}
                   </span>

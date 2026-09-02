@@ -11,7 +11,8 @@ import { ProductGridMobile } from '@/components/catalog/mobile/ResponsiveProduct
 import MobileCatalogToolbar from '@/components/catalog/mobile/MobileCatalogToolbar'
 import MobileFiltersDrawer from '@/components/catalog/mobile/MobileFiltersDrawer'
 import { ProductCardSkeleton } from '@/components/ui/Skeleton'
-import { getPrecioOrden, type CatalogType } from '@/lib/catalog'
+import { type CatalogType } from '@/lib/catalog'
+import { CATALOG_PAGE_SIZE, type CatalogOrden } from '@/lib/catalog-productos'
 import { getPaginationChunk } from '@/lib/pagination'
 import { Search, X, Package, ChevronLeft, ChevronRight, Tag, Loader2 } from 'lucide-react'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
@@ -23,47 +24,49 @@ import { signalCatalogNavigating } from '@/components/catalog/NavigationProgress
 
 type Props = {
   productos: Producto[]
+  totalCount: number
+  marcasDisponibles: string[]
   categorias: Categoria[]
   initialQ: string
   initialCategoria: string
   initialMarca?: string
+  initialPage?: number
+  initialOrden?: CatalogOrden
   catalogType?: CatalogType
 }
 
-type Orden = 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre'
+type Orden = CatalogOrden
 
-const ITEMS_POR_PAGINA = 24
-
-function productoCoincideCategoria(
-  producto: Producto,
-  categoriaActiva: string,
-  categoriasRaiz: Categoria[],
-): boolean {
-  const slugs = new Set<string>()
-  if (producto.categoria?.slug) slugs.add(producto.categoria.slug)
-  producto.categorias?.forEach(c => {
-    if (c.slug) slugs.add(c.slug)
-  })
-  if (slugs.size === 0) return false
-
-  // Match exacto por slug (producto asignado a esa categoría o subcategoría)
-  if (slugs.has(categoriaActiva)) return true
-
-  // Si la activa es una raíz, incluir también productos de sus subcategorías
-  const raiz = categoriasRaiz.find(r => r.slug === categoriaActiva)
-  if (raiz?.subcategorias?.length) {
-    return raiz.subcategorias.some(sub => slugs.has(sub.slug))
-  }
-
-  return false
+function buildCatalogHref(
+  pathname: string,
+  opts: {
+    q: string
+    categoria: string
+    marcas: string[]
+    page: number
+    orden: Orden
+  },
+): string {
+  const params = new URLSearchParams()
+  if (opts.q) params.set('q', opts.q)
+  if (opts.categoria) params.set('categoria', opts.categoria)
+  if (opts.marcas.length > 0) params.set('marca', opts.marcas.join(','))
+  if (opts.orden !== 'relevancia') params.set('orden', opts.orden)
+  if (opts.page > 1) params.set('page', String(opts.page))
+  const search = params.toString()
+  return search ? `${pathname}?${search}` : pathname
 }
 
 export default function ProductosClient({
   productos,
+  totalCount,
+  marcasDisponibles,
   categorias,
   initialQ,
   initialCategoria,
   initialMarca = '',
+  initialPage = 1,
+  initialOrden = 'relevancia',
   catalogType = 'detal',
 }: Props) {
   const router = useGuardedRouter()
@@ -78,27 +81,60 @@ export default function ProductosClient({
       ? initialMarca.split(',').map(m => m.trim()).filter(Boolean)
       : [],
   )
-  const [orden, setOrden] = useState<Orden>('relevancia')
+  const [orden, setOrden] = useState<Orden>(initialOrden)
   const [ordenOpen, setOrdenOpen] = useState(false)
   const [marcaOpen, setMarcaOpen] = useState(false)
-  const [pagina, setPagina] = useState(1)
+  const [pagina, setPagina] = useState(initialPage)
   const [mounted, setMounted] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filtroPendiente, setFiltroPendiente] = useState(false)
   const skipUrlSync = useRef(false)
 
-  const aplicarCategoria = useCallback(
-    (slug: string, options?: { fromUrl?: boolean }) => {
+  const navigateCatalog = useCallback(
+    (next: {
+      q?: string
+      categoria?: string
+      marcas?: string[]
+      page?: number
+      orden?: Orden
+    }, options?: { fromUrl?: boolean }) => {
+      const q = next.q ?? query
+      const categoria = next.categoria ?? categoriaActiva
+      const marcas = next.marcas ?? marcasActivas
+      const page = next.page ?? 1
+      const nextOrden = next.orden ?? orden
+
       if (!options?.fromUrl) {
         signalCatalogNavigating()
         setFiltroPendiente(true)
       }
+
       startTransition(() => {
-        setCategoriaActiva(slug)
-        setPagina(1)
+        setQuery(q)
+        setInputValue(q)
+        setCategoriaActiva(categoria)
+        setMarcasActivas(marcas)
+        setOrden(nextOrden)
+        setPagina(page)
+        skipUrlSync.current = true
+        const href = buildCatalogHref(pathname, {
+          q,
+          categoria,
+          marcas,
+          page,
+          orden: nextOrden,
+        })
+        router.replace(href, { scroll: false })
       })
     },
-    [],
+    [query, categoriaActiva, marcasActivas, orden, pathname, router],
+  )
+
+  const aplicarCategoria = useCallback(
+    (slug: string, options?: { fromUrl?: boolean }) => {
+      navigateCatalog({ categoria: slug, page: 1 }, options)
+    },
+    [navigateCatalog],
   )
 
   // Soft nav (Link a ?categoria=…) reutiliza el cliente: sincronizar props → estado
@@ -122,7 +158,15 @@ export default function ProductosClient({
     )
   }, [initialMarca])
 
-  // Optimistic update desde el menú lateral (misma página /productos)
+  useEffect(() => {
+    setPagina(initialPage)
+    setFiltroPendiente(false)
+  }, [initialPage, productos])
+
+  useEffect(() => {
+    setOrden(initialOrden)
+  }, [initialOrden])
+
   useEffect(() => {
     const onCategoria = (e: Event) => {
       const slug = (e as CustomEvent<{ slug: string }>).detail?.slug
@@ -137,15 +181,12 @@ export default function ProductosClient({
     setTimeout(() => setMounted(true), 100)
   }, [])
 
-  // Quitar overlay si la transición ya aplicó el filtro
   useEffect(() => {
     if (!filtroPendiente || isPending) return
     const t = setTimeout(() => setFiltroPendiente(false), 180)
     return () => clearTimeout(t)
   }, [filtroPendiente, isPending, categoriaActiva, productos])
 
-  // Scroll al inicio al cambiar de página (después del render, para que no
-  // compita con el reflow/animaciones de la grilla). Se omite el primer render.
   const paginaPrevia = useRef(pagina)
   useEffect(() => {
     if (paginaPrevia.current === pagina) return
@@ -157,120 +198,36 @@ export default function ProductosClient({
     return () => cancelAnimationFrame(id)
   }, [pagina])
 
-  // Sync URL
-  useEffect(() => {
-    if (skipUrlSync.current) {
-      skipUrlSync.current = false
-      return
-    }
-    const params = new URLSearchParams()
-    if (query) params.set('q', query)
-    if (categoriaActiva) params.set('categoria', categoriaActiva)
-    if (marcasActivas.length > 0) params.set('marca', marcasActivas.join(','))
-    const search = params.toString()
-    const next = search ? `${pathname}?${search}` : pathname
-    const current =
-      typeof window !== 'undefined'
-        ? `${window.location.pathname}${window.location.search}`
-        : next
-    if (current !== next) {
-      router.replace(next, { scroll: false })
-    }
-  }, [query, categoriaActiva, marcasActivas, pathname, router])
-
   const mostrarCarga = !mounted || isPending || filtroPendiente
 
-  const marcasDisponibles = useMemo(() => {
-    const marcas = new Set(
-      productos.filter(p => p.marca).map(p => p.marca as string),
-    )
-    return Array.from(marcas).sort((a, b) => a.localeCompare(b, 'es'))
-  }, [productos])
-
-  const productosFiltrados = useMemo(() => {
-    let result = [...productos]
-
-    // Filtro búsqueda
-    if (query.trim()) {
-      const q = query.toLowerCase()
-      result = result.filter(p =>
-        p.nombre.toLowerCase().includes(q) ||
-        p.descripcion?.toLowerCase().includes(q) ||
-        p.sku?.toLowerCase().includes(q) ||
-        p.marca?.toLowerCase().includes(q) ||
-        p.categoria?.nombre.toLowerCase().includes(q)
-      )
-    }
-
-    // Filtro categoría: match por slug; si es raíz, incluye sus subcategorías
-    if (categoriaActiva) {
-      result = result.filter(p =>
-        productoCoincideCategoria(p, categoriaActiva, categorias),
-      )
-    }
-
-    if (marcasActivas.length > 0) {
-      const selected = new Set(marcasActivas)
-      result = result.filter(p => p.marca != null && selected.has(p.marca))
-    }
-
-    // Orden
-    switch (orden) {
-      case 'precio-asc':
-        result.sort((a, b) => getPrecioOrden(a, catalogType) - getPrecioOrden(b, catalogType))
-        break
-      case 'precio-desc':
-        result.sort((a, b) => getPrecioOrden(b, catalogType) - getPrecioOrden(a, catalogType))
-        break
-      case 'nombre':
-        result.sort((a, b) => a.nombre.localeCompare(b.nombre))
-        break
-    }
-
-    return result
-  }, [productos, query, categoriaActiva, marcasActivas, orden, catalogType, categorias])
-
-  const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA)
-  const paginaActual = Math.min(Math.max(1, pagina), Math.max(1, totalPaginas))
+  const totalPaginas = Math.max(1, Math.ceil(totalCount / CATALOG_PAGE_SIZE))
+  const paginaActual = Math.min(Math.max(1, pagina), totalPaginas)
   const paginasVisibles = useMemo(
     () => getPaginationChunk(paginaActual, totalPaginas, 5),
     [paginaActual, totalPaginas],
   )
-  const productosPagina = productosFiltrados.slice(
-    (paginaActual - 1) * ITEMS_POR_PAGINA,
-    paginaActual * ITEMS_POR_PAGINA
-  )
-
-  // Si el filtro reduce el total de páginas, vuelve a un índice válido
-  useEffect(() => {
-    if (totalPaginas > 0 && pagina > totalPaginas) {
-      setPagina(totalPaginas)
-    }
-  }, [totalPaginas, pagina])
+  const productosPagina = productos
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    setQuery(inputValue)
+    navigateCatalog({ q: inputValue.trim(), page: 1 })
   }
 
   const limpiarFiltros = () => {
-    signalCatalogNavigating()
-    setFiltroPendiente(true)
-    startTransition(() => {
-      setQuery('')
-      setInputValue('')
-      setCategoriaActiva('')
-      setMarcasActivas([])
-      setOrden('relevancia')
-      setPagina(1)
+    navigateCatalog({
+      q: '',
+      categoria: '',
+      marcas: [],
+      orden: 'relevancia',
+      page: 1,
     })
   }
 
   const toggleMarca = (marca: string) => {
-    setMarcasActivas(prev =>
-      prev.includes(marca) ? prev.filter(m => m !== marca) : [...prev, marca],
-    )
-    setPagina(1)
+    const next = marcasActivas.includes(marca)
+      ? marcasActivas.filter(m => m !== marca)
+      : [...marcasActivas, marca]
+    navigateCatalog({ marcas: next, page: 1 })
   }
 
   const marcaValueLabel =
@@ -291,22 +248,6 @@ export default function ProductosClient({
     return undefined
   }, [categorias, categoriaActiva])
 
-  const raizSeleccionada = useMemo(() => {
-    const raizDirecta = categorias.find(r => r.slug === categoriaActiva)
-    if (raizDirecta) return raizDirecta
-    for (const r of categorias) {
-      if (r.subcategorias?.some(s => s.slug === categoriaActiva)) return r
-    }
-    return null
-  }, [categorias, categoriaActiva])
-
-  const subcategoriasVisibles = useMemo(() => {
-    if (!raizSeleccionada?.subcategorias?.length) return []
-    return [...raizSeleccionada.subcategorias]
-      .filter(s => s.activa)
-      .sort((a, b) => a.orden - b.orden)
-  }, [raizSeleccionada])
-
   const ordenLabels: Record<Orden, string> = {
     relevancia: 'Destacados',
     'precio-asc': 'Menor precio',
@@ -319,18 +260,17 @@ export default function ProductosClient({
     (marcasActivas.length > 0 ? 1 : 0) +
     (orden !== 'relevancia' ? 1 : 0)
 
-  // Distinguir "catálogo vacío" (sin productos en la BD) de "sin resultados" (por filtros/búsqueda)
-  const catalogoVacio = productos.length === 0
   const hayFiltros = Boolean(
     query || categoriaActiva || marcasActivas.length > 0 || orden !== 'relevancia',
   )
+  const catalogoVacio = totalCount === 0 && !hayFiltros
+  const sinResultados = totalCount === 0 && hayFiltros
 
   return (
     <div className="mobile-catalog-page relative min-h-screen max-md:pb-20 max-md:pt-[6.5rem] pt-28 sm:pt-32">
       <PageGoldAccent />
       <div className="relative z-10 max-w-7xl mx-auto px-4 max-md:px-4 sm:px-6 lg:px-8">
 
-        {/* ── Mobile: toolbar + filtros drawer ── */}
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -349,11 +289,8 @@ export default function ProductosClient({
           <MobileCatalogToolbar
             inputValue={inputValue}
             onInputChange={setInputValue}
-            onSearch={() => setQuery(inputValue)}
-            onClearSearch={() => {
-              setInputValue('')
-              setQuery('')
-            }}
+            onSearch={() => navigateCatalog({ q: inputValue.trim(), page: 1 })}
+            onClearSearch={() => navigateCatalog({ q: '', page: 1 })}
             onOpenFilters={() => setFiltersOpen(true)}
             activeFiltersCount={activeFiltersCount}
           />
@@ -396,18 +333,14 @@ export default function ProductosClient({
             onCategoriaChange={aplicarCategoria}
             marcas={marcasDisponibles}
             marcasActivas={marcasActivas}
-            onMarcasChange={next => {
-              setMarcasActivas(next)
-              setPagina(1)
-            }}
+            onMarcasChange={next => navigateCatalog({ marcas: next, page: 1 })}
             orden={orden}
-            onOrdenChange={setOrden}
+            onOrdenChange={next => navigateCatalog({ orden: next, page: 1 })}
             onLimpiar={limpiarFiltros}
-            resultCount={productosFiltrados.length}
+            resultCount={totalCount}
           />
         </motion.section>
 
-        {/* ── Desktop: header + filtros (sin cambios) ── */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -415,7 +348,6 @@ export default function ProductosClient({
         >
           <div className="pointer-events-none absolute -right-8 -top-8 h-48 w-48 bg-[radial-gradient(circle,var(--glow-gold)_0%,transparent_70%)]" />
 
-          {/* Título */}
           <div className="relative pb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -439,14 +371,13 @@ export default function ProductosClient({
                 <div className="flex shrink-0 items-center gap-2.5 self-start sm:self-auto">
                   <Package size={15} className="text-[var(--gold-subtle)]" />
                   <span className="text-[12px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)]">
-                    {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+                    {totalCount} producto{totalCount !== 1 ? 's' : ''}
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Búsqueda + categoría + orden — una sola barra compacta */}
           <div className="relative z-30 mb-2 overflow-visible">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-5">
               <form onSubmit={handleSearch} className="relative min-w-0 flex-1">
@@ -458,17 +389,14 @@ export default function ProductosClient({
                   type="text"
                   value={inputValue}
                   onChange={e => setInputValue(e.target.value)}
-                  placeholder="Buscar por nombre, SKU o categoría…"
+                  placeholder="Buscar por nombre, SKU o marca…"
                   className="w-full border-0 border-b-2 border-[var(--border-input)] bg-transparent py-3.5 pl-7 pr-24 text-sm font-normal text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--placeholder)] focus:border-[var(--gold)]"
                 />
                 <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center gap-1">
                   {inputValue && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setInputValue('')
-                        setQuery('')
-                      }}
+                      onClick={() => navigateCatalog({ q: '', page: 1 })}
                       className="rounded-[2px] p-1.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
                       aria-label="Limpiar búsqueda"
                     >
@@ -503,10 +431,7 @@ export default function ProductosClient({
                   >
                     <CatalogFilterOption
                       active={marcasActivas.length === 0}
-                      onClick={() => {
-                        setMarcasActivas([])
-                        setPagina(1)
-                      }}
+                      onClick={() => navigateCatalog({ marcas: [], page: 1 })}
                     >
                       Todas las marcas
                     </CatalogFilterOption>
@@ -536,8 +461,8 @@ export default function ProductosClient({
                       key={key}
                       active={orden === key}
                       onClick={() => {
-                        setOrden(key)
                         setOrdenOpen(false)
+                        navigateCatalog({ orden: key, page: 1 })
                       }}
                     >
                       {ordenLabels[key]}
@@ -550,9 +475,7 @@ export default function ProductosClient({
 
         </motion.section>
 
-        {/* Contenido a ancho completo — sin sidebar */}
         <div className="mt-2 min-w-0 lg:mt-4">
-            {/* Chip de filtro activo (desktop) */}
             {(categoriaActiva || marcasActivas.length > 0 || mostrarCarga) && (
               <div className="mb-4 hidden items-center gap-3 md:flex">
                 <span className="text-[10px] font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
@@ -586,13 +509,12 @@ export default function ProductosClient({
               </div>
             )}
 
-            {/* Contador + estado de carga */}
             {mounted && (
               <div className="mb-3 flex items-center justify-between gap-3 md:hidden">
                 <p className="text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-subtle)]">
                   {mostrarCarga && filtroPendiente
                     ? 'Actualizando…'
-                    : `${productosFiltrados.length} producto${productosFiltrados.length !== 1 ? 's' : ''}`}
+                    : `${totalCount} producto${totalCount !== 1 ? 's' : ''}`}
                 </p>
                 {mostrarCarga && (
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-light uppercase tracking-[1.5px] text-[var(--gold)]">
@@ -603,7 +525,6 @@ export default function ProductosClient({
               </div>
             )}
 
-            {/* Grid productos — mobile */}
             {mostrarCarga ? (
               <ProductGridMobile>
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -616,17 +537,17 @@ export default function ProductosClient({
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center md:hidden"
               >
-                {catalogoVacio && !hayFiltros ? (
+                {catalogoVacio ? (
                   <Package size={36} className="text-[var(--text-faint)]" />
                 ) : (
                   <Search size={36} className="text-[var(--text-faint)]" />
                 )}
                 <p className="text-center text-[12px] font-light uppercase tracking-[1px] text-[var(--text-secondary)]">
-                  {catalogoVacio && !hayFiltros
+                  {catalogoVacio
                     ? 'Aún no hay productos disponibles'
                     : 'No se encontraron productos'}
                 </p>
-                {hayFiltros && (
+                {(hayFiltros || sinResultados) && (
                   <button
                     onClick={limpiarFiltros}
                     className="catalog-gold-cta min-h-[44px] rounded-xl px-5 text-[11px] font-medium uppercase tracking-[1.5px]"
@@ -652,6 +573,7 @@ export default function ProductosClient({
                         <ProductCardMobile
                           producto={producto}
                           catalogType={catalogType}
+                          priority={i < 2}
                         />
                       </motion.div>
                     ))}
@@ -660,7 +582,6 @@ export default function ProductosClient({
               </motion.div>
             )}
 
-            {/* Grid productos — desktop (más columnas sin sidebar) */}
             {mostrarCarga ? (
               <div className="mb-10 mt-3 hidden grid-cols-2 gap-px sm:grid-cols-3 md:grid lg:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -673,17 +594,17 @@ export default function ProductosClient({
                 animate={{ opacity: 1 }}
                 className="hidden flex-col items-center justify-center gap-4 px-6 py-20 text-center md:flex"
               >
-                {catalogoVacio && !hayFiltros ? (
+                {catalogoVacio ? (
                   <Package size={40} className="text-[var(--text-faint)]" />
                 ) : (
                   <Search size={40} className="text-[var(--text-faint)]" />
                 )}
                 <p className="text-sm font-light uppercase tracking-[0.5px] text-[var(--text-secondary)]">
-                  {catalogoVacio && !hayFiltros
+                  {catalogoVacio
                     ? 'Aún no hay productos disponibles'
                     : 'No se encontraron productos'}
                 </p>
-                {catalogoVacio && !hayFiltros ? (
+                {catalogoVacio ? (
                   <p className="max-w-sm text-[12px] font-light text-[var(--text-subtle)]">
                     Vuelve pronto, estamos preparando el catálogo.
                   </p>
@@ -712,15 +633,18 @@ export default function ProductosClient({
                       exit={{ opacity: 0, scale: 0.97 }}
                       transition={{ delay: i * 0.04, duration: 0.3 }}
                     >
-                      <ProductCard producto={producto} catalogType={catalogType} />
+                      <ProductCard
+                        producto={producto}
+                        catalogType={catalogType}
+                        priority={i < 4}
+                      />
                     </motion.div>
                   ))}
                 </AnimatePresence>
               </motion.div>
             )}
 
-            {/* Paginación — bloques fijos de 5 (1–5, 6–10, …) */}
-            {totalPaginas > 1 && (
+            {totalPaginas > 1 && totalCount > 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -728,7 +652,7 @@ export default function ProductosClient({
               >
                 <button
                   type="button"
-                  onClick={() => setPagina(p => Math.max(1, p - 1))}
+                  onClick={() => navigateCatalog({ page: Math.max(1, paginaActual - 1) })}
                   disabled={paginaActual === 1}
                   aria-label="Página anterior"
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-input)] px-3 text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)] transition-all hover:border-[var(--border)] hover:text-[var(--gold)] disabled:cursor-not-allowed disabled:opacity-35 md:rounded-[2px] md:px-4"
@@ -743,7 +667,7 @@ export default function ProductosClient({
                     <button
                       key={num}
                       type="button"
-                      onClick={() => setPagina(num)}
+                      onClick={() => navigateCatalog({ page: num })}
                       aria-label={`Ir a página ${num}`}
                       aria-current={paginaActual === num ? 'page' : undefined}
                       className={`h-10 min-w-10 rounded-xl border text-[13px] font-light tabular-nums transition-all md:rounded-[2px] ${
@@ -759,7 +683,9 @@ export default function ProductosClient({
 
                 <button
                   type="button"
-                  onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                  onClick={() =>
+                    navigateCatalog({ page: Math.min(totalPaginas, paginaActual + 1) })
+                  }
                   disabled={paginaActual === totalPaginas}
                   aria-label="Página siguiente"
                   className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border-input)] px-3 text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-secondary)] transition-all hover:border-[var(--border)] hover:text-[var(--gold)] disabled:cursor-not-allowed disabled:opacity-35 md:rounded-[2px] md:px-4"

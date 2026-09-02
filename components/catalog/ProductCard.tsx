@@ -12,6 +12,7 @@ import {
 } from '@/lib/catalog'
 import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import CatalogImage from '@/components/catalog/CatalogImage'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -34,9 +35,11 @@ function tituloCard(producto: Producto): string {
 export default function ProductCard({
   producto,
   catalogType = 'detal',
+  priority = false,
 }: {
   producto: Producto
   catalogType?: 'detal' | 'mayoreo'
+  priority?: boolean
 }) {
   const agregar = useCarrito(s => s.agregar)
   const isMayoreo = catalogType === 'mayoreo'
@@ -64,10 +67,14 @@ export default function ProductCard({
 
         <div className="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden">
           {producto.imagenes?.[0] ? (
-            <img
+            <CatalogImage
               src={producto.imagenes[0]}
               alt={producto.nombre}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="h-full w-full"
+              imageClassName="object-cover transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              quality={70}
+              priority={priority}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[var(--bg-surface)]">

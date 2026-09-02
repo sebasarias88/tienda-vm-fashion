@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Producto } from '@/types'
 import Modal from '@/components/ui/Modal'
@@ -30,7 +30,6 @@ import {
 import {
   ADMIN_TABLE_PAGE_SIZE,
   clampPage,
-  paginateItems,
 } from '@/lib/pagination'
 import toast from 'react-hot-toast'
 import {
@@ -47,6 +46,7 @@ type CategoriaInfo = { nombre: string; padre_id: string | null }
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [categoriasMap, setCategoriasMap] = useState<Record<string, CategoriaInfo>>({})
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
@@ -60,16 +60,24 @@ export default function ProductosPage() {
 
   const fetchProductos = useCallback(async () => {
     setLoading(true)
+    const from = (page - 1) * ADMIN_TABLE_PAGE_SIZE
+    const to = from + ADMIN_TABLE_PAGE_SIZE - 1
+    const q = search.trim()
+
     let query = supabase
       .from('productos')
-      .select('*, categoria:categorias(id, nombre, slug)')
+      .select(
+        'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku, categoria:categorias(id, nombre, slug)',
+        { count: 'exact' },
+      )
       .order('orden', { ascending: true })
 
     if (filtroDisponible === 'disponible') query = query.eq('disponible', true)
     if (filtroDisponible === 'agotado') query = query.eq('disponible', false)
+    if (q) query = query.or(`nombre.ilike.%${q}%,sku.ilike.%${q}%`)
 
-    const [{ data, error }, { data: cats }] = await Promise.all([
-      query,
+    const [{ data, error, count }, { data: cats }] = await Promise.all([
+      query.range(from, to),
       supabase.from('categorias').select('id, nombre, padre_id'),
     ])
 
@@ -77,7 +85,8 @@ export default function ProductosPage() {
       toast.error('Error al cargar productos')
       setLoadError(true)
     } else {
-      setProductos(data || [])
+      setProductos((data as Producto[]) || [])
+      setTotalCount(count ?? 0)
       const map: Record<string, CategoriaInfo> = {}
       ;(cats || []).forEach((c: { id: string; nombre: string; padre_id: string | null }) => {
         map[c.id] = { nombre: c.nombre, padre_id: c.padre_id ?? null }
@@ -86,35 +95,35 @@ export default function ProductosPage() {
       setLoadError(false)
     }
     setLoading(false)
-  }, [filtroDisponible])
-
-  useEffect(() => {
-    fetchProductos()
-  }, [fetchProductos])
-
-  const productosFiltrados = productos.filter(
-    p =>
-      p.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku?.toLowerCase().includes(search.toLowerCase()),
-  )
+  }, [filtroDisponible, page, search])
 
   useEffect(() => {
     setPage(1)
   }, [search, filtroDisponible])
 
-  const currentPage = clampPage(page, productosFiltrados.length, ADMIN_TABLE_PAGE_SIZE)
+  useEffect(() => {
+    fetchProductos()
+  }, [fetchProductos])
 
-  const productosPaginados = useMemo(
-    () => paginateItems(productosFiltrados, currentPage, ADMIN_TABLE_PAGE_SIZE),
-    [productosFiltrados, currentPage],
-  )
+  const productosPaginados = productos
+  const currentPage = clampPage(page, totalCount, ADMIN_TABLE_PAGE_SIZE)
 
   const abrirCrear = () => {
     setSelected(null)
     setFormModal(true)
   }
-  const abrirEditar = (p: Producto) => {
-    setSelected(p)
+  const abrirEditar = async (p: Producto) => {
+    // Cargar fila completa solo al editar (listado es lean)
+    const { data, error } = await supabase
+      .from('productos')
+      .select('*, categoria:categorias(id, nombre, slug)')
+      .eq('id', p.id)
+      .single()
+    if (error || !data) {
+      toast.error('No se pudo cargar el producto')
+      return
+    }
+    setSelected(data as Producto)
     setFormModal(true)
   }
 
@@ -236,7 +245,7 @@ export default function ProductosPage() {
       />
 
       <AdminListMeta
-        count={productosFiltrados.length}
+        count={totalCount}
         noun="producto"
         search={search || undefined}
         activeFilterLabel={filtroDisponible !== 'todos' ? filtroLabels[filtroDisponible] : undefined}
@@ -255,7 +264,7 @@ export default function ProductosPage() {
           <AdminTablePagination
             page={currentPage}
             pageSize={ADMIN_TABLE_PAGE_SIZE}
-            totalItems={productosFiltrados.length}
+            totalItems={totalCount}
             onPageChange={setPage}
           />
         }
@@ -276,7 +285,7 @@ export default function ProductosPage() {
         <AdminTableBody>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => <AdminTableSkeletonRow key={i} cols={9} />)
-          ) : productosFiltrados.length === 0 ? (
+          ) : totalCount === 0 ? (
             <AdminTableEmpty
               colSpan={9}
               icon={Package}
@@ -424,7 +433,7 @@ export default function ProductosPage() {
       />
 
       <p className="mb-3 text-[11px] text-[var(--text-subtle)]">
-        {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+        {totalCount} producto{totalCount !== 1 ? 's' : ''}
         {search ? ` · "${search}"` : ''}
         {filtroDisponible !== 'todos' ? ` · ${filtroLabels[filtroDisponible]}` : ''}
       </p>
@@ -440,7 +449,7 @@ export default function ProductosPage() {
           onRetry={fetchProductos}
           title="No se pudieron cargar los productos"
         />
-      ) : productosFiltrados.length === 0 ? (
+      ) : totalCount === 0 ? (
         <MobileEmptyState
           icon={Package}
           title={
@@ -486,7 +495,7 @@ export default function ProductosPage() {
       <AdminTablePagination
         page={currentPage}
         pageSize={ADMIN_TABLE_PAGE_SIZE}
-        totalItems={productosFiltrados.length}
+        totalItems={totalCount}
         onPageChange={setPage}
         compact
       />

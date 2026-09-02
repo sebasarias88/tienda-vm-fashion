@@ -1,11 +1,11 @@
 import { cache } from 'react'
-import { createSupabaseServer } from '@/lib/supabase-server'
+import { createSupabasePublic } from '@/lib/supabase-public'
 
 export type SiteConfigMap = Record<string, string>
 
 export const getSiteConfig = cache(async (): Promise<SiteConfigMap> => {
   try {
-    const supabase = await createSupabaseServer()
+    const supabase = createSupabasePublic()
     const { data } = await supabase.from('configuracion').select('clave, valor')
     const config: SiteConfigMap = {}
     data?.forEach(row => {

@@ -1,19 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-
-function getSupabaseEnv() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
-
-  if (!url || !anonKey) {
-    throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
-        'Add them in Vercel → Project → Settings → Environment Variables, then redeploy.',
-    )
-  }
-
-  return { url, anonKey }
-}
+import { getSupabaseEnv } from '@/lib/env'
 
 export async function createSupabaseServer() {
   const { url, anonKey } = getSupabaseEnv()

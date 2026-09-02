@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Menu, Search } from 'lucide-react'
 import { useCarrito } from '@/lib/store'
+import { useCartHydrated } from '@/lib/useCartHydrated'
 import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import LuxuryCartIcon from '@/components/catalog/LuxuryCartIcon'
@@ -29,7 +30,7 @@ export default function MobileHeader({
   hasAnnouncement,
 }: MobileHeaderProps) {
   const cantidad = useCarrito(s => s.cantidad())
-  const [mounted, setMounted] = useState(false)
+  const cartHydrated = useCartHydrated()
   const [navOpen, setNavOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -37,10 +38,6 @@ export default function MobileHeader({
   const isMayoreo = catalogType === 'mayoreo'
   const offsetTop = hasAnnouncement ?? isMayoreo
   const homeHref = catalogPath(catalogType, '/')
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const openCart = () => {
     setCartOpen(true)
@@ -90,13 +87,14 @@ export default function MobileHeader({
               type="button"
               onClick={() => setCartOpen(true)}
               className="mobile-catalog-icon-btn relative flex h-11 w-11 items-center justify-center rounded-lg text-[var(--gold)] active:bg-[var(--gold-muted)]"
-              aria-label={`Carrito${mounted && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
+              aria-label={`Carrito${cartHydrated && cantidad > 0 ? `, ${cantidad} artículos` : ''}`}
             >
               <LuxuryCartIcon size={20} />
-              {mounted && cantidad > 0 && (
+              {cartHydrated && cantidad > 0 && (
                 <span
                   className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--gold)] px-1 text-[9px] font-bold leading-none text-[var(--text-on-gold)]"
                   aria-hidden
+                  suppressHydrationWarning
                 >
                   {cantidad > 99 ? '99+' : cantidad}
                 </span>

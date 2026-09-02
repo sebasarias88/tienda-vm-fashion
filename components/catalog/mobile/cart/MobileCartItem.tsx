@@ -11,6 +11,7 @@ import {
 } from '@/lib/cart'
 import { catalogPath, getProductoPrecios, type CatalogType } from '@/lib/catalog'
 import MobileCartQtyStepper from '@/components/catalog/mobile/cart/MobileCartQtyStepper'
+import CatalogImage from '@/components/catalog/CatalogImage'
 
 function formatPrecio(precio: number) {
   return new Intl.NumberFormat('es-CO', {
@@ -52,10 +53,12 @@ export default function MobileCartItem({
       <div className="mobile-cart-item__row">
         <Link href={productHref} className="mobile-cart-item__thumb">
           {producto.imagenes?.[0] ? (
-            <img
+            <CatalogImage
               src={producto.imagenes[0]}
               alt={producto.nombre}
-              className="h-full w-full object-cover"
+              className="h-full w-full"
+              sizes="64px"
+              quality={60}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[var(--bg-surface)]">
