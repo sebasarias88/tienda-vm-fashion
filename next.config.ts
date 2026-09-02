@@ -4,9 +4,45 @@ import { fileURLToPath } from "url";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
+function supabaseRemotePattern() {
+  const raw =
+    process.env.SUPABASE_URL?.trim() ??
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+  if (!raw) {
+    return {
+      protocol: 'https' as const,
+      hostname: '*.supabase.co',
+      pathname: '/storage/v1/object/public/**',
+    }
+  }
+  try {
+    const { hostname, protocol } = new URL(raw)
+    return {
+      protocol: (protocol.replace(':', '') || 'https') as 'http' | 'https',
+      hostname,
+      pathname: '/storage/v1/object/public/**',
+    }
+  } catch {
+    return {
+      protocol: 'https' as const,
+      hostname: '*.supabase.co',
+      pathname: '/storage/v1/object/public/**',
+    }
+  }
+}
+
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+  },
   turbopack: {
     root: projectRoot,
+  },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    qualities: [60, 70, 72, 75, 80],
+    remotePatterns: [supabaseRemotePattern()],
   },
   async headers() {
     return [

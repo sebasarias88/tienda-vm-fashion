@@ -9,15 +9,11 @@ import {
   type SiteConfigMap,
 } from '@/lib/site-config'
 import { DIRECCION_NEGOCIO } from '@/lib/negocio'
+import { getSiteUrl } from '@/lib/env'
 
 const LOCALE = 'es_CO'
 
-export function getSiteUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
-  if (fromEnv) return fromEnv
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
-}
+export { getSiteUrl }
 
 export function toAbsoluteUrl(path: string): string {
   if (path.startsWith('http://') || path.startsWith('https://')) return path

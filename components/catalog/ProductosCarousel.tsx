@@ -85,7 +85,11 @@ export default function ProductosCarousel({
               viewport={{ once: true }}
               transition={{ delay: i * 0.04 }}
             >
-              <ResponsiveProductCard producto={producto} catalogType={catalogType} />
+              <ResponsiveProductCard
+                producto={producto}
+                catalogType={catalogType}
+                priority={i === 0}
+              />
             </motion.div>
           ))}
         </HorizontalCarousel>

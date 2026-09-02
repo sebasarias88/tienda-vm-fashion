@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
+import { optimizeImageFile, MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
 import { Promocion } from '@/types'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
@@ -148,11 +149,25 @@ export default function PromocionesPage() {
   }
 
   const uploadImage = async (file: File) => {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-    const path = `banners/promos/${Date.now()}.${ext}`
+    if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+      toast.error(`Máximo ${Math.round(MAX_IMAGE_UPLOAD_BYTES / (1024 * 1024))}MB por imagen`)
+      return
+    }
+
     setUploading(true)
-    const { error } = await supabase.storage.from('banners').upload(path, file, {
+    let optimized: File
+    try {
+      optimized = await optimizeImageFile(file)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo procesar la imagen')
+      setUploading(false)
+      return
+    }
+
+    const path = `banners/promos/${Date.now()}.webp`
+    const { error } = await supabase.storage.from('banners').upload(path, optimized, {
       upsert: true,
+      contentType: optimized.type || 'image/webp',
     })
     if (error) {
       toast.error('Error al subir la imagen')

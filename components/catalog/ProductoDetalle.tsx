@@ -6,6 +6,8 @@ import { useCarrito } from '@/lib/store'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 import { getLineKey } from '@/lib/cart'
 import { buildVariacionesSeleccionadas, opcionDisponibleEnCatalogo, productoAgotadoEnCatalogo } from '@/lib/variaciones'
+import CatalogDetailImage from '@/components/catalog/CatalogDetailImage'
+import CatalogImage from '@/components/catalog/CatalogImage'
 import {
   ShoppingBag,
   Plus,
@@ -330,16 +332,21 @@ export default function ProductoDetalle({
                 </div>
               ) : imagenes.length > 0 ? (
                 <AnimatePresence mode="wait">
-                  <motion.img
+                  <motion.div
                     key={imagenActiva}
-                    src={imagenes[imagenActiva]}
-                    alt={producto.nombre}
-                    className="h-full w-full object-cover"
+                    className="absolute inset-0"
                     initial={{ opacity: 0, scale: 1.02 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                  />
+                  >
+                    <CatalogDetailImage
+                      src={imagenes[imagenActiva]}
+                      alt={producto.nombre}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority
+                    />
+                  </motion.div>
                 </AnimatePresence>
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
@@ -383,7 +390,13 @@ export default function ProductoDetalle({
                       imagenActiva === i ? 'opacity-100' : 'opacity-45 hover:opacity-75'
                     }`}
                   >
-                    <img src={url} alt={`Vista ${i + 1}`} className="h-full w-full object-cover" />
+                    <CatalogImage
+                      src={url}
+                      alt={`Vista ${i + 1}`}
+                      className="h-full w-full"
+                      sizes="64px"
+                      quality={60}
+                    />
                     {imagenActiva === i && (
                       <span className="absolute inset-x-1 bottom-0 h-px bg-[var(--gold)]" />
                     )}
@@ -738,11 +751,9 @@ export default function ProductoDetalle({
             >
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-black/40">
                 <AnimatePresence mode="wait">
-                  <motion.img
+                  <motion.div
                     key={zoomImageIndex}
-                    src={imagenes[zoomImageIndex]}
-                    alt={`${producto.nombre} — imagen ${zoomImageIndex + 1}`}
-                    className="absolute inset-0 h-full w-full object-contain"
+                    className="absolute inset-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -755,7 +766,15 @@ export default function ProductoDetalle({
                       if (info.offset.x < -60 || info.velocity.x < -400) zoomNext()
                       else if (info.offset.x > 60 || info.velocity.x > 400) zoomPrev()
                     }}
-                  />
+                  >
+                    <CatalogDetailImage
+                      src={imagenes[zoomImageIndex]}
+                      alt={`${producto.nombre} — imagen ${zoomImageIndex + 1}`}
+                      sizes="90vw"
+                      imageClassName="object-contain"
+                      quality={80}
+                    />
+                  </motion.div>
                 </AnimatePresence>
               </div>
 

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { createSupabaseServer } from '@/lib/supabase-server'
 import HeroBanner from '@/components/catalog/HeroBanner'
 import PromoStrip from '@/components/catalog/PromoStrip'
 import CategoriasGrid from '@/components/catalog/CategoriasGrid'
@@ -15,9 +14,13 @@ import {
   getSiteDescription,
   normalizeSeoDescription,
 } from '@/lib/site-config'
+import { getCategoriasActivas } from '@/lib/catalog-data'
+import { createSupabasePublic } from '@/lib/supabase-public'
+import { PRODUCTO_SHELF_SELECT, withCardImagenes } from '@/lib/productQueries'
 import { rethrowIfNextControlFlowError } from '@/lib/next-errors'
-import { PRODUCTO_VARIACIONES_SELECT, withProductoVariaciones } from '@/lib/variaciones'
-import type { Banner, Categoria, Producto, Promocion } from '@/types'
+import type { Banner, Producto, Promocion } from '@/types'
+
+export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
@@ -42,59 +45,57 @@ function uniqueById(items: Producto[]) {
 }
 
 export default async function HomePage() {
-  const config: Record<string, string> = {}
+  const config = await getSiteConfig()
   let banners: Banner[] = []
   let promociones: Promocion[] = []
-  let categorias: Categoria[] = []
+  let categorias = await getCategoriasActivas().catch(() => [])
   let destacados: Producto[] = []
   let ofertas: Producto[] = []
   let novedades: Producto[] = []
 
   try {
-    const supabase = await createSupabaseServer()
+    const supabase = createSupabasePublic()
 
     const [
-      { data: configData },
       { data: bannersData },
       { data: promocionesData },
-      { data: categoriasData },
       { data: destacadosData },
       { data: ofertasData },
       { data: novedadesData },
     ] = await Promise.all([
-      supabase.from('configuracion').select('clave, valor'),
       supabase.from('banners').select('*').eq('activo', true).order('orden'),
       supabase.from('promociones').select('*').eq('activa', true).order('orden'),
-      supabase.from('categorias').select('*, subcategorias:categorias!padre_id(*)')
-        .is('padre_id', null).eq('activa', true).order('orden'),
-      supabase.from('productos')
-        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
+      supabase
+        .from('productos')
+        .select(PRODUCTO_SHELF_SELECT)
         .eq('destacado', true)
         .order('orden')
         .limit(10),
-      supabase.from('productos')
-        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
+      supabase
+        .from('productos')
+        .select(PRODUCTO_SHELF_SELECT)
         .not('precio_antes', 'is', null)
         .order('orden')
         .limit(10),
-      supabase.from('productos')
-        .select(`*, categoria:categorias(id,nombre,slug,descuento_porcentaje,descuento_activo,descuento_fecha_fin,descuento_porcentaje_mayoreo,descuento_activo_mayoreo,descuento_fecha_fin_mayoreo), ${PRODUCTO_VARIACIONES_SELECT}`)
+      supabase
+        .from('productos')
+        .select(PRODUCTO_SHELF_SELECT)
         .order('created_at', { ascending: false })
         .limit(10),
     ])
 
-    configData?.forEach(row => { config[row.clave] = row.valor })
     banners = (bannersData as Banner[] | null) || []
     promociones = (promocionesData as Promocion[] | null) || []
-    categorias = (categoriasData as Categoria[] | null) || []
-    destacados = withProductoVariaciones((destacadosData as Producto[] | null) || [])
-    ofertas = withProductoVariaciones(((ofertasData as Producto[] | null) || []).filter(
-      p => p.precio_antes != null && p.precio_antes > p.precio,
-    ))
+    destacados = withCardImagenes((destacadosData as Producto[] | null) || [])
+    ofertas = withCardImagenes(
+      ((ofertasData as Producto[] | null) || []).filter(
+        p => p.precio_antes != null && p.precio_antes > p.precio,
+      ),
+    )
     const destacadosIds = new Set(destacados.map(p => p.id))
-    novedades = uniqueById(withProductoVariaciones((novedadesData as Producto[] | null) || [])).filter(
-      p => !destacadosIds.has(p.id),
-    ).slice(0, 10)
+    novedades = uniqueById(withCardImagenes((novedadesData as Producto[] | null) || []))
+      .filter(p => !destacadosIds.has(p.id))
+      .slice(0, 10)
   } catch (error) {
     rethrowIfNextControlFlowError(error)
     console.error('[HomePage] Error cargando datos:', error)

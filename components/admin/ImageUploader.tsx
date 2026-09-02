@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
+import { optimizeImageFile, MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
 import { ImageIcon, X, Loader2, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -18,12 +19,23 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
   const [dragOver, setDragOver] = useState(false)
 
   const uploadFile = async (file: File): Promise<string | null> => {
-    const ext = file.name.split('.').pop()
-    const path = `productos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    let optimized: File
+    try {
+      optimized = await optimizeImageFile(file)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No se pudo procesar la imagen'
+      toast.error(msg)
+      return null
+    }
+
+    const path = `productos/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
 
     const { error } = await supabase.storage
       .from('productos')
-      .upload(path, file, { upsert: true })
+      .upload(path, optimized, {
+        upsert: true,
+        contentType: optimized.type || 'image/webp',
+      })
 
     if (error) return null
 
@@ -36,6 +48,14 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
     if (!arr.length) return
     if (imagenes.length + arr.length > MAX_IMAGENES) {
       toast.error(`Máximo ${MAX_IMAGENES} imágenes por producto`)
+      return
+    }
+
+    const tooBig = arr.filter(f => f.size > MAX_IMAGE_UPLOAD_BYTES)
+    if (tooBig.length) {
+      toast.error(
+        `Máximo ${Math.round(MAX_IMAGE_UPLOAD_BYTES / (1024 * 1024))}MB por imagen`,
+      )
       return
     }
 
@@ -151,7 +171,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
             {uploading ? (
               <div className="flex items-center justify-center gap-2 text-[var(--text-muted)]">
                 <Loader2 size={16} className="animate-spin text-[var(--gold-bright)]" />
-                <span className="text-[11px] tracking-[0.04em]">Subiendo imágenes...</span>
+                <span className="text-[11px] tracking-[0.04em]">Optimizando y subiendo...</span>
               </div>
             ) : (
               <>
@@ -160,12 +180,14 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
                   Arrastra imágenes aquí o{' '}
                   <span className="text-[var(--gold-bright)]">haz clic para seleccionar</span>
                 </p>
-                <p className="admin-upload-zone__meta">JPG, PNG, WEBP — Máx. 5MB</p>
+                <p className="admin-upload-zone__meta">
+                  JPG, PNG, WEBP — Máx. 5MB · Se optimizan a WebP automáticamente
+                </p>
               </>
             )}
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/*"
               multiple
               className="hidden"
               onChange={e => e.target.files && handleFiles(e.target.files)}

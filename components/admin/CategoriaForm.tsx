@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
+import { optimizeImageFile, MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
 import { Categoria } from '@/types'
 import { Input } from '@/components/ui/Input'
 import { AdminSelect } from '@/components/ui/AdminSelect'
@@ -137,11 +138,26 @@ export default function CategoriaForm({
   }
 
   const handleImagenUpload = async (file: File) => {
-    setUploadingImg(true)
-    const ext = file.name.split('.').pop()
-    const path = `categorias/${Date.now()}.${ext}`
+    if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+      toast.error(`Máximo ${Math.round(MAX_IMAGE_UPLOAD_BYTES / (1024 * 1024))}MB por imagen`)
+      return
+    }
 
-    const { error } = await supabase.storage.from('productos').upload(path, file, { upsert: true })
+    setUploadingImg(true)
+    let optimized: File
+    try {
+      optimized = await optimizeImageFile(file)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo procesar la imagen')
+      setUploadingImg(false)
+      return
+    }
+
+    const path = `categorias/${Date.now()}.webp`
+    const { error } = await supabase.storage.from('productos').upload(path, optimized, {
+      upsert: true,
+      contentType: optimized.type || 'image/webp',
+    })
 
     if (error) {
       toast.error('Error al subir imagen')

@@ -28,6 +28,7 @@ import {
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import CarritoMobile from '@/components/catalog/mobile/cart/CarritoMobile'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
+import CatalogImage from '@/components/catalog/CatalogImage'
 import StickySidebar from '@/components/catalog/StickySidebar'
 import {
   ShoppingBag,
@@ -159,7 +160,13 @@ function OrderSummaryPanel({
           <div key={key} className="flex gap-3">
             <div className="h-12 w-12 shrink-0 overflow-hidden bg-[var(--bg-surface)]">
               {producto.imagenes?.[0] ? (
-                <img src={producto.imagenes[0]} alt={producto.nombre} className="h-full w-full object-cover" />
+                <CatalogImage
+                  src={producto.imagenes[0]}
+                  alt={producto.nombre}
+                  className="h-full w-full"
+                  sizes="48px"
+                  quality={60}
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
                   <ShoppingBag size={14} className="text-[var(--text-faint)]" />

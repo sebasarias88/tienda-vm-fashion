@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { Promocion } from '@/types'
+import CatalogImage from '@/components/catalog/CatalogImage'
 
 function isPromoActive(promo: Promocion) {
   const now = new Date()
@@ -55,10 +56,14 @@ export default function PromoStrip({ promociones }: { promociones: Promocion[] }
             <>
               <div className="relative aspect-[16/10] overflow-hidden bg-[var(--bg-muted)] sm:aspect-[5/3]">
                 {promo.imagen_url ? (
-                  <img
+                  <CatalogImage
                     src={promo.imagen_url}
                     alt={promo.titulo}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full"
+                    imageClassName="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    quality={72}
+                    priority={i === 0}
                   />
                 ) : (
                   <div className="flex h-full w-full items-end bg-gradient-to-br from-[var(--gold-muted)] via-[var(--bg-muted)] to-[var(--bg-surface)] p-6">

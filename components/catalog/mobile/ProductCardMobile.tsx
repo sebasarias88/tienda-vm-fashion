@@ -13,6 +13,7 @@ import {
 } from '@/lib/catalog'
 import { productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import CatalogImage from '@/components/catalog/CatalogImage'
 import { ShoppingBag, ImageIcon } from 'lucide-react'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
 
@@ -30,9 +31,11 @@ function tituloCard(producto: Producto): string {
 export default function ProductCardMobile({
   producto,
   catalogType = 'detal',
+  priority = false,
 }: {
   producto: Producto
   catalogType?: 'detal' | 'mayoreo'
+  priority?: boolean
 }) {
   const agregar = useCarrito(s => s.agregar)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
@@ -66,11 +69,14 @@ export default function ProductCardMobile({
         <div className="relative block aspect-[4/5] w-full shrink-0 overflow-hidden bg-[var(--bg-surface)]">
           <Link href={productHref} className="block h-full w-full">
             {producto.imagenes?.[0] ? (
-              <img
+              <CatalogImage
                 src={producto.imagenes[0]}
                 alt={producto.nombre}
-                className="h-full w-full object-cover transition-transform duration-500 group-active:scale-[1.03]"
-                loading="lazy"
+                className="h-full w-full"
+                imageClassName="object-cover transition-transform duration-500 group-active:scale-[1.03]"
+                sizes="(max-width: 767px) 50vw, 240px"
+                quality={70}
+                priority={priority}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">

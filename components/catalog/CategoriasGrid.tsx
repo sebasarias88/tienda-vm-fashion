@@ -8,6 +8,7 @@ import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { ArrowRight, ArrowUpRight, Tag } from 'lucide-react'
 import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
+import CatalogImage from '@/components/catalog/CatalogImage'
 
 export default function CategoriasGrid({
   categorias,
@@ -106,10 +107,13 @@ function CategoriaCard({
         className="group relative block aspect-[4/5] overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
       >
         {cat.imagen_url ? (
-          <img
+          <CatalogImage
             src={cat.imagen_url}
             alt={cat.nombre}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="absolute inset-0 h-full w-full"
+            imageClassName="object-cover transition-transform duration-700 group-hover:scale-110"
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 20vw"
+            quality={70}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--bg-muted)] to-[var(--gold-muted)]">

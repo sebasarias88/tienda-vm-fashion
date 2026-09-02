@@ -7,6 +7,7 @@ import { Categoria } from '@/types'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { Tag, ArrowRight } from 'lucide-react'
 import HorizontalCarousel from '@/components/ui/HorizontalCarousel'
+import CatalogImage from '@/components/catalog/CatalogImage'
 
 export default function CategoriasSection({
   categorias,
@@ -86,10 +87,13 @@ export default function CategoriasSection({
               className="mobile-catalog-category-card group relative block aspect-[4/5] overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] md:rounded-none"
             >
               {cat.imagen_url ? (
-                <img
+                <CatalogImage
                   src={cat.imagen_url}
                   alt={cat.nombre}
-                  className="h-full w-full object-cover opacity-90 transition-all duration-700 group-hover:scale-105 group-hover:opacity-100"
+                  className="h-full w-full opacity-90 transition-opacity duration-700 group-hover:opacity-100"
+                  imageClassName="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 640px) 45vw, 240px"
+                  quality={70}
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[var(--bg-muted)] transition-colors group-hover:bg-[var(--bg-surface)]">
