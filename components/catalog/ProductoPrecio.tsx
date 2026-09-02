@@ -8,7 +8,11 @@ import {
   getPrecioDetalInfo,
   getProductoPrecios,
 } from '@/lib/catalog'
-import { categoriaTieneDescuentoActivo } from '@/lib/descuentos'
+import {
+  productoTieneDescuentoCategoria,
+  getPorcentajeDescuentoProducto,
+  resolveDescuentoProducto,
+} from '@/lib/descuentos'
 
 type ProductoPrecioProps = {
   producto: Producto
@@ -68,11 +72,9 @@ export default function ProductoPrecio({
 
   const descuento =
     precio != null ? getDescuentoPorcentaje(precio, precioAntes) : null
-  const descuentoCategoria = categoriaTieneDescuentoActivo(producto.categoria, catalogType)
-  const pctDescuento =
-    catalogType === 'mayoreo'
-      ? producto.categoria?.descuento_porcentaje_mayoreo
-      : producto.categoria?.descuento_porcentaje
+  const descuentoCategoria = productoTieneDescuentoCategoria(producto, catalogType)
+  const descuentoResuelto = resolveDescuentoProducto(producto, catalogType)
+  const pctDescuento = getPorcentajeDescuentoProducto(producto, catalogType)
 
   return (
     <div className={wrapperClass}>
@@ -85,7 +87,7 @@ export default function ProductoPrecio({
       )}
       {descuentoCategoria && pctDescuento != null && size === 'lg' && (
         <span className="text-[11px] font-light uppercase tracking-[1px] text-[var(--gold)]">
-          -{pctDescuento}% en {producto.categoria?.nombre}
+          -{pctDescuento}% en {descuentoResuelto?.categoriaNombre}
         </span>
       )}
       {descuento != null && size === 'lg' && disponible && (

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { toastProductoAgregado } from '@/lib/toastCatalog'
 import {
   catalogPath,
   getDescuentoPorcentaje,
@@ -193,7 +194,7 @@ export default function ProductoDetalle({
     if (isMobile) {
       setQuickAddOpen(true)
     } else {
-      toast.success(`${producto.nombre} agregado al carrito`)
+      toastProductoAgregado(producto.nombre)
     }
     setTimeout(() => setAgregado(false), 2500)
   }

@@ -2171,6 +2171,33 @@ header nav a {
 
 .app-toast--mobile > div[role='status'] {
   margin: 0;
+  flex-shrink: 0;
+}
+
+.app-toast-producto {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+}
+
+.app-toast-producto__nombre {
+  display: block;
+  overflow: hidden;
+  font-weight: 500;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-toast-producto__accion {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--text-muted);
 }
 
 /* Desktop — esquina superior derecha, tarjeta sólida */
@@ -2200,4 +2227,11 @@ header nav a {
 .app-toast--desktop > div[role='status'] {
   flex-shrink: 0;
   margin: 0;
+}
+
+.app-toast--desktop .app-toast-producto__nombre {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }

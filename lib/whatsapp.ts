@@ -140,5 +140,14 @@ _Pedido generado desde el catálogo online_`
 }
 
 export function abrirWhatsApp(mensaje: string, numero: string): void {
-  window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank')
+  if (typeof window === 'undefined') return
+
+  const url = `https://wa.me/${numero}?text=${mensaje}`
+  const link = document.createElement('a')
+  link.href = url
+  link.target = '_blank'
+  link.rel = 'noopener noreferrer'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
 }

@@ -6,6 +6,7 @@ export type Categoria = {
   orden: number
   activa: boolean
   padre_id: string | null
+  padre?: Categoria | null
   descuento_porcentaje: number
   descuento_activo: boolean
   descuento_fecha_fin: string | null

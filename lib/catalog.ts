@@ -64,6 +64,7 @@ export function getProductoPrecios(
       precio,
       producto.categoria,
       catalogType,
+      producto,
     )
     if (tieneDescuento) {
       return {
@@ -84,7 +85,7 @@ export function getProductoPrecios(
 export function getPrecioDetalInfo(producto: Producto): number | null {
   const p = producto.precio
   if (p == null || p <= 0) return null
-  const { precioFinal } = calcularPrecioConDescuento(p, producto.categoria, 'detal')
+  const { precioFinal } = calcularPrecioConDescuento(p, producto.categoria, 'detal', producto)
   return precioFinal
 }
 

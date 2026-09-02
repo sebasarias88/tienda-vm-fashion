@@ -446,6 +446,11 @@ export default function CategoriaForm({
       </FormSection>
 
       <FormSection title="Descuentos por catálogo">
+        <p className="admin-form-hint -mt-2 mb-4">
+          {tipo === 'subcategoria'
+            ? 'El descuento de esta subcategoría aplica a sus productos. Si está apagado, los productos pueden heredar el descuento de la categoría padre.'
+            : 'El descuento de la categoría padre aplica a todos los productos de esta categoría y de sus subcategorías, salvo que una subcategoría tenga su propio descuento activo.'}
+        </p>
         <div className="space-y-4">
           <div className="flex overflow-hidden rounded-[2px] border border-[var(--border-input)]">
             {([
@@ -477,7 +482,9 @@ export default function CategoriaForm({
                 <div className="pr-4">
                   <p className="admin-form-panel__title">Activar descuento detal</p>
                   <p className="admin-form-panel__desc">
-                    Aplica a productos de esta categoría en el catálogo detal
+                    {tipo === 'subcategoria'
+                      ? 'Aplica a productos de esta subcategoría en el catálogo detal'
+                      : 'Aplica a esta categoría y a todas sus subcategorías en detal'}
                   </p>
                 </div>
                 <button
@@ -544,7 +551,9 @@ export default function CategoriaForm({
                 <div className="pr-4">
                   <p className="admin-form-panel__title">Activar descuento mayorista</p>
                   <p className="admin-form-panel__desc">
-                    Aplica a productos de esta categoría en el catálogo mayorista
+                    {tipo === 'subcategoria'
+                      ? 'Aplica a productos de esta subcategoría en el catálogo mayorista'
+                      : 'Aplica a esta categoría y a todas sus subcategorías en mayorista'}
                   </p>
                 </div>
                 <button

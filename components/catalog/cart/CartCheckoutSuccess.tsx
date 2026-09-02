@@ -44,7 +44,7 @@ export default function CartCheckoutSuccess({
       exit={{ opacity: 0, y: -8 }}
       className={
         isMobile
-          ? 'mx-auto max-w-lg space-y-5'
+          ? 'mx-auto max-w-lg space-y-5 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]'
           : 'mx-auto max-w-xl space-y-8 py-4'
       }
     >
