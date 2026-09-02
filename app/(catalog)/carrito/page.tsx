@@ -658,36 +658,36 @@ export default function CarritoPage() {
           </h1>
 
           {/* Steps */}
-          {step !== 'exito' ? (
-          <div className="mt-8 flex flex-wrap items-center gap-x-1 gap-y-2">
-            {STEPS.map((s, i) => (
-              <div key={s.id} className="flex items-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (i < stepIndex) setStep(s.id)
-                  }}
-                  disabled={i > stepIndex}
-                  className={`relative px-3 py-2 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
-                    step === s.id
-                      ? 'text-[var(--gold)]'
-                      : i < stepIndex
-                        ? 'text-[var(--text-secondary)] hover:text-[var(--gold)]'
-                        : 'cursor-default text-[var(--text-faint)]'
-                  }`}
-                >
-                  {s.label}
-                  {step === s.id && (
-                    <span className="absolute inset-x-2 bottom-0 h-px bg-[var(--gold)]" />
+          {step !== 'exito' && (
+            <div className="mt-8 flex flex-wrap items-center gap-x-1 gap-y-2">
+              {STEPS.map((s, i) => (
+                <div key={s.id} className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (i < stepIndex) setStep(s.id)
+                    }}
+                    disabled={i > stepIndex}
+                    className={`relative px-3 py-2 text-[11px] font-light uppercase tracking-[1.2px] transition-colors ${
+                      step === s.id
+                        ? 'text-[var(--gold)]'
+                        : i < stepIndex
+                          ? 'text-[var(--text-secondary)] hover:text-[var(--gold)]'
+                          : 'cursor-default text-[var(--text-faint)]'
+                    }`}
+                  >
+                    {s.label}
+                    {step === s.id && (
+                      <span className="absolute inset-x-2 bottom-0 h-px bg-[var(--gold)]" />
+                    )}
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <ChevronRight size={14} className="mx-1 text-[var(--text-subtle)]" />
                   )}
-                </button>
-                {i < STEPS.length - 1 && (
-                  <ChevronRight size={14} className="mx-1 text-[var(--text-subtle)]" />
-                )}
-              </div>
-            ))}
-          </div>
-          ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         <AnimatePresence mode="wait">
