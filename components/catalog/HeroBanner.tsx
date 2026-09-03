@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Banner } from '@/types'
@@ -115,26 +114,26 @@ export default function HeroBanner({
                   className="block w-full md:h-full"
                   aria-label={currentBanner.titulo || 'Ver promoción'}
                 >
-                  <Image
+                  <img
                     src={currentBanner.imagen_url!}
                     alt={currentBanner.titulo || 'Banner promocional'}
                     width={1600}
                     height={900}
-                    sizes="100vw"
-                    quality={72}
-                    priority={current === 0}
+                    loading={current === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={current === 0 ? 'high' : undefined}
+                    decoding={current === 0 ? 'sync' : 'async'}
                     className="block h-auto w-full object-contain md:absolute md:inset-0 md:h-full md:object-cover md:object-center"
                   />
                 </Link>
               ) : (
-                <Image
+                <img
                   src={currentBanner.imagen_url!}
                   alt={currentBanner.titulo || 'Banner promocional'}
                   width={1600}
                   height={900}
-                  sizes="100vw"
-                  quality={72}
-                  priority={current === 0}
+                  loading={current === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={current === 0 ? 'high' : undefined}
+                  decoding={current === 0 ? 'sync' : 'async'}
                   className="block h-auto w-full object-contain md:absolute md:inset-0 md:h-full md:object-cover md:object-center"
                 />
               )}
