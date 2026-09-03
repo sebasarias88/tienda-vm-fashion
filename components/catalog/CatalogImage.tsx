@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
 import { ImageIcon } from 'lucide-react'
 
@@ -11,25 +10,23 @@ type CatalogImageProps = {
   className?: string
   /** Clases del Image (object-cover, etc.). */
   imageClassName?: string
-  sizes: string
+  sizes?: string
   /** Prioridad LCP (hero / primera card). */
   priority?: boolean
-  /** Calidad 1–100. Default 75. */
+  /** Calidad — ignorada (ya no se optimiza en el edge). */
   quality?: number
 }
 
 /**
- * Imagen de catálogo vía next/image (WebP/AVIF + resize en el edge).
- * Reduce Cached Egress de Storage al no servir el original en cards.
+ * Imagen de catálogo servida directamente desde Supabase Storage CDN.
+ * Las imágenes ya están optimizadas (WebP ~200KB) al subirlas vía ImageUploader.
  */
 export default function CatalogImage({
   src,
   alt,
   className = '',
   imageClassName = 'object-cover',
-  sizes,
   priority = false,
-  quality = 75,
 }: CatalogImageProps) {
   const [failed, setFailed] = useState(false)
 
@@ -45,15 +42,13 @@ export default function CatalogImage({
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      <Image
+      <img
         src={src}
         alt={alt}
-        fill
-        sizes={sizes}
-        quality={quality}
-        priority={priority}
         loading={priority ? 'eager' : 'lazy'}
-        className={imageClassName}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : undefined}
+        className={`absolute inset-0 h-full w-full ${imageClassName}`}
         onError={() => setFailed(true)}
       />
     </div>
