@@ -313,7 +313,7 @@ export default function ProductoDetalle({
             className="space-y-4"
           >
             <div
-              className={`group relative aspect-[3/4] overflow-hidden bg-[var(--bg-surface)] ${
+              className={`group relative aspect-[3/4] overflow-hidden rounded-xl bg-[var(--bg-surface)] md:rounded-none ${
                 showingVideo ? 'cursor-default' : 'cursor-zoom-in'
               }`}
               onClick={() => {
@@ -387,7 +387,7 @@ export default function ProductoDetalle({
                     key={i}
                     type="button"
                     onClick={() => setImagenActiva(i)}
-                    className={`relative h-16 w-16 shrink-0 overflow-hidden transition-opacity ${
+                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg transition-opacity md:rounded-none ${
                       imagenActiva === i ? 'opacity-100' : 'opacity-45 hover:opacity-75'
                     }`}
                   >
@@ -407,7 +407,7 @@ export default function ProductoDetalle({
                   <button
                     type="button"
                     onClick={() => setImagenActiva(-1)}
-                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 border bg-[var(--bg-muted)] transition-all duration-200 ${
+                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border bg-[var(--bg-muted)] transition-all duration-200 md:rounded-none ${
                       showingVideo
                         ? 'border-[var(--gold)] opacity-100'
                         : 'border-[var(--border-subtle)] opacity-50 hover:opacity-80'
@@ -458,7 +458,7 @@ export default function ProductoDetalle({
                 <span className="text-[9px] font-light uppercase tracking-[2px] text-[var(--text-subtle)]">
                   Marca
                 </span>
-                <span className="border border-[color-mix(in_srgb,var(--gold)_25%,var(--border))] bg-[var(--gold-muted)] px-2 py-0.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--gold)]">
+                <span className="rounded-xl border border-[color-mix(in_srgb,var(--gold)_25%,var(--border))] bg-[var(--gold-muted)] px-2 py-0.5 text-[10px] font-light uppercase tracking-[1px] text-[var(--gold)] md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:tracking-[1.5px]">
                   {producto.marca}
                 </span>
               </div>

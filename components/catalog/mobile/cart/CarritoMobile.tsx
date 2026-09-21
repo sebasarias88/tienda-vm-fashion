@@ -157,15 +157,13 @@ export default function CarritoMobile({
 }: CarritoMobileProps) {
   const stickySpacer =
     step === 'exito'
-      ? 'h-[calc(1.5rem+env(safe-area-inset-bottom,0px))]'
-      : step === 'resumen'
-      ? 'h-[calc(10.5rem+env(safe-area-inset-bottom,0px))]'
-      : step === 'datos'
-        ? 'h-[calc(9rem+env(safe-area-inset-bottom,0px))]'
-        : 'h-[calc(7.5rem+env(safe-area-inset-bottom,0px))]'
+      ? 'h-4'
+      : step === 'resumen' || step === 'datos'
+        ? 'h-[calc(9.5rem+env(safe-area-inset-bottom,0px))]'
+        : 'h-[calc(7.25rem+env(safe-area-inset-bottom,0px))]'
 
   return (
-    <div className="mobile-catalog-page mobile-cart-page relative z-10 mx-auto max-w-lg px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
+    <div className="mobile-catalog-page mobile-cart-page relative z-10 mx-auto max-w-lg px-4 pb-4">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -398,7 +396,7 @@ export default function CarritoMobile({
                       type="button"
                       whileTap={{ scale: 0.99 }}
                       onClick={() => seleccionarTipoEntrega(opcion.id)}
-                      className={`flex w-full items-start gap-3 rounded-[2px] border px-4 py-3.5 text-left transition-all ${
+                      className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-all ${
                         selected
                           ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
                           : 'border-[var(--border-subtle)]'
@@ -453,7 +451,7 @@ export default function CarritoMobile({
                   </div>
                 </div>
                 <div className="space-y-3 px-4 py-3">
-                  <div className="rounded-[2px] border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-3.5">
+                  <div className="rounded-xl border border-[rgba(201,168,76,0.18)] bg-[rgba(201,168,76,0.05)] p-3.5">
                     <p className="text-[13px] font-light text-[var(--text-primary)]">
                       Tienda VM Fashion
                     </p>
@@ -469,7 +467,7 @@ export default function CarritoMobile({
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                      className="flex items-start gap-2 rounded-xl border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
                     >
                       <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
                       <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
@@ -530,7 +528,7 @@ export default function CarritoMobile({
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-2 rounded-[2px] border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
+                      className="flex items-start gap-2 rounded-xl border border-[rgba(201,168,76,0.12)] bg-[rgba(201,168,76,0.04)] p-3"
                     >
                       <Info size={12} className="mt-0.5 shrink-0 text-[var(--gold)]" />
                       <p className="text-[11px] font-light leading-relaxed text-[var(--text-muted)]">
@@ -595,7 +593,7 @@ export default function CarritoMobile({
                             setErrores(e => ({ ...e, metodoPago: '' }))
                           }
                         }}
-                        className={`flex w-full items-center justify-between rounded-[2px] border px-4 py-3.5 text-left transition-all ${
+                        className={`flex w-full items-center justify-between rounded-xl border px-4 py-3.5 text-left transition-all ${
                           isSelected
                             ? 'border-[rgba(201,168,76,0.5)] bg-[rgba(201,168,76,0.08)]'
                             : 'border-[var(--border-subtle)] hover:border-[rgba(201,168,76,0.2)]'

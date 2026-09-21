@@ -298,13 +298,13 @@ export default function ProductosClient({
           {(categoriaActiva || marcasActivas.length > 0) && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {categoriaActiva && categoriaNombre && (
-                <span className="inline-flex max-w-full items-center gap-2 border border-[color-mix(in_srgb,var(--gold)_35%,var(--border))] bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-light text-[var(--gold)]">
+                <span className="inline-flex max-w-full items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--gold)_35%,var(--border))] bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-light text-[var(--gold)]">
                   <span className="truncate">{categoriaNombre}</span>
                   <button
                     type="button"
                     onClick={() => aplicarCategoria('')}
                     aria-label="Quitar categoría"
-                    className="shrink-0 rounded-sm p-0.5 hover:bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]"
+                    className="shrink-0 rounded-lg p-0.5 hover:bg-[color-mix(in_srgb,var(--gold)_15%,transparent)]"
                   >
                     <X size={12} />
                   </button>
@@ -315,7 +315,7 @@ export default function ProductosClient({
                   key={marca}
                   type="button"
                   onClick={() => toggleMarca(marca)}
-                  className="inline-flex items-center gap-1.5 border border-[color-mix(in_srgb,var(--gold)_35%,var(--border))] bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-light text-[var(--gold)]"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[color-mix(in_srgb,var(--gold)_35%,var(--border))] bg-[var(--gold-muted)] px-3 py-1.5 text-[11px] font-light text-[var(--gold)]"
                 >
                   <Tag size={10} />
                   {marca}

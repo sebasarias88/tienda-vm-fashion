@@ -1536,7 +1536,7 @@ header nav a {
   .mobile-filter-dropdown-trigger,
   .mobile-filter-dropdown-panel,
   .mobile-floating-cart {
-    border-radius: 2px;
+    border-radius: 0.75rem;
   }
 
   .mobile-bottom-sheet,

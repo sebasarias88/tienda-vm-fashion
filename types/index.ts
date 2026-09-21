@@ -130,6 +130,8 @@ export type Banner = {
   subtitulo: string | null
   texto_boton: string | null
   enlace_boton: string | null
+  /** detal | mayoreo | ambos */
+  catalogo: 'detal' | 'mayoreo' | 'ambos'
   activo: boolean
   orden: number
   created_at: string
