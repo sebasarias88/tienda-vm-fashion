@@ -8,6 +8,7 @@ import { Banner } from '@/types'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { AdminSelect } from '@/components/ui/AdminSelect'
 import {
   AdminTable,
   AdminTableHead,
@@ -27,21 +28,37 @@ import {
   Upload,
 } from 'lucide-react'
 
+type CatalogoTipo = Banner['catalogo']
+
 type BannerForm = {
   titulo: string
   subtitulo: string
   texto_boton: string
   enlace_boton: string
+  catalogo: CatalogoTipo
   orden: number
   activo: boolean
   imagen_url: string
 }
+
+const CATALOGO_LABELS: Record<CatalogoTipo, string> = {
+  detal: 'Detal',
+  mayoreo: 'Mayorista',
+  ambos: 'Ambos',
+}
+
+const CATALOGO_OPTIONS = [
+  { value: 'ambos', label: 'Ambos catálogos' },
+  { value: 'detal', label: 'Solo catálogo Detal' },
+  { value: 'mayoreo', label: 'Solo catálogo Mayorista' },
+]
 
 const emptyForm = (orden = 1): BannerForm => ({
   titulo: '',
   subtitulo: '',
   texto_boton: '',
   enlace_boton: '',
+  catalogo: 'ambos',
   orden,
   activo: true,
   imagen_url: '',
@@ -95,6 +112,7 @@ export default function BannersPage() {
       subtitulo: banner.subtitulo || '',
       texto_boton: banner.texto_boton || '',
       enlace_boton: banner.enlace_boton || '',
+      catalogo: banner.catalogo || 'ambos',
       orden: banner.orden,
       activo: banner.activo,
       imagen_url: banner.imagen_url,
@@ -147,6 +165,7 @@ export default function BannersPage() {
       subtitulo: form.subtitulo.trim() || null,
       texto_boton: form.texto_boton.trim() || null,
       enlace_boton: form.enlace_boton.trim() || null,
+      catalogo: form.catalogo,
       orden: Number(form.orden) || 1,
       activo: form.activo,
       imagen_url: form.imagen_url,
@@ -239,7 +258,7 @@ export default function BannersPage() {
             Banners
           </h1>
           <p className="mt-2 text-[13px] font-light text-[var(--text-muted)]">
-            Imágenes del hero principal del catálogo
+            Hero del catálogo — puedes usar la misma imagen en ambos o una distinta por catálogo
           </p>
         </div>
         <Button onClick={abrirCrear} size="sm" className="self-start sm:self-auto">
@@ -273,12 +292,13 @@ export default function BannersPage() {
           </Button>
         </div>
       ) : (
-        <AdminTable minWidth="960px">
+        <AdminTable minWidth="1040px">
           <AdminTableHead>
             <AdminTableHeaderRow>
               <AdminTableTh className="w-16">#</AdminTableTh>
               <AdminTableTh>Preview</AdminTableTh>
               <AdminTableTh>Título</AdminTableTh>
+              <AdminTableTh>Catálogo</AdminTableTh>
               <AdminTableTh>Subtítulo</AdminTableTh>
               <AdminTableTh>Botón</AdminTableTh>
               <AdminTableTh>Estado</AdminTableTh>
@@ -331,6 +351,11 @@ export default function BannersPage() {
                   <AdminTableTd>
                     <span className="text-[13px] text-[var(--text-primary)]">
                       {banner.titulo || '—'}
+                    </span>
+                  </AdminTableTd>
+                  <AdminTableTd>
+                    <span className="rounded-full border border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.08)] px-2.5 py-1 text-[10px] uppercase tracking-[1px] text-[var(--gold)]">
+                      {CATALOGO_LABELS[banner.catalogo] || CATALOGO_LABELS.ambos}
                     </span>
                   </AdminTableTd>
                   <AdminTableTd>
@@ -408,6 +433,17 @@ export default function BannersPage() {
                 }}
               />
             </label>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="admin-form-label">Aplicar en catálogo</label>
+            <AdminSelect
+              value={form.catalogo}
+              onChange={value =>
+                setForm(f => ({ ...f, catalogo: value as CatalogoTipo }))
+              }
+              options={CATALOGO_OPTIONS}
+            />
           </div>
 
           <Input

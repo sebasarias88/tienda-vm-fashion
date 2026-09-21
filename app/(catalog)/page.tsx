@@ -64,7 +64,12 @@ export default async function HomePage() {
       { data: ofertasData },
       { data: novedadesData },
     ] = await Promise.all([
-      supabase.from('banners').select('*').eq('activo', true).order('orden'),
+      supabase
+        .from('banners')
+        .select('*')
+        .eq('activo', true)
+        .in('catalogo', ['detal', 'ambos'])
+        .order('orden'),
       supabase.from('promociones').select('*').eq('activa', true).order('orden'),
       supabase
         .from('productos')

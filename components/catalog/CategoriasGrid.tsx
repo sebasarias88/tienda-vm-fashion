@@ -103,7 +103,7 @@ function CategoriaCard({
         href={`${productosHref}?categoria=${cat.slug}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="group relative block aspect-[4/5] overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+        className="group relative block aspect-[4/5] overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] md:rounded-none md:border-[var(--border)]"
       >
         {cat.imagen_url ? (
           <CatalogImage

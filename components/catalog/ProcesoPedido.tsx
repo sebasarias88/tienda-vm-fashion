@@ -76,7 +76,7 @@ export default function ProcesoPedido() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: '-40px' }}
-        className="flex items-start gap-0 overflow-x-auto pb-2 scrollbar-hide lg:overflow-visible lg:pb-0"
+        className="flex items-start gap-0 overflow-x-auto overflow-y-visible pt-2.5 pb-2 scrollbar-hide lg:overflow-visible lg:pb-0 lg:pt-2.5"
       >
         {STEPS.map((step, index) => {
           const Icon = step.icon

@@ -62,7 +62,7 @@ export default function HorizontalCarousel({
         onClick={() => scroll('left')}
         disabled={!canScrollLeft}
         aria-label="Anterior"
-        className="absolute left-1 top-[42%] z-20 flex -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(201,168,76,0.42)] bg-[rgba(10,10,10,0.95)] shadow-md p-2 text-[rgba(240,235,228,0.9)] backdrop-blur-sm transition-all hover:border-[rgba(201,168,76,0.67)] hover:text-[#C9A84C] disabled:pointer-events-none disabled:opacity-0 sm:left-0 sm:-translate-x-1/2 sm:opacity-0 sm:group-hover/carousel:opacity-100"
+        className="absolute left-1 top-[42%] z-20 flex -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--gold)_40%,var(--border))] bg-[color-mix(in_srgb,var(--bg-card)_92%,transparent)] p-2 text-[var(--gold)] shadow-[var(--shadow-soft)] backdrop-blur-sm transition-all hover:border-[var(--gold)] hover:bg-[var(--gold-muted)] hover:text-[var(--gold-hover)] disabled:pointer-events-none disabled:opacity-0 sm:left-0 sm:-translate-x-1/2 sm:opacity-0 sm:group-hover/carousel:opacity-100"
       >
         <ChevronLeft size={18} />
       </button>
@@ -72,7 +72,7 @@ export default function HorizontalCarousel({
         onClick={() => scroll('right')}
         disabled={!canScrollRight}
         aria-label="Siguiente"
-        className="absolute right-1 top-[42%] z-20 flex -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(201,168,76,0.42)] bg-[rgba(10,10,10,0.95)] shadow-md p-2 text-[rgba(240,235,228,0.9)] backdrop-blur-sm transition-all hover:border-[rgba(201,168,76,0.67)] hover:text-[#C9A84C] disabled:pointer-events-none disabled:opacity-0 sm:right-0 sm:translate-x-1/2 sm:opacity-0 sm:group-hover/carousel:opacity-100"
+        className="absolute right-1 top-[42%] z-20 flex -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--gold)_40%,var(--border))] bg-[color-mix(in_srgb,var(--bg-card)_92%,transparent)] p-2 text-[var(--gold)] shadow-[var(--shadow-soft)] backdrop-blur-sm transition-all hover:border-[var(--gold)] hover:bg-[var(--gold-muted)] hover:text-[var(--gold-hover)] disabled:pointer-events-none disabled:opacity-0 sm:right-0 sm:translate-x-1/2 sm:opacity-0 sm:group-hover/carousel:opacity-100"
       >
         <ChevronRight size={18} />
       </button>
