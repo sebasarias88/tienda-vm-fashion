@@ -23,8 +23,9 @@ export async function generateMetadata({
 
   const { data } = await supabase
     .from('productos')
-    .select('nombre, descripcion, imagenes, slug')
+    .select('nombre, descripcion, imagenes, slug, visible_mayoreo')
     .eq('slug', slug)
+    .eq('visible_mayoreo', true)
     .single()
 
   if (!data) {
@@ -43,6 +44,7 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
     .from('productos')
     .select(PRODUCTO_DETAIL_SELECT)
     .eq('slug', slug)
+    .eq('visible_mayoreo', true)
     .single()
 
   if (error || !productoRaw) notFound()
@@ -53,6 +55,7 @@ export default async function MayoreoProductoPage({ params }: { params: Promise<
     .from('productos')
     .select(PRODUCTO_SHELF_SELECT)
     .eq('categoria_id', producto.categoria_id)
+    .eq('visible_mayoreo', true)
     .neq('id', producto.id)
     .limit(4)
 

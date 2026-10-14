@@ -36,6 +36,8 @@ import {
   Plus,
   Star,
   Package,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
 import MobileProductCard from '@/components/admin/mobile/MobileProductCard'
@@ -70,7 +72,7 @@ export default function ProductosPage() {
     let query = supabase
       .from('productos')
       .select(
-        'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku, categoria:categorias(id, nombre, slug)',
+        'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, visible_detal, visible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku, categoria:categorias(id, nombre, slug)',
         { count: 'exact' },
       )
       .order('orden', { ascending: true })
@@ -210,6 +212,26 @@ export default function ProductosPage() {
     }
   }
 
+  const toggleVisible = async (
+    p: Producto,
+    campo: 'visible_detal' | 'visible_mayoreo',
+  ) => {
+    const nuevoValor = !p[campo]
+    const { error } = await supabase
+      .from('productos')
+      .update({ [campo]: nuevoValor })
+      .eq('id', p.id)
+
+    if (error) toast.error('Error al actualizar visibilidad')
+    else {
+      const etiqueta = campo === 'visible_detal' ? 'detal' : 'mayorista'
+      toast.success(
+        nuevoValor ? `Visible en ${etiqueta}` : `Oculto en ${etiqueta}`,
+      )
+      fetchProductos()
+    }
+  }
+
   const formatPrecio = (precio: number) =>
     new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -284,7 +306,7 @@ export default function ProductosPage() {
         />
       ) : (
       <AdminTable
-        minWidth="1180px"
+        minWidth="1240px"
         footer={
           <AdminTablePagination
             page={currentPage}
@@ -392,26 +414,43 @@ export default function ProductosPage() {
                   )}
                 </AdminTableTd>
 
-                <AdminTableTd className="min-w-[8.5rem]">
-                  <div className="flex flex-col gap-1.5">
-                    <CatalogToggle
-                      label="Stock"
-                      active={p.disponible}
-                      tone="stock"
-                      onClick={() => toggleDisponible(p)}
-                    />
-                    <CatalogToggle
-                      label="Detal"
-                      active={p.disponible_detal}
-                      tone="detal"
-                      onClick={() => toggleCatalogo(p, 'disponible_detal')}
-                    />
-                    <CatalogToggle
-                      label="Mayorista"
-                      active={p.disponible_mayoreo}
-                      tone="mayoreo"
-                      onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}
-                    />
+                <AdminTableTd className="min-w-[13.5rem]">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-1">
+                      <CatalogToggle
+                        label="Stock"
+                        active={p.disponible}
+                        tone="stock"
+                        onClick={() => toggleDisponible(p)}
+                      />
+                      <CatalogToggle
+                        label="Detal"
+                        active={p.disponible_detal}
+                        tone="detal"
+                        onClick={() => toggleCatalogo(p, 'disponible_detal')}
+                      />
+                      <CatalogToggle
+                        label="Mayorista"
+                        active={p.disponible_mayoreo}
+                        tone="mayoreo"
+                        onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] font-light uppercase tracking-[1.2px] text-[var(--text-faint)]">
+                        Ver
+                      </span>
+                      <VisibilityToggle
+                        label="Detal"
+                        visible={p.visible_detal !== false}
+                        onClick={() => toggleVisible(p, 'visible_detal')}
+                      />
+                      <VisibilityToggle
+                        label="Mayorista"
+                        visible={p.visible_mayoreo !== false}
+                        onClick={() => toggleVisible(p, 'visible_mayoreo')}
+                      />
+                    </div>
                   </div>
                 </AdminTableTd>
 
@@ -589,16 +628,52 @@ const CATALOG_TOGGLE_STYLES: Record<CatalogToggleTone, string> = {
     'border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] text-blue-400 shadow-[0_0_0_1px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(96,165,250,0.12)]',
 }
 
+function VisibilityToggle({
+  label,
+  visible,
+  onClick,
+}: {
+  label: string
+  visible: boolean
+  onClick: () => void
+}) {
+  const Icon = visible ? Eye : EyeOff
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={
+        visible
+          ? `Visible en ${label.toLowerCase()} — click para ocultarlo`
+          : `Oculto en ${label.toLowerCase()} — click para mostrarlo`
+      }
+      aria-pressed={visible}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-colors ${
+        visible
+          ? 'border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.06)] text-[var(--gold)]'
+          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)]'
+      }`}
+    >
+      <Icon size={11} strokeWidth={1.75} />
+      {label}
+    </button>
+  )
+}
+
 function CatalogToggle({
   label,
   active,
   tone,
   onClick,
+  titleOn,
+  titleOff,
 }: {
   label: string
   active: boolean
   tone: CatalogToggleTone
   onClick: () => void
+  titleOn?: string
+  titleOff?: string
 }) {
   return (
     <button
@@ -606,11 +681,11 @@ function CatalogToggle({
       onClick={onClick}
       title={
         active
-          ? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
-          : `Agotado en ${label.toLowerCase()} — click para habilitar venta`
+          ? titleOn ?? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
+          : titleOff ?? `Agotado en ${label.toLowerCase()} — click para habilitar venta`
       }
       aria-pressed={active}
-      className={`inline-flex w-[5rem] items-center justify-center rounded-full border px-2.5 py-1 text-[10px] font-light uppercase tracking-[1.2px] transition-all duration-200 ${
+      className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-all duration-200 ${
         active
           ? CATALOG_TOGGLE_STYLES[tone]
           : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)] hover:border-[rgba(248,246,241,0.18)] hover:text-[var(--text-muted)]'

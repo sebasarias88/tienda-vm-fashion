@@ -3,6 +3,13 @@ import { calcularPrecioConDescuento } from '@/lib/descuentos'
 
 export type CatalogType = 'detal' | 'mayoreo'
 
+/** Columna de visibilidad del producto en el catálogo indicado. */
+export function productoVisibleColumn(
+  catalogType: CatalogType,
+): 'visible_detal' | 'visible_mayoreo' {
+  return catalogType === 'mayoreo' ? 'visible_mayoreo' : 'visible_detal'
+}
+
 /** Monto mínimo de compra para el catálogo mayorista (COP). */
 export const MAYOREO_MIN_COMPRA = 200000
 

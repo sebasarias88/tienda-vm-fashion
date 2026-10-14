@@ -3,6 +3,7 @@ import { createSupabasePublic } from '@/lib/supabase-public'
 import { withProductoCategorias } from '@/lib/producto-categorias'
 import { PRODUCTO_LIST_SELECT, withCardImagenes } from '@/lib/productQueries'
 import { withProductoVariacionesFlag } from '@/lib/variaciones'
+import { productoVisibleColumn, type CatalogType } from '@/lib/catalog'
 import { getMarcasDisponibles } from '@/lib/catalog-data'
 import { intersectIds, productIdsMatchingSearch } from '@/lib/productSearch'
 
@@ -74,7 +75,7 @@ export async function getCatalogProductosPage(options: {
   page?: number
   orden?: CatalogOrden
   /** Para ordenar por precio detal vs mayoreo. */
-  catalogType?: 'detal' | 'mayoreo'
+  catalogType?: CatalogType
 }): Promise<{
   productos: Producto[]
   total: number
@@ -90,7 +91,8 @@ export async function getCatalogProductosPage(options: {
   const catalogType = options.catalogType ?? 'detal'
   const orden = options.orden ?? 'relevancia'
 
-  const marcasPromise = getMarcasDisponibles()
+  const visibleCol = productoVisibleColumn(catalogType)
+  const marcasPromise = getMarcasDisponibles(catalogType)
 
   let idFilter: string[] | null = null
   if (options.categoriaSlug?.trim()) {
@@ -160,6 +162,7 @@ export async function getCatalogProductosPage(options: {
   let query = supabase
     .from('productos')
     .select(PRODUCTO_LIST_SELECT, { count: 'exact' })
+    .eq(visibleCol, true)
 
   if (idFilter) {
     query = query.in('id', idFilter)
@@ -215,7 +218,10 @@ export async function getCatalogProductosPage(options: {
   if (safePage !== page && total > 0) {
     const retryFrom = (safePage - 1) * pageSize
     const retryTo = retryFrom + pageSize - 1
-    let retry = supabase.from('productos').select(PRODUCTO_LIST_SELECT, { count: 'exact' })
+    let retry = supabase
+      .from('productos')
+      .select(PRODUCTO_LIST_SELECT, { count: 'exact' })
+      .eq(visibleCol, true)
     if (idFilter) retry = retry.in('id', idFilter)
     else if (q && useIlikeFallback) {
       retry = retry.or(buildTextSearchOr(q, productIdsByCategoria))

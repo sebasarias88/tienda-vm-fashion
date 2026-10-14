@@ -23,8 +23,9 @@ export async function generateMetadata({
 
   const { data } = await supabase
     .from('productos')
-    .select('nombre, descripcion, imagenes, slug')
+    .select('nombre, descripcion, imagenes, slug, visible_detal')
     .eq('slug', slug)
+    .eq('visible_detal', true)
     .single()
 
   if (!data) {
@@ -43,6 +44,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     .from('productos')
     .select(PRODUCTO_DETAIL_SELECT)
     .eq('slug', slug)
+    .eq('visible_detal', true)
     .single()
 
   if (error || !productoRaw) notFound()
@@ -53,6 +55,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     .from('productos')
     .select(PRODUCTO_SHELF_SELECT)
     .eq('categoria_id', producto.categoria_id)
+    .eq('visible_detal', true)
     .neq('id', producto.id)
     .limit(4)
 
