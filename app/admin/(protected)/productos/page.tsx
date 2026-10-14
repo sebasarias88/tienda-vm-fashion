@@ -48,6 +48,85 @@ import { productIdsMatchingSearch } from '@/lib/productSearch'
 
 type CategoriaInfo = { nombre: string; padre_id: string | null }
 
+type CatalogToggleTone = 'stock' | 'detal' | 'mayoreo'
+
+const CATALOG_TOGGLE_STYLES: Record<CatalogToggleTone, string> = {
+  stock:
+    'border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)] shadow-[0_0_0_1px_rgba(201,168,76,0.06),inset_0_1px_0_rgba(201,168,76,0.12)]',
+  detal:
+    'border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.1)] text-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.06),inset_0_1px_0_rgba(52,211,153,0.12)]',
+  mayoreo:
+    'border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] text-blue-400 shadow-[0_0_0_1px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(96,165,250,0.12)]',
+}
+
+function VisibilityToggle({
+  label,
+  visible,
+  onClick,
+}: {
+  label: string
+  visible: boolean
+  onClick: () => void
+}) {
+  const Icon = visible ? Eye : EyeOff
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={
+        visible
+          ? `Visible en ${label.toLowerCase()} — click para ocultarlo`
+          : `Oculto en ${label.toLowerCase()} — click para mostrarlo`
+      }
+      aria-pressed={visible}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-colors ${
+        visible
+          ? 'border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.06)] text-[var(--gold)]'
+          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)]'
+      }`}
+    >
+      <Icon size={11} strokeWidth={1.75} />
+      {label}
+    </button>
+  )
+}
+
+function CatalogToggle({
+  label,
+  active,
+  tone,
+  onClick,
+  titleOn,
+  titleOff,
+}: {
+  label: string
+  active: boolean
+  tone: CatalogToggleTone
+  onClick: () => void
+  titleOn?: string
+  titleOff?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={
+        active
+          ? titleOn ?? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
+          : titleOff ?? `Agotado en ${label.toLowerCase()} — click para habilitar venta`
+      }
+      aria-pressed={active}
+      className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-all duration-200 ${
+        active
+          ? CATALOG_TOGGLE_STYLES[tone]
+          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)] hover:border-[rgba(248,246,241,0.18)] hover:text-[var(--text-muted)]'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -614,84 +693,5 @@ export default function ProductosPage() {
         </div>
       </Modal>
     </>
-  )
-}
-
-type CatalogToggleTone = 'stock' | 'detal' | 'mayoreo'
-
-const CATALOG_TOGGLE_STYLES: Record<CatalogToggleTone, string> = {
-  stock:
-    'border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)] shadow-[0_0_0_1px_rgba(201,168,76,0.06),inset_0_1px_0_rgba(201,168,76,0.12)]',
-  detal:
-    'border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.1)] text-emerald-400 shadow-[0_0_0_1px_rgba(52,211,153,0.06),inset_0_1px_0_rgba(52,211,153,0.12)]',
-  mayoreo:
-    'border-[rgba(96,165,250,0.35)] bg-[rgba(96,165,250,0.1)] text-blue-400 shadow-[0_0_0_1px_rgba(96,165,250,0.06),inset_0_1px_0_rgba(96,165,250,0.12)]',
-}
-
-function VisibilityToggle({
-  label,
-  visible,
-  onClick,
-}: {
-  label: string
-  visible: boolean
-  onClick: () => void
-}) {
-  const Icon = visible ? Eye : EyeOff
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={
-        visible
-          ? `Visible en ${label.toLowerCase()} — click para ocultarlo`
-          : `Oculto en ${label.toLowerCase()} — click para mostrarlo`
-      }
-      aria-pressed={visible}
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-colors ${
-        visible
-          ? 'border-[rgba(201,168,76,0.28)] bg-[rgba(201,168,76,0.06)] text-[var(--gold)]'
-          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)]'
-      }`}
-    >
-      <Icon size={11} strokeWidth={1.75} />
-      {label}
-    </button>
-  )
-}
-
-function CatalogToggle({
-  label,
-  active,
-  tone,
-  onClick,
-  titleOn,
-  titleOff,
-}: {
-  label: string
-  active: boolean
-  tone: CatalogToggleTone
-  onClick: () => void
-  titleOn?: string
-  titleOff?: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={
-        active
-          ? titleOn ?? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
-          : titleOff ?? `Agotado en ${label.toLowerCase()} — click para habilitar venta`
-      }
-      aria-pressed={active}
-      className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-all duration-200 ${
-        active
-          ? CATALOG_TOGGLE_STYLES[tone]
-          : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)] hover:border-[rgba(248,246,241,0.18)] hover:text-[var(--text-muted)]'
-      }`}
-    >
-      {label}
-    </button>
   )
 }
