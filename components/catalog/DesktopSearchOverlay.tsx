@@ -132,13 +132,17 @@ export default function DesktopSearchOverlay({
                   />
                   <input
                     ref={inputRef}
-                    type="search"
+                    type="text"
+                    inputMode="search"
+                    enterKeyHint="search"
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     placeholder="Shampoo, mascarillas, tintes…"
                     aria-label="Buscar productos"
                     className="min-w-0 flex-1 bg-transparent py-4 pl-3 pr-2 text-[17px] font-light text-[var(--text-primary)] outline-none placeholder:text-[var(--placeholder)]"
                     autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
                   />
                   {query && (
                     <button
