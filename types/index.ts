@@ -65,6 +65,9 @@ export type Producto = {
   disponible: boolean
   disponible_detal: boolean
   disponible_mayoreo: boolean
+  /** false = no aparece en ese catálogo */
+  visible_detal: boolean
+  visible_mayoreo: boolean
   destacado: boolean
   marca: string | null
   categoria_id: string | null

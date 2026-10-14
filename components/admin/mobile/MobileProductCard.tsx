@@ -117,6 +117,16 @@ export default function MobileProductCard({
           >
             Mayorista
           </span>
+          {producto.visible_detal === false ? (
+            <span className="inline-flex min-h-[28px] items-center rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] text-[var(--text-faint)]">
+              Oculto detal
+            </span>
+          ) : null}
+          {producto.visible_mayoreo === false ? (
+            <span className="inline-flex min-h-[28px] items-center rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] text-[var(--text-faint)]">
+              Oculto mayorista
+            </span>
+          ) : null}
         </div>
         <div className="flex items-center justify-end gap-1">
           <button

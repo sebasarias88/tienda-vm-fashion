@@ -57,6 +57,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     disponible_detal: true,
     disponible_mayoreo: true,
     disponible: true,
+    visible_detal: true,
+    visible_mayoreo: true,
     destacado: false,
     imagenes: [] as string[],
     video_url: '',
@@ -88,6 +90,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         disponible_detal: producto.disponible_detal ?? producto.disponible,
         disponible_mayoreo: producto.disponible_mayoreo ?? producto.disponible,
         disponible: producto.disponible ?? true,
+        visible_detal: producto.visible_detal ?? true,
+        visible_mayoreo: producto.visible_mayoreo ?? true,
         destacado: producto.destacado,
         imagenes: producto.imagenes || [],
         video_url: producto.video_url || '',
@@ -188,6 +192,8 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       disponible_detal: form.disponible_detal,
       disponible_mayoreo: form.disponible_mayoreo,
       disponible: disponibleToSave,
+      visible_detal: form.visible_detal,
+      visible_mayoreo: form.visible_mayoreo,
       destacado: form.destacado,
       categoria_id: mainCatId,
       imagenes: form.imagenes,
@@ -472,6 +478,39 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
                     }
                   })
                 }
+                className={`admin-toggle ${form[key] ? 'admin-toggle--on' : 'admin-toggle--off'}`}
+                aria-pressed={form[key]}
+              >
+                <span className="admin-toggle__thumb" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {[
+            {
+              key: 'visible_detal' as const,
+              label: 'Visible en Detal',
+              desc: 'Si está apagado, no aparece en el catálogo detal',
+            },
+            {
+              key: 'visible_mayoreo' as const,
+              label: 'Visible en Mayorista',
+              desc: 'Si está apagado, no aparece en el catálogo mayorista',
+            },
+          ].map(({ key, label, desc }) => (
+            <div
+              key={key}
+              className="admin-form-panel flex items-center justify-between px-4 py-3.5"
+            >
+              <div className="pr-4">
+                <p className="admin-form-panel__title">{label}</p>
+                <p className="admin-form-panel__desc">{desc}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, [key]: !f[key] }))}
                 className={`admin-toggle ${form[key] ? 'admin-toggle--on' : 'admin-toggle--off'}`}
                 aria-pressed={form[key]}
               >

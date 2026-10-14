@@ -74,18 +74,21 @@ export default async function HomePage() {
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_detal', true)
         .eq('destacado', true)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_detal', true)
         .not('precio_antes', 'is', null)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_detal', true)
         .order('created_at', { ascending: false })
         .limit(10),
     ])

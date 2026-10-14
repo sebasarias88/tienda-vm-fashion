@@ -12,7 +12,7 @@ import {
 export { CATEGORIA_SELECT_FIELDS, CATEGORIA_PADRE_EMBED, PRODUCTO_CATEGORIAS_EMBED }
 
 export const PRODUCTO_CARD_COLUMNS =
-  'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku'
+  'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, visible_detal, visible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku'
 
 /** Join mínimo para filtros multi-categoría en el cliente. */
 export const PRODUCTO_CATEGORIAS_EMBED_LEAN =

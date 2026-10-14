@@ -78,18 +78,21 @@ export default async function MayoreoHomePage() {
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_mayoreo', true)
         .eq('destacado', true)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_mayoreo', true)
         .not('precio_antes_mayoreo', 'is', null)
         .order('orden')
         .limit(10),
       supabase
         .from('productos')
         .select(PRODUCTO_SHELF_SELECT)
+        .eq('visible_mayoreo', true)
         .order('created_at', { ascending: false })
         .limit(10),
     ])
