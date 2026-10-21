@@ -25,7 +25,7 @@ import { optimizeImageBuffer } from '../lib/optimizeImageServer'
 import { getR2Bucket, getR2Client, publicUrlForKey, putImageObject } from '../lib/r2'
 
 const DRY_RUN = process.argv.includes('--dry-run')
-const CONCURRENCY = 4
+const CONCURRENCY = 3
 const OPTIMIZE_PNG_JPEG_OVER = 300 * 1024
 const OPTIMIZE_ANY_OVER = 600 * 1024
 const STORAGE_MARKER = '/storage/v1/object/public/'
@@ -93,11 +93,27 @@ async function collectJobs(): Promise<Job[]> {
   })
 }
 
+const MAX_ATTEMPTS = 5
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+/** Downloads with retries: 429 (rate limit) and 5xx wait and try again (2s, 4s, 8s, 16s). */
+async function downloadWithRetry(url: string): Promise<Buffer> {
+  for (let attempt = 1; ; attempt++) {
+    const response = await fetch(url)
+    if (response.ok) return Buffer.from(await response.arrayBuffer())
+
+    const retryable = response.status === 429 || response.status >= 500
+    if (!retryable || attempt >= MAX_ATTEMPTS) throw new Error(`HTTP ${response.status}`)
+
+    const retryAfter = Number(response.headers.get('retry-after'))
+    await sleep(retryAfter > 0 ? retryAfter * 1000 : 2000 * 2 ** (attempt - 1))
+  }
+}
+
 async function processJob(job: Job): Promise<Result> {
   const ext = extensionOf(job.storagePath)
-  const response = await fetch(job.oldUrl)
-  if (!response.ok) throw new Error(`HTTP ${response.status}`)
-  const original = Buffer.from(await response.arrayBuffer())
+  const original = await downloadWithRetry(job.oldUrl)
 
   const shouldConvert =
     original.length > OPTIMIZE_ANY_OVER ||
