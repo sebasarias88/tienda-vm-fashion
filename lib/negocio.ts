@@ -3,3 +3,6 @@
 export const DIRECCION_NEGOCIO = 'Carrera 15 #19-25 Local 8'
 export const CIUDAD_NEGOCIO = 'Armenia, Quindío'
 export const DIRECCION_COMPLETA = `${DIRECCION_NEGOCIO}, ${CIUDAD_NEGOCIO}`
+
+/** Fallback WhatsApp number when `configuracion.whatsapp_numero` is unavailable. */
+export const WHATSAPP_NUMERO_DEFAULT = '573185867702'

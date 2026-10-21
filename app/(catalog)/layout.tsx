@@ -8,6 +8,8 @@ import JsonLd from '@/components/seo/JsonLd'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
 import { getCategoriasActivas } from '@/lib/catalog-data'
+import { isMaintenanceMode } from '@/lib/maintenance'
+import MaintenanceScreen from '@/components/catalog/MaintenanceScreen'
 
 export const revalidate = 60
 
@@ -16,6 +18,8 @@ export default async function CatalogLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (isMaintenanceMode()) return <MaintenanceScreen />
+
   const [config, categorias] = await Promise.all([
     getSiteConfig(),
     getCategoriasActivas().catch(() => []),

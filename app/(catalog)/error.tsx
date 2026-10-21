@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { RefreshCw, TriangleAlert } from 'lucide-react'
+import { MessageCircle, RefreshCw, TriangleAlert } from 'lucide-react'
+import { buildWhatsAppUrl } from '@/lib/whatsapp'
+import { WHATSAPP_NUMERO_DEFAULT } from '@/lib/negocio'
 
 export default function CatalogError({
   error,
@@ -46,6 +48,15 @@ export default function CatalogError({
         >
           Ir al inicio
         </Link>
+        <a
+          href={buildWhatsAppUrl(WHATSAPP_NUMERO_DEFAULT, 'Hola, la tienda no me carga y quiero hacer un pedido.')}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-[2px] border border-[var(--border)] px-6 py-3 text-[10px] font-light uppercase tracking-[2.5px] text-[var(--gold)] transition-all hover:bg-[var(--gold-muted)]"
+        >
+          <MessageCircle size={13} />
+          Pedir por WhatsApp
+        </a>
       </div>
     </div>
   )

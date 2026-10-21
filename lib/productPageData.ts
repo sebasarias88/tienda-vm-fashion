@@ -31,7 +31,10 @@ export const getProductPageData = cache(
       .eq(visibleColumn, true)
       .maybeSingle()
 
-    if (error || !productoRaw) return null
+    // A DB failure must throw: with ISR, Next keeps serving the last good version of the page.
+    // Returning null here would cache a 404 for a product that actually exists.
+    if (error) throw error
+    if (!productoRaw) return null
 
     const [producto] = withProductoCategorias([productoRaw as Producto])
 
@@ -45,7 +48,7 @@ export const getProductPageData = cache(
           .limit(4)
       : Promise.resolve({ data: [] as unknown[] })
 
-    const [{ data: relacionados }, { data: variacionesRaw }, { data: secciones }] =
+    const [relacionadosResult, variacionesResult, seccionesResult] =
       await Promise.all([
         relacionadosQuery,
         supabase
@@ -59,6 +62,13 @@ export const getProductPageData = cache(
           .eq('producto_id', producto.id)
           .order('orden', { ascending: true }),
       ])
+
+    for (const result of [relacionadosResult, variacionesResult, seccionesResult]) {
+      if ('error' in result && result.error) throw result.error
+    }
+    const relacionados = relacionadosResult.data
+    const variacionesRaw = variacionesResult.data
+    const secciones = seccionesResult.data
 
     return {
       producto,
