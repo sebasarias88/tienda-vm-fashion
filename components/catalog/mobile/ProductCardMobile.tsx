@@ -73,7 +73,7 @@ export default function ProductCardMobile({
         transition={{ type: 'spring', stiffness: 420, damping: 28 }}
       >
         <div className="relative block aspect-[4/5] w-full shrink-0 overflow-hidden bg-[var(--bg-surface)]">
-          <Link href={productHref} className="block h-full w-full">
+          <Link href={productHref} className="block h-full w-full" tabIndex={-1} aria-hidden="true">
             {producto.imagenes?.[0] ? (
               <CatalogImage
                 variant="thumb"
@@ -134,7 +134,11 @@ export default function ProductCardMobile({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col p-3 pb-3.5">
-          <Link href={productHref} className="mb-2 block min-w-0">
+          <Link
+            href={productHref}
+            className="mb-2 block min-w-0"
+            aria-label={`${producto.nombre}${producto.marca ? `, ${producto.marca}` : ''}`}
+          >
             <p className="mb-1 line-clamp-1 text-[9px] font-semibold uppercase tracking-[1.4px] text-[var(--gold)]">
               {producto.categoria?.nombre || 'Producto'}
             </p>
