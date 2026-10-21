@@ -7,16 +7,20 @@
  * - /_next/static/* (hashed, immutable files): cache first.
  * - Images from img.tiendavmfashion.com are NOT stored here: they already have a
  *   1-year immutable HTTP cache, which the browser serves even offline.
+ * - Files precached at install (offline page, logo, manifest) are served cache first,
+ *   so the offline page shows the logo without internet.
  * - /admin and /api are never touched.
  *
  * To ship a new service worker, bump VERSION.
  */
-const VERSION = 'v1'
+const VERSION = 'v2'
 const PAGE_CACHE = `vmf-pages-${VERSION}`
 const STATIC_CACHE = `vmf-static-${VERSION}`
 const OFFLINE_URL = '/offline'
 const MAX_PAGES = 40
 const PRECACHE = [OFFLINE_URL, '/icon.png', '/icons/icon-192.png', '/manifest.webmanifest']
+// Assets (not pages) from PRECACHE, matched by pathname so query strings don't matter.
+const PRECACHE_PATHS = new Set(PRECACHE.filter(path => path !== OFFLINE_URL))
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -71,7 +75,7 @@ async function handleNavigation(request) {
 }
 
 async function handleStatic(request) {
-  const cached = await caches.match(request)
+  const cached = await caches.match(request, { ignoreSearch: true })
   if (cached) return cached
   const response = await fetch(request)
   if (response.ok) {
@@ -93,7 +97,7 @@ self.addEventListener('fetch', event => {
     return
   }
 
-  if (url.pathname.startsWith('/_next/static/')) {
+  if (url.pathname.startsWith('/_next/static/') || PRECACHE_PATHS.has(url.pathname)) {
     event.respondWith(handleStatic(request))
   }
 })
