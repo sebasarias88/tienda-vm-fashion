@@ -38,6 +38,7 @@ export default function MobileQuickAddSheet({
           <div className="mobile-catalog-thumb relative h-16 w-14 shrink-0 overflow-hidden rounded-lg bg-[var(--bg-surface)]">
             {producto.imagenes?.[0] ? (
               <CatalogImage
+                variant="thumb"
                 src={producto.imagenes[0]}
                 alt={producto.nombre}
                 className="h-full w-full"

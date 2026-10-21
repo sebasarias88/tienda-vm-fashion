@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ImageIcon } from 'lucide-react'
+import { thumbUrl } from '@/lib/imageVariants'
 
 type CatalogImageProps = {
   src: string | null | undefined
@@ -15,11 +16,16 @@ type CatalogImageProps = {
   priority?: boolean
   /** Calidad — ignorada (ya no se optimiza en el edge). */
   quality?: number
+  /**
+   * 'thumb' loads the lightweight thumbnail (cards, lists, cart). If the thumbnail
+   * doesn't exist it falls back to the full image automatically.
+   */
+  variant?: 'full' | 'thumb'
 }
 
 /**
- * Imagen de catálogo servida directamente desde Supabase Storage CDN.
- * Las imágenes ya están optimizadas (WebP ~200KB) al subirlas vía ImageUploader.
+ * Catalog image served directly from the R2 CDN (img.tiendavmfashion.com).
+ * Images are optimized to WebP on upload; `variant="thumb"` uses the 640px thumbnail.
  */
 export default function CatalogImage({
   src,
@@ -27,10 +33,32 @@ export default function CatalogImage({
   className = '',
   imageClassName = 'object-cover',
   priority = false,
+  variant = 'full',
 }: CatalogImageProps) {
-  const [failed, setFailed] = useState(false)
+  const preferred = variant === 'thumb' ? thumbUrl(src) : src
+  // 0 = preferred (thumb or full), 1 = full image fallback, 2 = placeholder
+  const [attempt, setAttempt] = useState(0)
+  // Reset the fallback chain when the image changes (e.g. gallery or cart updates).
+  const [lastSrc, setLastSrc] = useState(src)
+  if (src !== lastSrc) {
+    setLastSrc(src)
+    setAttempt(0)
+  }
+  const currentSrc = attempt === 0 ? preferred : attempt === 1 ? src : null
 
-  if (!src || failed) {
+  const handleError = () => {
+    setAttempt(prev => (prev === 0 && preferred !== src ? 1 : 2))
+  }
+
+  // An image that fails before React hydrates never fires onError: detect it on mount.
+  const imgRef = useRef<HTMLImageElement>(null)
+  useEffect(() => {
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth === 0 && img.currentSrc) handleError()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on mount / when the source changes
+  }, [currentSrc])
+
+  if (!currentSrc) {
     return (
       <div
         className={`flex items-center justify-center bg-[var(--bg-surface)] ${className}`}
@@ -43,13 +71,14 @@ export default function CatalogImage({
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <img
-        src={src}
+        ref={imgRef}
+        src={currentSrc}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : undefined}
         className={`absolute inset-0 h-full w-full ${imageClassName}`}
-        onError={() => setFailed(true)}
+        onError={handleError}
       />
     </div>
   )

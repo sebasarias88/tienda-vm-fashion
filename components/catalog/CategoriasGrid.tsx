@@ -107,6 +107,7 @@ function CategoriaCard({
       >
         {cat.imagen_url ? (
           <CatalogImage
+            variant="thumb"
             src={cat.imagen_url}
             alt={cat.nombre}
             className="absolute inset-0 h-full w-full"

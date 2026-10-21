@@ -45,6 +45,7 @@ export default function MobileCartLineItem({
     >
       {producto.imagenes?.[0] ? (
         <CatalogImage
+          variant="thumb"
           src={producto.imagenes[0]}
           alt={producto.nombre}
           className="h-full w-full"

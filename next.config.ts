@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY:
       process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    // Public CDN domain for images (not a secret): used to build thumbnail URLs in the browser.
+    NEXT_PUBLIC_IMAGE_BASE_URL: process.env.R2_PUBLIC_BASE_URL ?? '',
   },
   turbopack: {
     root: projectRoot,

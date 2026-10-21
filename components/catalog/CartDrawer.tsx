@@ -116,6 +116,7 @@ export default function CartDrawer({
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-[2px] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
                           {producto.imagenes?.[0] ? (
                             <CatalogImage
+                              variant="thumb"
                               src={producto.imagenes[0]}
                               alt={producto.nombre}
                               className="h-full w-full"
