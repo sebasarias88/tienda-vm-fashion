@@ -46,6 +46,7 @@ import AdminLoadError from '@/components/admin/AdminLoadError'
 import { useDebouncedValue } from '@/lib/useDebounce'
 import { productIdsMatchingSearch } from '@/lib/productSearch'
 import { deleteCatalogImages } from '@/lib/catalogImages'
+import { getProductVideos } from '@/lib/productVideos'
 
 type CategoriaInfo = { nombre: string; padre_id: string | null }
 
@@ -152,7 +153,7 @@ export default function ProductosPage() {
     let query = supabase
       .from('productos')
       .select(
-        'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, visible_detal, visible_mayoreo, destacado, marca, categoria_id, imagenes, orden, created_at, updated_at, sku, categoria:categorias(id, nombre, slug)',
+        'id, nombre, slug, precio, precio_antes, precio_mayoreo, precio_antes_mayoreo, disponible, disponible_detal, disponible_mayoreo, visible_detal, visible_mayoreo, destacado, marca, categoria_id, imagenes, video_url, video_tipo, videos, orden, created_at, updated_at, sku, categoria:categorias(id, nombre, slug)',
         { count: 'exact' },
       )
       .order('orden', { ascending: true })
@@ -243,7 +244,7 @@ export default function ProductosPage() {
       // Delete files only after the product row is gone (never leave a product pointing to missing images).
       const files = [
         ...(selected.imagenes || []),
-        ...(selected.video_tipo === 'archivo' && selected.video_url ? [selected.video_url] : []),
+        ...getProductVideos(selected).filter(v => v.tipo === 'archivo').map(v => v.url),
       ]
       if (files.length) {
         deleteCatalogImages(files).catch(() => {
