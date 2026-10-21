@@ -38,6 +38,7 @@ import ProductoPrecio from '@/components/catalog/ProductoPrecio'
 import PageGoldAccent from '@/components/catalog/PageGoldAccent'
 import MobileQuickAddSheet from '@/components/catalog/mobile/MobileQuickAddSheet'
 import VideoEmbed from '@/components/catalog/VideoEmbed'
+import { getProductVideos } from '@/lib/productVideos'
 
 const ENVIO_INFO = [
   { icon: Package, text: 'Envío en Armenia el mismo día' },
@@ -117,8 +118,9 @@ export default function ProductoDetalle({
   const agregar = useCarrito(s => s.agregar)
   const items = useCarrito(s => s.items)
 
+  // Gallery index: 0..n-1 = photos, -1..-m = videos (video i is -(i + 1))
   const [imagenActiva, setImagenActiva] = useState(() =>
-    (producto.imagenes?.length ?? 0) > 0 ? 0 : producto.video_url ? -1 : 0,
+    (producto.imagenes?.length ?? 0) > 0 ? 0 : getProductVideos(producto).length ? -1 : 0,
   )
   const [cantidad, setCantidad] = useState(1)
   const [zoomOpen, setZoomOpen] = useState(false)
@@ -129,8 +131,10 @@ export default function ProductoDetalle({
   const tieneVariaciones = variaciones.length > 0
   const agotado = productoAgotadoEnCatalogo(producto, catalogType, variaciones)
   const imagenes = producto.imagenes?.length ? producto.imagenes : []
-  const hasVideo = Boolean(producto.video_url && producto.video_tipo)
-  const showingVideo = imagenActiva === -1 && hasVideo
+  const videos = getProductVideos(producto)
+  const hasVideo = videos.length > 0
+  const activeVideo = imagenActiva < 0 ? videos[-imagenActiva - 1] : undefined
+  const showingVideo = Boolean(activeVideo)
 
   const toggleOpcion = (tipoId: string, opcionId: string) => {
     const tipo = variaciones.find(t => t.id === tipoId)
@@ -326,8 +330,9 @@ export default function ProductoDetalle({
                   style={{ WebkitTransform: 'translateZ(0)', transform: 'translateZ(0)' }}
                 >
                   <VideoEmbed
-                    url={producto.video_url!}
-                    tipo={producto.video_tipo!}
+                    key={activeVideo!.url}
+                    url={activeVideo!.url}
+                    tipo={activeVideo!.tipo}
                     poster={imagenes[0] ?? null}
                     fill
                   />
@@ -406,23 +411,28 @@ export default function ProductoDetalle({
                     )}
                   </button>
                 ))}
-                {hasVideo && (
-                  <button
-                    type="button"
-                    onClick={() => setImagenActiva(-1)}
-                    className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border bg-[var(--bg-muted)] transition-all duration-200 md:rounded-none ${
-                      showingVideo
-                        ? 'border-[var(--gold)] opacity-100'
-                        : 'border-[var(--border-subtle)] opacity-50 hover:opacity-80'
-                    }`}
-                    aria-label="Ver video del producto"
-                  >
-                    <Play size={16} className="text-[var(--gold)]" />
-                    <span className="text-[7px] uppercase tracking-[1px] text-[var(--text-subtle)]">
-                      Video
-                    </span>
-                  </button>
-                )}
+                {videos.map((video, v) => {
+                  const index = -(v + 1)
+                  const active = imagenActiva === index
+                  return (
+                    <button
+                      key={`${video.url}-${v}`}
+                      type="button"
+                      onClick={() => setImagenActiva(index)}
+                      className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border bg-[var(--bg-muted)] transition-all duration-200 md:rounded-none ${
+                        active
+                          ? 'border-[var(--gold)] opacity-100'
+                          : 'border-[var(--border-subtle)] opacity-50 hover:opacity-80'
+                      }`}
+                      aria-label={videos.length > 1 ? `Ver video ${v + 1} del producto` : 'Ver video del producto'}
+                    >
+                      <Play size={16} className="text-[var(--gold)]" />
+                      <span className="text-[7px] uppercase tracking-[1px] text-[var(--text-subtle)]">
+                        {videos.length > 1 ? `Video ${v + 1}` : 'Video'}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </motion.div>

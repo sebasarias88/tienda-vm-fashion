@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Producto, Categoria, VideoTipo } from '@/types'
+import { Producto, Categoria, ProductoVideo } from '@/types'
 import { Input, Textarea } from '@/components/ui/Input'
 import { AdminMultiSelect } from '@/components/ui/AdminSelect'
 import { CopInput } from '@/components/ui/CopInput'
@@ -12,7 +12,8 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import VariacionesEditor from '@/components/admin/VariacionesEditor'
 import SeccionesEditor from '@/components/admin/SeccionesEditor'
 import AdminFormLayout from '@/components/admin/mobile/AdminFormLayout'
-import ProductVideoField from '@/components/admin/ProductVideoField'
+import ProductVideosField from '@/components/admin/ProductVideosField'
+import { getProductVideos } from '@/lib/productVideos'
 import toast from 'react-hot-toast'
 
 type ProductFormProps = {
@@ -61,8 +62,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
     visible_mayoreo: true,
     destacado: false,
     imagenes: [] as string[],
-    video_url: '',
-    video_tipo: '' as '' | VideoTipo,
+    videos: [] as ProductoVideo[],
     sku: '',
     marca: '',
     orden: 0,
@@ -94,8 +94,7 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
         visible_mayoreo: producto.visible_mayoreo ?? true,
         destacado: producto.destacado,
         imagenes: producto.imagenes || [],
-        video_url: producto.video_url || '',
-        video_tipo: producto.video_tipo || '',
+        videos: getProductVideos(producto),
         sku: producto.sku || '',
         marca: producto.marca || '',
         orden: producto.orden,
@@ -201,8 +200,10 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       destacado: form.destacado,
       categoria_id: mainCatId,
       imagenes: form.imagenes,
-      video_url: form.video_url.trim() || null,
-      video_tipo: form.video_tipo || null,
+      videos: form.videos,
+      // Legacy columns mirror the first video (keeps older code/rollbacks working)
+      video_url: form.videos[0]?.url ?? null,
+      video_tipo: form.videos[0]?.tipo ?? null,
       sku: form.sku.trim() || null,
       marca: form.marca.trim() || null,
       orden: form.orden,
@@ -279,12 +280,11 @@ export default function ProductForm({ producto, onSuccess, onCancel }: ProductFo
       </FormSection>
 
       <FormSection title="Video">
-        <ProductVideoField
-          videoUrl={form.video_url}
-          videoTipo={form.video_tipo}
+        <ProductVideosField
+          videos={form.videos}
           poster={form.imagenes[0] || null}
           onUploadingChange={setVideoUploading}
-          onChange={(url, tipo) => setForm(f => ({ ...f, video_url: url, video_tipo: tipo }))}
+          onChange={videos => setForm(f => ({ ...f, videos }))}
         />
       </FormSection>
 
