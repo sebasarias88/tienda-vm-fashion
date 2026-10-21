@@ -103,66 +103,70 @@ function CategoriaCard({
         href={`${productosHref}?categoria=${cat.slug}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="group relative block aspect-[4/5] overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] md:rounded-none md:border-[var(--border)]"
+        aria-label={`${cat.nombre}${subcats.length ? `, ${subcats.length} ${subcats.length === 1 ? 'tipo' : 'tipos'}` : ''}`}
+        className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] md:rounded-none md:border-[var(--border)]"
       >
         {cat.imagen_url ? (
-          <CatalogImage
-            variant="thumb"
-            src={cat.imagen_url}
-            alt={cat.nombre}
-            className="absolute inset-0 h-full w-full"
-            imageClassName="object-cover transition-transform duration-700 group-hover:scale-110"
-            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 20vw"
-            quality={70}
-          />
+          <>
+            {/* The artwork already shows the category name: show it whole, no dark overlay. */}
+            <div className="relative aspect-square w-full overflow-hidden">
+              <CatalogImage
+                variant="thumb"
+                src={cat.imagen_url}
+                alt={cat.nombre}
+                className="absolute inset-0 h-full w-full"
+                imageClassName="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 20vw"
+                quality={70}
+              />
+              {conDescuento && pctDescuento != null && (
+                <div className="absolute left-2 top-2 z-[1] bg-[var(--gold)] px-2 py-1 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--text-on-gold)]">
+                  -{pctDescuento}%
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2.5 sm:px-4 sm:py-3">
+              <span className="text-[9px] font-medium uppercase tracking-[2px] text-[var(--gold)] sm:text-[10px]">
+                {subcats.length > 0
+                  ? `${subcats.length} ${subcats.length === 1 ? 'tipo' : 'tipos'}`
+                  : 'Ver productos'}
+              </span>
+              <motion.span
+                className="flex items-center gap-1 text-[9px] font-medium uppercase tracking-[2px] text-[var(--text-secondary)] transition-colors group-hover:text-[var(--gold)] sm:text-[10px]"
+                animate={{ x: hovered ? 2 : 0 }}
+              >
+                Explorar
+                <ArrowUpRight size={11} />
+              </motion.span>
+            </div>
+          </>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--bg-muted)] to-[var(--gold-muted)]">
-            <Tag
-              size={28}
-              className="text-[color-mix(in_srgb,var(--gold)_40%,transparent)]"
-            />
+          <div className="relative aspect-[4/5] w-full">
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--bg-muted)] to-[var(--gold-muted)]">
+              <Tag size={28} className="text-[color-mix(in_srgb,var(--gold)_40%,transparent)]" />
+            </div>
+            {conDescuento && pctDescuento != null && (
+              <div className="absolute left-2 top-2 z-[1] bg-[var(--gold)] px-2 py-1 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--text-on-gold)]">
+                -{pctDescuento}%
+              </div>
+            )}
+            <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+              {subcats.length > 0 && (
+                <p className="mb-1 text-[8px] font-medium uppercase tracking-[2px] text-[var(--gold)] sm:text-[9px]">
+                  {subcats.length} {subcats.length === 1 ? 'tipo' : 'tipos'}
+                </p>
+              )}
+              {/* No artwork: the name must be visible */}
+              <p className="text-[13px] font-medium uppercase leading-snug tracking-[1px] text-[var(--text-primary)] sm:text-[14px]">
+                {cat.nombre}
+              </p>
+              <span className="mt-2 flex items-center gap-1 text-[9px] font-medium uppercase tracking-[2px] text-[var(--text-secondary)] sm:text-[10px]">
+                Explorar
+                <ArrowUpRight size={11} />
+              </span>
+            </div>
           </div>
         )}
-
-        {conDescuento && pctDescuento != null && (
-          <div className="absolute left-2 top-2 z-[1] bg-[var(--gold)] px-2 py-1 text-[9px] font-medium uppercase tracking-[1.5px] text-[var(--text-on-gold)]">
-            -{pctDescuento}%
-          </div>
-        )}
-
-        <div
-          className="absolute inset-0 transition-opacity duration-300"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(12,10,8,0.92) 0%, rgba(12,10,8,0.72) 28%, rgba(12,10,8,0.28) 52%, rgba(12,10,8,0.05) 78%, transparent 100%)',
-            opacity: hovered ? 1 : 0.97,
-          }}
-        />
-
-        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-          {subcats.length > 0 && (
-            <p className="mb-1 text-[8px] font-medium uppercase tracking-[2px] text-[#E8D4A0] [text-shadow:0_1px_3px_rgba(0,0,0,0.85)] sm:text-[9px]">
-              {subcats.length} {subcats.length === 1 ? 'tipo' : 'tipos'}
-            </p>
-          )}
-          <p
-            className="text-[13px] font-medium uppercase leading-snug tracking-[1px] text-white transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-[14px]"
-            style={{
-              color: '#FFFFFF',
-              textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.55)',
-            }}
-          >
-            {cat.nombre}
-          </p>
-
-          <motion.div
-            className="mt-2 flex items-center gap-1 text-[9px] font-medium uppercase tracking-[2px] text-[#F0E2B8] [text-shadow:0_1px_3px_rgba(0,0,0,0.85)] sm:mt-2.5 sm:text-[10px]"
-            animate={{ opacity: hovered ? 1 : 0.9, x: hovered ? 2 : 0 }}
-          >
-            Explorar
-            <ArrowUpRight size={11} />
-          </motion.div>
-        </div>
       </Link>
     </motion.div>
   )
