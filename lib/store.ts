@@ -72,6 +72,12 @@ export const useCarrito = create<CartStore>()(
       cantidad: () =>
         get().items.reduce((acc, i) => acc + i.cantidad, 0),
     }),
-    { name: 'carrito-vm-fashion' },
+    {
+      name: 'carrito-vm-fashion',
+      // Versioned so future changes to the cart shape can migrate instead of wiping carts.
+      version: 1,
+      migrate: persisted => persisted as CartStore,
+      partialize: state => ({ items: state.items }) as CartStore,
+    },
   ),
 )
