@@ -62,3 +62,12 @@ export const getMarcasDisponibles = cache(
     }
   },
 )
+
+/** Flattens the active category tree (roots + subcategories). */
+export function flattenCategorias(categorias: Categoria[]): Categoria[] {
+  return categorias.flatMap(raiz => [raiz, ...(raiz.subcategorias || [])])
+}
+
+export function findCategoriaBySlug(categorias: Categoria[], slug: string): Categoria | undefined {
+  return flattenCategorias(categorias).find(c => c.slug === slug)
+}
