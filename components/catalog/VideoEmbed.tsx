@@ -11,6 +11,8 @@ type VideoEmbedProps = {
   compact?: boolean
   /** Llena el contenedor padre (p. ej. aspect-[3/4] de la galería) */
   fill?: boolean
+  /** Cover image for uploaded videos (shown before playing). */
+  poster?: string | null
 }
 
 /** Ancho nativo del embed TikTok v2 */
@@ -254,6 +256,7 @@ export default function VideoEmbed({
   tipo,
   compact = false,
   fill = false,
+  poster,
 }: VideoEmbedProps) {
   const [error, setError] = useState(false)
 
@@ -276,6 +279,28 @@ export default function VideoEmbed({
           <ExternalLink size={11} />
           Ver video original
         </a>
+      </div>
+    )
+  }
+
+  if (tipo === 'archivo') {
+    // Our own MP4 on R2: native player. preload="metadata" downloads only a few KB
+    // until the customer presses play.
+    return (
+      <div
+        className={`relative w-full overflow-hidden bg-black ${fill ? 'h-full' : compact ? 'h-[280px]' : 'aspect-[3/4]'}`}
+      >
+        <video
+          src={url}
+          poster={poster || undefined}
+          controls
+          playsInline
+          preload="metadata"
+          onError={() => setError(true)}
+          className="absolute inset-0 h-full w-full object-contain"
+        >
+          Tu navegador no puede reproducir este video.
+        </video>
       </div>
     )
   }
@@ -408,6 +433,9 @@ export default function VideoEmbed({
 }
 
 export function detectarVideoTipo(url: string): VideoTipo {
+  const imageBase = (process.env.NEXT_PUBLIC_IMAGE_BASE_URL || '').replace(/\/$/, '')
+  if (imageBase && url.startsWith(`${imageBase}/videos/`)) return 'archivo'
+  if (/\.(mp4|webm)(\?|$)/i.test(url)) return 'archivo'
   if (url.includes('tiktok.com')) return 'tiktok'
   if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube'
   if (url.includes('instagram.com')) return 'instagram'

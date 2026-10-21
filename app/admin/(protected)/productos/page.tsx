@@ -241,8 +241,12 @@ export default function ProductosPage() {
     if (error) toast.error('Error al eliminar')
     else {
       // Delete files only after the product row is gone (never leave a product pointing to missing images).
-      if (selected.imagenes?.length) {
-        deleteCatalogImages(selected.imagenes).catch(() => {
+      const files = [
+        ...(selected.imagenes || []),
+        ...(selected.video_tipo === 'archivo' && selected.video_url ? [selected.video_url] : []),
+      ]
+      if (files.length) {
+        deleteCatalogImages(files).catch(() => {
           console.warn('[productos] images could not be deleted from storage')
         })
       }

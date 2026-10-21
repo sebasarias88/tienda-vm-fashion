@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 /**
  * Cloudflare R2 client (S3-compatible). SERVER ONLY — never import from client components.
@@ -20,6 +21,7 @@ export const ALLOWED_KEY_PREFIXES = [
   'banners/',
   'promociones/',
   'thumbs/',
+  'videos/',
 ] as const
 
 function requireEnv(name: string): string {
@@ -94,5 +96,27 @@ export async function deleteImageObjects(keys: string[]): Promise<void> {
       Bucket: getR2Bucket(),
       Delete: { Objects: safeKeys.map(Key => ({ Key })), Quiet: true },
     }),
+  )
+}
+
+/**
+ * Short-lived signed URL so the admin's browser uploads a video DIRECTLY to R2
+ * (videos are too big to pass through a Vercel function, ~4.5MB limit).
+ * The signature fixes the key, content type and cache header: nothing else can be uploaded with it.
+ */
+export async function createVideoUploadUrl(params: {
+  key: string
+  contentType: string
+}): Promise<string> {
+  if (!params.key.startsWith('videos/')) throw new Error('Key not allowed')
+  return getSignedUrl(
+    getR2Client(),
+    new PutObjectCommand({
+      Bucket: getR2Bucket(),
+      Key: params.key,
+      ContentType: params.contentType,
+      CacheControl: IMMUTABLE_CACHE_CONTROL,
+    }),
+    { expiresIn: 600, signableHeaders: new Set(['content-type', 'cache-control']) },
   )
 }
