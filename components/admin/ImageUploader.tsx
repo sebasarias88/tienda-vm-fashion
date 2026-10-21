@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
-import { optimizeImageFile, MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
+import { MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
+import { uploadCatalogImage } from '@/lib/catalogImages'
 import { ImageIcon, X, Loader2, GripVertical } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -21,29 +21,13 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
   const uploadFile = async (
     file: File,
   ): Promise<{ url: string | null; fileName: string; error?: string }> => {
-    let optimized: File
     try {
-      optimized = await optimizeImageFile(file)
+      const url = await uploadCatalogImage(file, 'productos')
+      return { url, fileName: file.name }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'No se pudo procesar la imagen'
+      const msg = err instanceof Error ? err.message : 'No se pudo subir la imagen'
       return { url: null, fileName: file.name, error: msg }
     }
-
-    const path = `productos/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
-
-    const { error } = await supabase.storage
-      .from('productos')
-      .upload(path, optimized, {
-        upsert: true,
-        contentType: optimized.type || 'image/webp',
-      })
-
-    if (error) {
-      return { url: null, fileName: file.name, error: error.message }
-    }
-
-    const { data } = supabase.storage.from('productos').getPublicUrl(path)
-    return { url: data.publicUrl, fileName: file.name }
   }
 
   const handleFiles = async (files: FileList | File[]) => {
@@ -93,13 +77,12 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
     handleFiles(e.dataTransfer.files)
   }
 
-  const eliminarImagen = async (url: string) => {
-    const path = url.split('/productos/')[1]
-    if (path) {
-      await supabase.storage.from('productos').remove([`productos/${path}`])
-    }
+  // Only removes the image from the product form. The file is NOT deleted here:
+  // if the admin cancels without saving, the product would point to a missing file.
+  // Files are deleted when the whole product is deleted.
+  const eliminarImagen = (url: string) => {
     onChange(imagenes.filter(i => i !== url))
-    toast.success('Imagen eliminada')
+    toast.success('Imagen quitada (guarda el producto para aplicar)')
   }
 
   const moverImagen = (from: number, to: number) => {
