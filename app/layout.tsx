@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
@@ -12,8 +12,18 @@ const outfit = Outfit({
   variable: '--font-outfit',
 })
 
+/** Browser/OS UI color (address bar on Android, status bar when installed). */
+export const viewport: Viewport = {
+  themeColor: '#0f0e0c',
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
+  appleWebApp: {
+    capable: true,
+    title: 'VM Fashion',
+    statusBarStyle: 'black-translucent',
+  },
   title: {
     default: 'Catálogo detal — Tienda VM Fashion',
     template: '%s | Tienda VM Fashion',

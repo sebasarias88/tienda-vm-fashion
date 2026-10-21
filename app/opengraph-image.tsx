@@ -1,11 +1,16 @@
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 import { ImageResponse } from 'next/og'
 
-export const runtime = 'edge'
 export const alt = 'Tienda VM Fashion — Belleza y cuidado capilar'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function OpenGraphImage() {
+/** Share preview (WhatsApp, Facebook, Instagram DMs…) with the real store logo. */
+export default async function OpenGraphImage() {
+  const logo = await readFile(path.join(process.cwd(), 'assets', 'og-logo.png'))
+  const logoSrc = `data:image/png;base64,${logo.toString('base64')}`
+
   return new ImageResponse(
     (
       <div
@@ -21,6 +26,7 @@ export default function OpenGraphImage() {
           fontFamily: 'system-ui, sans-serif',
         }}
       >
+        <img src={logoSrc} width={190} height={190} alt="" style={{ marginBottom: 28 }} />
         <div
           style={{
             display: 'flex',
@@ -56,7 +62,7 @@ export default function OpenGraphImage() {
         </div>
         <div
           style={{
-            fontSize: 72,
+            fontSize: 60,
             fontWeight: 300,
             letterSpacing: 6,
             textTransform: 'uppercase',
