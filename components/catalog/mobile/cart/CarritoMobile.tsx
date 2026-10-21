@@ -25,6 +25,7 @@ import MobileCartSummary from '@/components/catalog/mobile/cart/MobileCartSummar
 import MobileCartStickyBar from '@/components/catalog/mobile/cart/MobileCartStickyBar'
 import MobileCartReviewItem from '@/components/catalog/mobile/cart/MobileCartReviewItem'
 import { itemLineKey } from '@/lib/cart'
+import CartKeepSafe from '@/components/catalog/cart/CartKeepSafe'
 
 function WhatsAppIcon({ size = 16 }: { size?: number }) {
   return (
@@ -234,6 +235,7 @@ export default function CarritoMobile({
                       <span className="mobile-cart-list-panel__count">{items.length}</span>
                     </div>
                   </div>
+                  <CartKeepSafe items={items} catalogType={catalogType} />
                   <div className="mobile-cart-item-list">
                     <AnimatePresence initial={false}>
                       {items.map(item => {

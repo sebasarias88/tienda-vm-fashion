@@ -54,6 +54,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import CartKeepSafe from '@/components/catalog/cart/CartKeepSafe'
+import { useRestoreSharedCart } from '@/lib/useRestoreSharedCart'
 
 function formatPrecio(precio: number) {
   return new Intl.NumberFormat('es-CO', {
@@ -282,6 +284,7 @@ export default function CarritoPage() {
   const productosHref = catalogPath(catalogType, '/productos')
 
   const { items, quitar, actualizarCantidad, vaciar } = useCarrito()
+  useRestoreSharedCart(catalogType)
   const [mounted, setMounted] = useState(false)
   const [step, setStep] = useState<Step>('carrito')
   const [config, setConfig] = useState<Config>({
@@ -739,6 +742,8 @@ export default function CarritoPage() {
                     </Link>
                   </div>
                 ) : (
+                  <>
+                  <CartKeepSafe items={items} catalogType={catalogType} />
                   <div className="divide-y divide-[var(--border-subtle)]">
                     <AnimatePresence initial={false}>
                       {items.map((item) => {
@@ -839,6 +844,7 @@ export default function CarritoPage() {
                       })}
                     </AnimatePresence>
                   </div>
+                  </>
                 )}
               </div>
 
