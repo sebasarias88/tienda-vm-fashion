@@ -185,19 +185,28 @@ button:disabled {
 }
 
 /* CTAs crema → dorado sólido al hover */
+/* Primary call to action (Agregar al carrito, Finalizar pedido…): solid gold, dark text. */
 .catalog-gold-cta {
-  background-color: var(--gold-light);
+  background-color: var(--gold-bright);
   color: var(--text-on-gold);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 6px 18px -8px rgba(201, 168, 76, 0.65);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .catalog-gold-cta:hover:not(:disabled) {
   background-color: var(--gold);
-  color: #ffffff;
+  color: var(--text-on-gold);
+  box-shadow: 0 8px 22px -8px rgba(201, 168, 76, 0.8);
 }
 
 .catalog-gold-cta:hover:not(:disabled) svg {
-  color: #ffffff;
+  color: var(--text-on-gold);
+}
+
+.catalog-gold-cta:focus-visible {
+  outline: 2px solid var(--text-on-gold);
+  outline-offset: 2px;
 }
 
 /* Navbar / carrito — estilos base (el botón usa Tailwind + borderRadius inline) */

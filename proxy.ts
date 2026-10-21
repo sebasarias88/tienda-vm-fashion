@@ -6,7 +6,7 @@ import { getSupabaseEnv } from '@/lib/env'
  * Auth solo en /admin — evita getUser() en cada hit del catálogo público
  * (reduce Auth API / egress innecesario).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const { url, anonKey } = getSupabaseEnv()
