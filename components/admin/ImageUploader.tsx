@@ -175,7 +175,7 @@ export default function ImageUploader({ imagenes, onChange }: ImageUploaderProps
                   <span className="text-[var(--gold-bright)]">haz clic para seleccionar</span>
                 </p>
                 <p className="admin-upload-zone__meta">
-                  JPG, PNG, WEBP — Máx. 5MB · Se optimizan a WebP automáticamente
+                  JPG, PNG o WEBP (hasta 25MB) · Se optimizan solas a WebP de máx. 150 KB
                 </p>
               </>
             )}
