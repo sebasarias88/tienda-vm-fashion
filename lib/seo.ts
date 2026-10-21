@@ -29,6 +29,8 @@ type BuildMetadataInput = {
   image?: string | null
   keywords?: string[]
   noIndex?: boolean
+  /** Canonical URL path when it differs from `path` (e.g. duplicated content). */
+  canonicalPath?: string
 }
 
 export function buildMetadata({
@@ -39,10 +41,11 @@ export function buildMetadata({
   image,
   keywords,
   noIndex,
+  canonicalPath,
 }: BuildMetadataInput): Metadata {
   const siteName = getSiteName(config)
   const desc = description || getSiteDescription(config)
-  const url = toAbsoluteUrl(path)
+  const url = toAbsoluteUrl(canonicalPath ?? path)
   const ogImage = image ? toAbsoluteUrl(image) : toAbsoluteUrl('/opengraph-image')
 
   const fullTitle = title === siteName ? title : `${title} | ${siteName}`
@@ -73,9 +76,16 @@ export function buildMetadata({
   }
 }
 
+/**
+ * Product metadata. Wholesale (mayorista) pages repeat the retail product content,
+ * so when the product is also visible in retail they declare the retail URL as canonical
+ * to avoid duplicate content in Google.
+ */
 export function buildProductMetadata(
   config: SiteConfigMap,
-  producto: Pick<Producto, 'nombre' | 'descripcion' | 'imagenes' | 'slug'>,
+  producto: Pick<Producto, 'nombre' | 'descripcion' | 'imagenes' | 'slug'> & {
+    visible_detal?: boolean | null
+  },
   catalogType: CatalogType = 'detal',
 ): Metadata {
   const siteName = getSiteName(config)
@@ -88,8 +98,12 @@ export function buildProductMetadata(
     } de ${siteName}. Envíos a toda Colombia.`
   const path = catalogPath(catalogType, `/productos/${producto.slug}`)
   const image = producto.imagenes?.[0] ?? null
+  const canonicalPath =
+    catalogType === 'mayoreo' && producto.visible_detal !== false
+      ? catalogPath('detal', `/productos/${producto.slug}`)
+      : undefined
 
-  return buildMetadata({ config, title, description, path, image })
+  return buildMetadata({ config, title, description, path, image, canonicalPath })
 }
 
 export function productJsonLd(
@@ -113,7 +127,7 @@ export function productJsonLd(
     ...(image ? { image: [image] } : {}),
     sku: producto.sku || producto.id,
     url,
-    brand: { '@type': 'Brand', name: siteName },
+    brand: { '@type': 'Brand', name: producto.marca?.trim() || siteName },
     ...(producto.categoria?.nombre ? { category: producto.categoria.nombre } : {}),
     ...(hasPrice
       ? {
