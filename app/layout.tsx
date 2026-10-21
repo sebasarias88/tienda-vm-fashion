@@ -4,6 +4,7 @@ import './globals.css'
 import Providers from '@/components/Providers'
 import ScrollToTop from '@/components/ScrollToTop'
 import ConnectionStatus from '@/components/ConnectionStatus'
+import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister'
 import { getSiteUrl } from '@/lib/seo'
 
 const outfit = Outfit({
@@ -79,6 +80,7 @@ export default function RootLayout({
       <body className="min-h-screen antialiased">
         <ScrollToTop />
         <ConnectionStatus />
+        <ServiceWorkerRegister />
         <Providers>{children}</Providers>
       </body>
     </html>
