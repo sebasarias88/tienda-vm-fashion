@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { preload } from 'react-dom'
 import HeroBanner from '@/components/catalog/HeroBanner'
 import PromoStrip from '@/components/catalog/PromoStrip'
 import CategoriasGrid from '@/components/catalog/CategoriasGrid'
@@ -120,6 +121,10 @@ export default async function MayoreoHomePage() {
     console.error('[MayoreoHomePage] Error cargando datos:', error)
     throw error
   }
+
+  // The hero banner is the largest element on screen (LCP): start downloading it right away.
+  const firstBannerImage = banners.find(b => b.imagen_url)?.imagen_url
+  if (firstBannerImage) preload(firstBannerImage, { as: 'image', fetchPriority: 'high' })
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">

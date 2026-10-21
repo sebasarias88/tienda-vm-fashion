@@ -1,6 +1,7 @@
 'use client'
 
 import { optimizeImageFile } from '@/lib/optimizeImage'
+import { THUMB_MAX_EDGE_PX, THUMB_WEBP_QUALITY } from '@/lib/imageVariants'
 
 export type CatalogImageFolder = 'productos' | 'categorias' | 'banners' | 'promociones'
 
@@ -10,9 +11,14 @@ export type CatalogImageFolder = 'productos' | 'categorias' | 'banners' | 'promo
  */
 export async function uploadCatalogImage(file: File, folder: CatalogImageFolder): Promise<string> {
   const optimized = await optimizeImageFile(file)
+  const thumbnail = await optimizeImageFile(file, {
+    maxEdge: THUMB_MAX_EDGE_PX,
+    quality: THUMB_WEBP_QUALITY,
+  }).catch(() => null)
 
   const body = new FormData()
   body.append('file', optimized)
+  if (thumbnail && thumbnail.type === 'image/webp') body.append('thumb', thumbnail)
   body.append('folder', folder)
 
   const response = await fetch('/api/admin/images', { method: 'POST', body })

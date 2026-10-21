@@ -46,6 +46,7 @@ export default function MobileCartReviewItem({ item, catalogType }: MobileCartRe
       <div className="mobile-cart-review-item__thumb">
         {producto.imagenes?.[0] ? (
           <CatalogImage
+            variant="thumb"
             src={producto.imagenes[0]}
             alt=""
             className="h-full w-full"

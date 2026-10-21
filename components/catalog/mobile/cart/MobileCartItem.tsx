@@ -54,6 +54,7 @@ export default function MobileCartItem({
         <Link href={productHref} className="mobile-cart-item__thumb">
           {producto.imagenes?.[0] ? (
             <CatalogImage
+              variant="thumb"
               src={producto.imagenes[0]}
               alt={producto.nombre}
               className="h-full w-full"

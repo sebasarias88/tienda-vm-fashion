@@ -75,6 +75,7 @@ export default function ProductCard({
         <div className="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden">
           {producto.imagenes?.[0] ? (
             <CatalogImage
+              variant="thumb"
               src={producto.imagenes[0]}
               alt={producto.nombre}
               className="h-full w-full"

@@ -19,6 +19,7 @@ export const ALLOWED_KEY_PREFIXES = [
   'categorias/',
   'banners/',
   'promociones/',
+  'thumbs/',
 ] as const
 
 function requireEnv(name: string): string {

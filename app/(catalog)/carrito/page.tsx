@@ -176,6 +176,7 @@ function OrderSummaryPanel({
             <div className="h-12 w-12 shrink-0 overflow-hidden bg-[var(--bg-surface)]">
               {producto.imagenes?.[0] ? (
                 <CatalogImage
+                  variant="thumb"
                   src={producto.imagenes[0]}
                   alt={producto.nombre}
                   className="h-full w-full"
