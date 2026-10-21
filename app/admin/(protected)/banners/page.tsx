@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { optimizeImageFile, MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
+import { MAX_IMAGE_UPLOAD_BYTES } from '@/lib/optimizeImage'
+import { uploadCatalogImage } from '@/lib/catalogImages'
 import { Banner } from '@/types'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
@@ -127,29 +128,15 @@ export default function BannersPage() {
     }
 
     setUploading(true)
-    let optimized: File
     try {
-      optimized = await optimizeImageFile(file)
+      const url = await uploadCatalogImage(file, 'banners')
+      setForm(f => ({ ...f, imagen_url: url }))
+      toast.success('Imagen subida')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'No se pudo procesar la imagen')
+      toast.error(err instanceof Error ? err.message : 'Error al subir la imagen')
+    } finally {
       setUploading(false)
-      return
     }
-
-    const path = `banners/${Date.now()}.webp`
-    const { error } = await supabase.storage.from('banners').upload(path, optimized, {
-      upsert: true,
-      contentType: optimized.type || 'image/webp',
-    })
-    if (error) {
-      toast.error('Error al subir la imagen')
-      setUploading(false)
-      return
-    }
-    const { data } = supabase.storage.from('banners').getPublicUrl(path)
-    setForm(f => ({ ...f, imagen_url: data.publicUrl }))
-    toast.success('Imagen subida')
-    setUploading(false)
   }
 
   const handleGuardar = async (e: React.FormEvent) => {
