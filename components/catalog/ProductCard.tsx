@@ -69,7 +69,11 @@ export default function ProductCard({
   }
 
   return (
-    <Link href={productHref} className="block h-full">
+    <Link
+      href={productHref}
+      className="block h-full"
+      aria-label={`${producto.nombre}${producto.marca ? `, ${producto.marca}` : ''}`}
+    >
       <div className="group relative flex h-full min-h-0 flex-col border border-[var(--border-card)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition-all duration-300 hover:border-[var(--border)] hover:shadow-[var(--shadow-card-hover)] cursor-pointer">
 
         <div className="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden">

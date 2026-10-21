@@ -2,8 +2,7 @@
  * Audita columnas text/text[] del schema public buscando dominio viejo de Storage.
  * Uso: npx tsx --env-file=.env scripts/audit-old-storage-urls.ts
  */
-// @ts-nocheck
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { getSupabaseUrl } from '../lib/env'
 
 const OLD = 'pflyaurqruygfuqhsxud'
@@ -25,7 +24,7 @@ const TEXT_COLUMNS: { table: string; column: string; type: 'text' | 'text[]' }[]
 ]
 
 async function countScalar(
-  sb: ReturnType<typeof createClient>,
+  sb: SupabaseClient,
   table: string,
   column: string,
 ): Promise<{ count: number; samples: string[] }> {
@@ -53,7 +52,7 @@ async function countScalar(
 }
 
 async function countArray(
-  sb: ReturnType<typeof createClient>,
+  sb: SupabaseClient,
   table: string,
   column: string,
 ): Promise<{ count: number; samples: string[] }> {
@@ -67,7 +66,7 @@ async function countArray(
   let count = 0
   const samples: string[] = []
 
-  for (const row of (data as Record<string, unknown>[] | null) || []) {
+  for (const row of (data as unknown as Record<string, unknown>[] | null) || []) {
     const arr = (row as Record<string, unknown>)[column] as string[] | null
     if (!arr?.length) continue
     const hits = arr.filter(v => v.includes(OLD))
