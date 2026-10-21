@@ -235,7 +235,6 @@ export default function CarritoMobile({
                       <span className="mobile-cart-list-panel__count">{items.length}</span>
                     </div>
                   </div>
-                  <CartKeepSafe items={items} catalogType={catalogType} />
                   <div className="mobile-cart-item-list">
                     <AnimatePresence initial={false}>
                       {items.map(item => {
@@ -253,6 +252,10 @@ export default function CarritoMobile({
                       })}
                     </AnimatePresence>
                   </div>
+                </div>
+
+                <div className="mt-5">
+                  <CartKeepSafe items={items} catalogType={catalogType} />
                 </div>
 
                 <div className="mt-5">
