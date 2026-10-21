@@ -1,17 +1,31 @@
 import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { createSupabasePublic } from '@/lib/supabase-public'
 
 export type SiteConfigMap = Record<string, string>
 
-export const getSiteConfig = cache(async (): Promise<SiteConfigMap> => {
-  try {
+/**
+ * Shared across requests for 60s (Next data cache) so dynamic pages don't query
+ * `configuracion` on every visit. Errors are thrown (never cached) and handled below.
+ */
+const fetchSiteConfig = unstable_cache(
+  async (): Promise<SiteConfigMap> => {
     const supabase = createSupabasePublic()
-    const { data } = await supabase.from('configuracion').select('clave, valor')
+    const { data, error } = await supabase.from('configuracion').select('clave, valor')
+    if (error) throw error
     const config: SiteConfigMap = {}
     data?.forEach(row => {
       config[row.clave] = row.valor
     })
     return config
+  },
+  ['site-config'],
+  { revalidate: 60, tags: ['site-config'] },
+)
+
+export const getSiteConfig = cache(async (): Promise<SiteConfigMap> => {
+  try {
+    return await fetchSiteConfig()
   } catch {
     return {}
   }
