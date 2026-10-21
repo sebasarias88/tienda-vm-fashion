@@ -94,6 +94,8 @@ export default function HeroBanner({
         Desktop: marco fijo + object-cover para presencia editorial.
       */}
       <div className="relative w-full overflow-hidden bg-[var(--bg-muted)] md:h-[min(72svh,760px)] md:min-h-[320px]">
+        {/* The banner is an image, so the page still needs one real H1 for SEO and screen readers. */}
+        {hasImages && <h1 className="sr-only">{fallbackTitle}</h1>}
         <AnimatePresence mode="wait">
           {hasImages && currentBanner ? (
             <motion.div
