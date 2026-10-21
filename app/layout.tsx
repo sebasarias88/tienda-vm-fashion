@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { preconnect } from 'react-dom'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
@@ -75,6 +76,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Open the connection to the image CDN early (saves a round trip on the first image).
+  const imageBase = process.env.R2_PUBLIC_BASE_URL
+  if (imageBase) preconnect(imageBase)
+
   return (
     <html lang="es" className={outfit.variable}>
       <body className="min-h-screen antialiased">

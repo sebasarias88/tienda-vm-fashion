@@ -6,6 +6,7 @@ import {
   publicUrlForKey,
   putImageObject,
 } from '@/lib/r2'
+import { thumbKeyFor } from '@/lib/imageVariants'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
   }
 
   const file = form.get('file')
+  const thumb = form.get('thumb')
   const folder = form.get('folder')
 
   if (!isImageFolder(folder)) return jsonError('Carpeta no válida', 400)
@@ -67,9 +69,20 @@ export async function POST(request: Request) {
 
   const key = `${folder}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${extension}`
 
+  // The browser sends a 640px WebP thumbnail. If it couldn't (tiny images), the original is
+  // small anyway, so it doubles as the thumbnail: every image always has one.
+  const thumbFile =
+    thumb instanceof File && thumb.type === 'image/webp' && thumb.size <= MAX_UPLOAD_BYTES ? thumb : file
+
   try {
     const body = Buffer.from(await file.arrayBuffer())
     await putImageObject({ key, body, contentType: file.type })
+    // Lightweight version for cards and lists. If it fails, the site falls back to the full image.
+    await putImageObject({
+      key: thumbKeyFor(key),
+      body: Buffer.from(await thumbFile.arrayBuffer()),
+      contentType: thumbFile.type,
+    }).catch(error => console.error('[admin/images] thumbnail upload failed', error))
   } catch (error) {
     console.error('[admin/images] upload failed', error)
     return jsonError('No se pudo subir la imagen', 502)
@@ -102,7 +115,7 @@ export async function DELETE(request: Request) {
     .filter((k): k is string => k !== null)
 
   try {
-    await deleteImageObjects(keys)
+    await deleteImageObjects([...keys, ...keys.map(thumbKeyFor)])
   } catch (error) {
     console.error('[admin/images] delete failed', error)
     return jsonError('No se pudieron eliminar las imágenes', 502)

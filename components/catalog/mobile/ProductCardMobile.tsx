@@ -76,6 +76,7 @@ export default function ProductCardMobile({
           <Link href={productHref} className="block h-full w-full">
             {producto.imagenes?.[0] ? (
               <CatalogImage
+                variant="thumb"
                 src={producto.imagenes[0]}
                 alt={producto.nombre}
                 className="h-full w-full"

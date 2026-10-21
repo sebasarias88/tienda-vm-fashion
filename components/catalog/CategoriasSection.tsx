@@ -88,6 +88,7 @@ export default function CategoriasSection({
             >
               {cat.imagen_url ? (
                 <CatalogImage
+                  variant="thumb"
                   src={cat.imagen_url}
                   alt={cat.nombre}
                   className="h-full w-full opacity-90 transition-opacity duration-700 group-hover:opacity-100"

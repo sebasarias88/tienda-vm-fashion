@@ -387,11 +387,13 @@ export default function ProductoDetalle({
                     key={i}
                     type="button"
                     onClick={() => setImagenActiva(i)}
+                    aria-label={`Ver imagen ${i + 1}`}
                     className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg transition-opacity md:rounded-none ${
                       imagenActiva === i ? 'opacity-100' : 'opacity-45 hover:opacity-75'
                     }`}
                   >
                     <CatalogImage
+                      variant="thumb"
                       src={url}
                       alt={`Vista ${i + 1}`}
                       className="h-full w-full"
