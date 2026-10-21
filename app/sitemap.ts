@@ -52,7 +52,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       })
     }
-    if (producto.visible_mayoreo !== false) {
+    // Wholesale pages also visible in retail point their canonical to retail: list only the retail URL.
+    if (producto.visible_mayoreo !== false && producto.visible_detal === false) {
       routes.push({
         url: toAbsoluteUrl(catalogPath('mayoreo', `/productos/${producto.slug}`)),
         lastModified,
