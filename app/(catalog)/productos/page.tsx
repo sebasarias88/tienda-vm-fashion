@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import ProductosClient from '@/components/catalog/ProductosClient'
 import { buildMetadata } from '@/lib/seo'
 import { getSiteConfig, getSiteName } from '@/lib/site-config'
-import { getCategoriasActivas } from '@/lib/catalog-data'
+import { findCategoriaBySlug, getCategoriasActivas } from '@/lib/catalog-data'
 import {
   getCatalogProductosPage,
   type CatalogOrden,
@@ -22,14 +22,16 @@ function parseOrden(raw?: string): CatalogOrden {
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; categoria?: string; marca?: string }>
+  searchParams: Promise<{ q?: string; categoria?: string; marca?: string; page?: string; orden?: string }>
 }): Promise<Metadata> {
-  const { q, categoria } = await searchParams
+  const { q, categoria, marca, page, orden } = await searchParams
   const config = await getSiteConfig()
   const siteName = getSiteName(config)
   const query = q?.trim()
   const categorySlug = categoria?.trim()
-  const hasFilters = Boolean(query || categorySlug)
+  // A clean category URL (only ?categoria=…) is a landing page Google should index.
+  // Searches, brand filters, sorting and page 2+ stay out of the index.
+  let indexableCategory = false
 
   let title = 'Catálogo detal'
   let description = `Explora el catálogo detal de belleza y cuidado capilar de ${siteName}. Envíos a toda Colombia.`
@@ -40,9 +42,18 @@ export async function generateMetadata({
     description = `Productos detal que coinciden con "${query}" en ${siteName}.`
     path = `/productos?q=${encodeURIComponent(query)}`
   } else if (categorySlug) {
-    title = 'Detal por categoría'
-    description = `Productos detal filtrados por categoría en ${siteName}.`
+    const categorias = await getCategoriasActivas().catch(() => [])
+    const categoriaActual = findCategoriaBySlug(categorias, categorySlug)
     path = `/productos?categoria=${encodeURIComponent(categorySlug)}`
+
+    if (categoriaActual) {
+      const nombre = categoriaActual.nombre.trim()
+      title = nombre
+      description = `Compra ${nombre.toLowerCase()} en ${siteName}: belleza y cuidado capilar en Armenia, Quindío, con envíos a toda Colombia y asesoría por WhatsApp.`
+      indexableCategory = !marca && !orden && (!page || page === '1')
+    } else {
+      title = 'Categoría no encontrada'
+    }
   }
 
   return buildMetadata({
@@ -50,7 +61,7 @@ export async function generateMetadata({
     title,
     description,
     path,
-    noIndex: hasFilters,
+    noIndex: Boolean(query) || (Boolean(categorySlug) && !indexableCategory),
   })
 }
 
