@@ -328,6 +328,7 @@ export default function ProductoDetalle({
                   <VideoEmbed
                     url={producto.video_url!}
                     tipo={producto.video_tipo!}
+                    poster={imagenes[0] ?? null}
                     fill
                   />
                 </div>

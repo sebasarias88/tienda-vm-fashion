@@ -51,7 +51,8 @@ export type ProductoSeccion = {
   orden: number
 }
 
-export type VideoTipo = 'tiktok' | 'youtube' | 'instagram' | 'url'
+/** 'archivo' = video file uploaded to our own storage (R2). */
+export type VideoTipo = 'tiktok' | 'youtube' | 'instagram' | 'url' | 'archivo'
 
 export type Producto = {
   id: string
