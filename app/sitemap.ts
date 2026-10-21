@@ -1,10 +1,13 @@
 import type { MetadataRoute } from 'next'
-import { createSupabaseServer } from '@/lib/supabase-server'
+import { createSupabasePublic } from '@/lib/supabase-public'
 import { catalogPath } from '@/lib/catalog'
 import { toAbsoluteUrl } from '@/lib/seo'
 
+/** Regenerated at most once per hour (was rendered on every request). */
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createSupabaseServer()
+  const supabase = createSupabasePublic()
 
   const { data: productos } = await supabase
     .from('productos')
