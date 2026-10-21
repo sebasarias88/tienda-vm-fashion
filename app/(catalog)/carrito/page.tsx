@@ -743,7 +743,6 @@ export default function CarritoPage() {
                   </div>
                 ) : (
                   <>
-                  <CartKeepSafe items={items} catalogType={catalogType} />
                   <div className="divide-y divide-[var(--border-subtle)]">
                     <AnimatePresence initial={false}>
                       {items.map((item) => {
@@ -843,6 +842,9 @@ export default function CarritoPage() {
                         )
                       })}
                     </AnimatePresence>
+                  </div>
+                  <div className="mt-8">
+                    <CartKeepSafe items={items} catalogType={catalogType} />
                   </div>
                   </>
                 )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { optimizeImageFile } from '@/lib/optimizeImage'
+import { IMAGE_SIZE_TARGET_BYTES, optimizeImageFile } from '@/lib/optimizeImage'
 import { THUMB_MAX_EDGE_PX, THUMB_WEBP_QUALITY } from '@/lib/imageVariants'
 
 export type CatalogImageFolder = 'productos' | 'categorias' | 'banners' | 'promociones'
@@ -10,10 +10,12 @@ export type CatalogImageFolder = 'productos' | 'categorias' | 'banners' | 'promo
  * through the admin-only API route. Returns the public URL.
  */
 export async function uploadCatalogImage(file: File, folder: CatalogImageFolder): Promise<string> {
-  const optimized = await optimizeImageFile(file)
+  // WebP + weight budget per type (e.g. product photos ≤150KB): no manual work for the admin.
+  const optimized = await optimizeImageFile(file, { targetBytes: IMAGE_SIZE_TARGET_BYTES[folder] })
   const thumbnail = await optimizeImageFile(file, {
     maxEdge: THUMB_MAX_EDGE_PX,
     quality: THUMB_WEBP_QUALITY,
+    targetBytes: 60 * 1024,
   }).catch(() => null)
 
   const body = new FormData()
