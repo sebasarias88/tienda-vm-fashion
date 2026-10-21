@@ -6,6 +6,8 @@ import FloatingWhatsApp from '@/components/catalog/FloatingWhatsApp'
 import { formatPrecio, MAYOREO_MIN_COMPRA, MAYOREO_RECOMPRA } from '@/lib/catalog'
 import { getSiteConfig } from '@/lib/site-config'
 import { getCategoriasActivas } from '@/lib/catalog-data'
+import { isMaintenanceMode } from '@/lib/maintenance'
+import MaintenanceScreen from '@/components/catalog/MaintenanceScreen'
 
 export const revalidate = 60
 
@@ -14,6 +16,8 @@ export default async function MayoreoLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (isMaintenanceMode()) return <MaintenanceScreen />
+
   const [config, categorias] = await Promise.all([
     getSiteConfig(),
     getCategoriasActivas().catch(() => []),

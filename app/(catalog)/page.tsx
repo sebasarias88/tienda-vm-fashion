@@ -49,7 +49,7 @@ export default async function HomePage() {
   const config = await getSiteConfig()
   let banners: Banner[] = []
   let promociones: Promocion[] = []
-  let categorias = await getCategoriasActivas().catch(() => [])
+  const categorias = await getCategoriasActivas().catch(() => [])
   let destacados: Producto[] = []
   let ofertas: Producto[] = []
   let novedades: Producto[] = []
@@ -57,13 +57,7 @@ export default async function HomePage() {
   try {
     const supabase = createSupabasePublic()
 
-    const [
-      { data: bannersData },
-      { data: promocionesData },
-      { data: destacadosData },
-      { data: ofertasData },
-      { data: novedadesData },
-    ] = await Promise.all([
+    const results = await Promise.all([
       supabase
         .from('banners')
         .select('*')
@@ -92,6 +86,16 @@ export default async function HomePage() {
         .order('created_at', { ascending: false })
         .limit(10),
     ])
+    // Throw on DB errors so ISR keeps serving the last good home instead of caching an empty one.
+    const failed = results.find(result => result.error)
+    if (failed?.error) throw failed.error
+    const [
+      { data: bannersData },
+      { data: promocionesData },
+      { data: destacadosData },
+      { data: ofertasData },
+      { data: novedadesData },
+    ] = results
 
     banners = (bannersData as Banner[] | null) || []
     promociones = (promocionesData as Promocion[] | null) || []
@@ -108,6 +112,7 @@ export default async function HomePage() {
   } catch (error) {
     rethrowIfNextControlFlowError(error)
     console.error('[HomePage] Error cargando datos:', error)
+    throw error
   }
 
   return (

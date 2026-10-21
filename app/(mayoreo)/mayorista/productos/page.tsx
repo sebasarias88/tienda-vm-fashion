@@ -70,7 +70,7 @@ export default async function MayoreoProductosPage({
   const page = Math.max(1, parseInt(pageRaw || '1', 10) || 1)
   const orden = parseOrden(ordenRaw)
 
-  let categorias = await getCategoriasActivas().catch(() => [] as Awaited<ReturnType<typeof getCategoriasActivas>>)
+  const categorias = await getCategoriasActivas().catch(() => [] as Awaited<ReturnType<typeof getCategoriasActivas>>)
   let productos: Awaited<ReturnType<typeof getCatalogProductosPage>>['productos'] = []
   let totalCount = 0
   let marcasDisponibles: string[] = []
@@ -93,6 +93,7 @@ export default async function MayoreoProductosPage({
   } catch (error) {
     rethrowIfNextControlFlowError(error)
     console.error('[MayoreoProductosPage] Error cargando datos:', error)
+    throw error
   }
 
   return (
