@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { createSupabasePublic } from '@/lib/supabase-public'
 import { catalogPath } from '@/lib/catalog'
 import { toAbsoluteUrl } from '@/lib/seo'
+import { flattenCategorias, getCategoriasActivas } from '@/lib/catalog-data'
 
 /** Regenerated at most once per hour (was rendered on every request). */
 export const revalidate = 3600
@@ -64,5 +65,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return routes
   })
 
-  return [...staticRoutes, ...productRoutes]
+  // Category landing pages (retail): /productos?categoria=<slug>
+  const categorias = await getCategoriasActivas().catch(() => [])
+  const categoryRoutes: MetadataRoute.Sitemap = flattenCategorias(categorias).map(categoria => ({
+    url: toAbsoluteUrl(`/productos?categoria=${encodeURIComponent(categoria.slug)}`),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }))
+
+  return [...staticRoutes, ...categoryRoutes, ...productRoutes]
 }
