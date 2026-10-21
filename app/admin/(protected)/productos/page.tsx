@@ -45,6 +45,7 @@ import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitive
 import AdminLoadError from '@/components/admin/AdminLoadError'
 import { useDebouncedValue } from '@/lib/useDebounce'
 import { productIdsMatchingSearch } from '@/lib/productSearch'
+import { deleteCatalogImages } from '@/lib/catalogImages'
 
 type CategoriaInfo = { nombre: string; padre_id: string | null }
 
@@ -236,19 +237,15 @@ export default function ProductosPage() {
     if (!selected) return
     setDeleting(true)
 
-    if (selected.imagenes?.length) {
-      const paths = selected.imagenes
-        .map(url => {
-          const parts = url.split('/productos/')
-          return parts.length > 1 ? `productos/${parts[1]}` : null
-        })
-        .filter(Boolean) as string[]
-      if (paths.length) await supabase.storage.from('productos').remove(paths)
-    }
-
     const { error } = await supabase.from('productos').delete().eq('id', selected.id)
     if (error) toast.error('Error al eliminar')
     else {
+      // Delete files only after the product row is gone (never leave a product pointing to missing images).
+      if (selected.imagenes?.length) {
+        deleteCatalogImages(selected.imagenes).catch(() => {
+          console.warn('[productos] images could not be deleted from storage')
+        })
+      }
       toast.success('Producto eliminado')
       setDeleteModal(false)
       fetchProductos()
