@@ -201,13 +201,7 @@ export async function getCatalogProductosPage(options: {
 
   if (error) {
     console.error('[getCatalogProductosPage]', error.message)
-    return {
-      productos: [],
-      total: 0,
-      marcasDisponibles,
-      page,
-      pageSize,
-    }
+    throw error
   }
 
   const total = count ?? 0
