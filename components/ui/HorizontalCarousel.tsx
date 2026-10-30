@@ -77,9 +77,13 @@ export default function HorizontalCarousel({
         <ChevronRight size={18} />
       </button>
 
+      {/*
+        touch-manipulation (not touch-pan-x): the carousel scrolls sideways but a
+        vertical swipe that starts on it must still scroll the page on phones.
+      */}
       <div
         ref={scrollRef}
-        className={`flex ${gapClassName} overflow-x-auto overscroll-x-contain touch-pan-x scrollbar-hide pb-1`}
+        className={`flex ${gapClassName} overflow-x-auto overscroll-x-contain touch-manipulation scrollbar-hide pb-1`}
       >
         {items.map((child, i) => (
           <div
