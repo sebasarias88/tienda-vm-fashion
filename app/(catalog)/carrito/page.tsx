@@ -282,7 +282,7 @@ export default function CarritoPage() {
       : 'detal'
   const productosHref = catalogPath(catalogType, '/productos')
 
-  const { items, quitar, actualizarCantidad, vaciar } = useCarrito()
+  const { items, quitar, actualizarCantidad, vaciar, reemplazar } = useCarrito()
   useRestoreSharedCart(catalogType)
   const [mounted, setMounted] = useState(false)
   const [step, setStep] = useState<Step>('carrito')
@@ -297,6 +297,8 @@ export default function CarritoPage() {
   })
   const [loadingConfig, setLoadingConfig] = useState(true)
   const [whatsappMensaje, setWhatsappMensaje] = useState<string | null>(null)
+  /** Lines of the order just sent, kept in memory so "Aún no lo envié" can restore them. */
+  const [pedidoEnviado, setPedidoEnviado] = useState<ItemCarrito[] | null>(null)
   const [idsConVariaciones, setIdsConVariaciones] = useState<Set<string>>(new Set())
   const [variantesPrecargadas, setVariantesPrecargadas] = useState(false)
   const [metodosConfig, setMetodosConfig] = useState<MetodoPagoConfig[]>([])
@@ -619,12 +621,16 @@ export default function CarritoPage() {
 
     setWhatsappMensaje(mensaje)
     abrirWhatsApp(mensaje, config.whatsapp_numero)
+    // Empty the cart right away so the next order starts clean, even if the
+    // customer never taps "Ya envié el mensaje" and just leaves the page.
+    setPedidoEnviado(items)
+    vaciar()
     setStep('exito')
     scrollTop()
   }
 
   const handleConfirmarPedidoEnviado = () => {
-    vaciar()
+    setPedidoEnviado(null)
     resetCheckout()
     toast.success('¡Gracias! Recibiremos tu pedido por WhatsApp.')
     scrollTop()
@@ -637,6 +643,16 @@ export default function CarritoPage() {
   }
 
   const handleVolverAlResumen = () => {
+    if (pedidoEnviado?.length) {
+      // Bring the order back, keeping anything added meanwhile.
+      const actuales = useCarrito.getState().items
+      const claves = new Set(actuales.map(itemLineKey))
+      reemplazar([
+        ...pedidoEnviado.filter(i => !claves.has(itemLineKey(i))),
+        ...actuales,
+      ])
+      setPedidoEnviado(null)
+    }
     setStep('resumen')
     scrollTop()
   }
