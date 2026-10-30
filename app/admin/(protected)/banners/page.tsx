@@ -21,12 +21,14 @@ import {
 } from '@/components/admin/AdminTable'
 import AdminLoadError from '@/components/admin/AdminLoadError'
 import toast from 'react-hot-toast'
+import { usePendingKeys } from '@/lib/usePendingKeys'
 import {
   Plus,
   ImageIcon,
   ChevronUp,
   ChevronDown,
   Upload,
+  Loader2,
 } from 'lucide-react'
 
 type CatalogoTipo = Banner['catalogo']
@@ -185,7 +187,10 @@ export default function BannersPage() {
     setDeleting(false)
   }
 
-  const toggleActivo = async (banner: Banner) => {
+  const { run: runPending, isPending } = usePendingKeys()
+  const toggleActivo = (banner: Banner) => runPending(banner.id, () => saveActivo(banner))
+
+  const saveActivo = async (banner: Banner) => {
     const { error } = await supabase
       .from('banners')
       .update({ activo: !banner.activo })
@@ -359,12 +364,15 @@ export default function BannersPage() {
                     <button
                       type="button"
                       onClick={() => toggleActivo(banner)}
-                      className={`rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[1px] transition-colors ${
+                      disabled={isPending(banner.id)}
+                      aria-busy={isPending(banner.id) || undefined}
+                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[1px] transition-colors disabled:cursor-wait disabled:opacity-70 ${
                         banner.activo
                           ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                           : 'border-[var(--border-subtle)] text-[var(--text-faint)]'
                       }`}
                     >
+                      {isPending(banner.id) && <Loader2 size={10} className="animate-spin" />}
                       {banner.activo ? 'Activo' : 'Inactivo'}
                     </button>
                   </AdminTableTd>
