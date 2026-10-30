@@ -80,15 +80,18 @@ export default function HorizontalCarousel({
       {/*
         touch-manipulation (not touch-pan-x): the carousel scrolls sideways but a
         vertical swipe that starts on it must still scroll the page on phones.
+        snap-x snap-mandatory: a slightly diagonal vertical swipe nudges the
+        carousel a few pixels; snapping sends it back to a whole card instead of
+        leaving the first card cut off.
       */}
       <div
         ref={scrollRef}
-        className={`flex ${gapClassName} overflow-x-auto overscroll-x-contain touch-manipulation scrollbar-hide pb-1`}
+        className={`flex ${gapClassName} snap-x snap-mandatory overflow-x-auto overscroll-x-contain touch-manipulation scrollbar-hide pb-1`}
       >
         {items.map((child, i) => (
           <div
             key={isValidElement(child) && child.key != null ? child.key : i}
-            className={`shrink-0 ${itemClassName}`}
+            className={`shrink-0 snap-start ${itemClassName}`}
           >
             {child}
           </div>
