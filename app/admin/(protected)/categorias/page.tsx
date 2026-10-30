@@ -20,6 +20,7 @@ import {
   paginateItems,
 } from '@/lib/pagination'
 import toast from 'react-hot-toast'
+import { usePendingKeys } from '@/lib/usePendingKeys'
 import { Plus, Tag } from 'lucide-react'
 import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
 import { MobileEmptyState } from '@/components/admin/mobile/MobileAdminPrimitives'
@@ -134,7 +135,10 @@ export default function CategoriasPage() {
     setDeleting(false)
   }
 
-  const toggleActiva = async (cat: Categoria) => {
+  const { run: runPending, isPending } = usePendingKeys()
+  const toggleActiva = (cat: Categoria) => runPending(cat.id, () => saveActiva(cat))
+
+  const saveActiva = async (cat: Categoria) => {
     const { error } = await supabase
       .from('categorias')
       .update({ activa: !cat.activa })
@@ -258,6 +262,7 @@ export default function CategoriasPage() {
                 setDeleteModal(true)
               }}
               onToggleActiva={toggleActiva}
+              isToggling={isPending}
             />
           ))}
         </div>
@@ -348,6 +353,7 @@ export default function CategoriasPage() {
                 setDeleteModal(true)
               }}
               onToggleActiva={toggleActiva}
+              isToggling={isPending}
             />
           ))}
         </div>

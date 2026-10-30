@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LogOut, Sparkles, X } from 'lucide-react'
+import { Loader2, LogOut, Sparkles, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { ADMIN_NAV_LINKS } from '@/lib/admin-nav'
@@ -15,12 +16,19 @@ type MobileNavigationProps = {
 export default function MobileNavigation({ open, onClose }: MobileNavigationProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [loggingOut, setLoggingOut] = useState(false)
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    onClose()
-    router.push('/admin/login')
-    router.refresh()
+    if (loggingOut) return
+    setLoggingOut(true)
+    try {
+      await supabase.auth.signOut()
+      onClose()
+      router.push('/admin/login')
+      router.refresh()
+    } catch {
+      setLoggingOut(false)
+    }
   }
 
   return (
@@ -90,10 +98,12 @@ export default function MobileNavigation({ open, onClose }: MobileNavigationProp
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex min-h-[48px] w-full items-center gap-3 rounded-xl px-2 text-[12px] uppercase tracking-[1.2px] text-[var(--text-subtle)] active:text-red-400"
+                disabled={loggingOut}
+                aria-busy={loggingOut || undefined}
+                className="flex min-h-[48px] w-full items-center gap-3 rounded-xl px-2 text-[12px] uppercase tracking-[1.2px] text-[var(--text-subtle)] active:text-red-400 disabled:opacity-70"
               >
-                <LogOut size={16} />
-                Cerrar sesión
+                {loggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                {loggingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
               </button>
             </div>
           </motion.aside>

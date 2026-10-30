@@ -9,6 +9,8 @@ type CartStore = {
   quitar: (lineKey: string) => void
   actualizarCantidad: (lineKey: string, cantidad: number) => void
   vaciar: () => void
+  /** Replaces all lines (used after re-checking the cart against the database). */
+  reemplazar: (items: ItemCarrito[]) => void
   total: () => number
   cantidad: () => number
 }
@@ -62,6 +64,8 @@ export const useCarrito = create<CartStore>()(
       },
 
       vaciar: () => set({ items: [] }),
+
+      reemplazar: items => set({ items }),
 
       total: () =>
         get().items.reduce(

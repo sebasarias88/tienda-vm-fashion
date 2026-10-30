@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LucideIcon, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X, ChevronLeft, ChevronRight, CornerDownRight } from 'lucide-react'
+import { LucideIcon, Loader2, ImageIcon, Pencil, Trash2, Tag, Hash, MoreVertical, Search, X, ChevronLeft, ChevronRight, CornerDownRight } from 'lucide-react'
 import { ReactNode, useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
@@ -488,6 +488,7 @@ export function AdminTableStatus({
   onClick,
   title,
   iconClassName,
+  loading = false,
 }: {
   label: string
   icon: LucideIcon
@@ -495,6 +496,8 @@ export function AdminTableStatus({
   onClick?: () => void
   title?: string
   iconClassName?: string
+  /** Shows a spinner and blocks clicks while the change is being saved. */
+  loading?: boolean
 }) {
   const styles: Record<StatusVariant, string> = {
     success:
@@ -519,9 +522,15 @@ export function AdminTableStatus({
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       title={title}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-all ${styles[variant]} ${onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''}`}
+      disabled={onClick ? loading : undefined}
+      aria-busy={loading || undefined}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-all ${styles[variant]} ${onClick ? (loading ? 'cursor-wait opacity-70' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]') : ''}`}
     >
-      <Icon size={12} className={`${iconColors[variant]} ${iconClassName ?? ''}`} />
+      {loading ? (
+        <Loader2 size={12} className={`animate-spin ${iconColors[variant]}`} />
+      ) : (
+        <Icon size={12} className={`${iconColors[variant]} ${iconClassName ?? ''}`} />
+      )}
       <span className="text-[10px] uppercase tracking-[1px]">{label}</span>
     </Tag>
   )

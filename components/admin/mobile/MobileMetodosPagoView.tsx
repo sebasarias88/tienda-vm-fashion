@@ -42,6 +42,7 @@ type MobileMetodosPagoViewProps = {
   onEdit: (config: MetodoPagoConfig) => void
   onDelete: (config: MetodoPagoConfig) => void
   onToggleActivo: (config: MetodoPagoConfig) => void
+  isToggling?: (configId: string) => boolean
 }
 
 export default function MobileMetodosPagoView({
@@ -60,6 +61,7 @@ export default function MobileMetodosPagoView({
   onEdit,
   onDelete,
   onToggleActivo,
+  isToggling,
 }: MobileMetodosPagoViewProps) {
   const visibleCount = groups.reduce((acc, g) => acc + g.items.length, 0)
 
@@ -172,6 +174,7 @@ export default function MobileMetodosPagoView({
                     onEdit={() => onEdit(config)}
                     onDelete={() => onDelete(config)}
                     onToggleActivo={() => onToggleActivo(config)}
+                    toggling={isToggling?.(config.id)}
                   />
                 ))}
               </div>

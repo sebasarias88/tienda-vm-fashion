@@ -20,6 +20,7 @@ import {
 import AdminLoadError from '@/components/admin/AdminLoadError'
 import MobileMetodosPagoView from '@/components/admin/mobile/MobileMetodosPagoView'
 import toast from 'react-hot-toast'
+import { usePendingKeys } from '@/lib/usePendingKeys'
 import {
   Plus,
   Info,
@@ -216,7 +217,11 @@ export default function MetodosPagoPage() {
     setDeleting(false)
   }
 
-  const toggleActivo = async (config: MetodoPagoConfig) => {
+  const { run: runPending, isPending } = usePendingKeys()
+  const toggleActivo = (config: MetodoPagoConfig) =>
+    runPending(config.id, () => saveActivo(config))
+
+  const saveActivo = async (config: MetodoPagoConfig) => {
     const { error } = await supabase
       .from('metodo_pago_config')
       .update({ activo: !config.activo })
@@ -362,6 +367,7 @@ export default function MetodosPagoPage() {
                             icon={config.activo ? CheckCircle2 : XCircle}
                             variant={config.activo ? 'success' : 'danger'}
                             onClick={() => toggleActivo(config)}
+                            loading={isPending(config.id)}
                             title={
                               config.activo
                                 ? 'Clic para desactivar'
@@ -408,6 +414,7 @@ export default function MetodosPagoPage() {
           setDeleteModal(true)
         }}
         onToggleActivo={toggleActivo}
+        isToggling={isPending}
       />
 
       <Modal

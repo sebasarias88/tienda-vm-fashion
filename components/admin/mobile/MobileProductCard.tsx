@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle2, ChevronRight, CornerDownRight, Edit2, Star, Tag, Trash2, XCircle } from 'lucide-react'
+import { CheckCircle2, ChevronRight, CornerDownRight, Edit2, Loader2, Star, Tag, Trash2, XCircle } from 'lucide-react'
 import { Producto } from '@/types'
 
 type MobileProductCardProps = {
@@ -10,6 +10,8 @@ type MobileProductCardProps = {
   onEdit: () => void
   onDelete: () => void
   onToggleDisponible: () => void
+  /** True while the stock change is being saved. */
+  togglingDisponible?: boolean
 }
 
 export default function MobileProductCard({
@@ -19,6 +21,7 @@ export default function MobileProductCard({
   onEdit,
   onDelete,
   onToggleDisponible,
+  togglingDisponible = false,
 }: MobileProductCardProps) {
   const imagen = producto.imagenes?.[0]
 
@@ -90,13 +93,21 @@ export default function MobileProductCard({
           <button
             type="button"
             onClick={onToggleDisponible}
-            className={`inline-flex min-h-[28px] items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] ${
+            disabled={togglingDisponible}
+            aria-busy={togglingDisponible || undefined}
+            className={`inline-flex min-h-[28px] items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.6px] disabled:opacity-70 ${
               producto.disponible
                 ? 'border-[rgba(201,168,76,0.35)] bg-[rgba(201,168,76,0.1)] text-[var(--gold-bright)]'
                 : 'border-[rgba(248,113,113,0.35)] bg-[rgba(248,113,113,0.08)] text-red-400'
             }`}
           >
-            {producto.disponible ? <CheckCircle2 size={11} /> : <XCircle size={11} />}
+            {togglingDisponible ? (
+              <Loader2 size={11} className="animate-spin" />
+            ) : producto.disponible ? (
+              <CheckCircle2 size={11} />
+            ) : (
+              <XCircle size={11} />
+            )}
             Stock
           </button>
           <span

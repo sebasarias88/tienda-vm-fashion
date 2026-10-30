@@ -91,12 +91,15 @@ export default function CategoriaGrupoCard({
   onEdit,
   onDelete,
   onToggleActiva,
+  isToggling,
 }: {
   grupo: GrupoCategoria
   index: number
   onEdit: (cat: Categoria) => void
   onDelete: (cat: Categoria) => void
   onToggleActiva: (cat: Categoria) => void
+  /** True while that category's active state is being saved. */
+  isToggling?: (categoriaId: string) => boolean
 }) {
   const { root, subs } = grupo
   const [expanded, setExpanded] = useState(false)
@@ -152,6 +155,7 @@ export default function CategoriaGrupoCard({
             icon={root.activa ? CheckCircle2 : XCircle}
             variant={root.activa ? 'success' : 'neutral'}
             onClick={() => onToggleActiva(root)}
+            loading={isToggling?.(root.id)}
             title={root.activa ? 'Desactivar categoría' : 'Activar categoría'}
           />
           <AdminTableActions
@@ -210,6 +214,7 @@ export default function CategoriaGrupoCard({
                 icon={sub.activa ? CheckCircle2 : XCircle}
                 variant={sub.activa ? 'success' : 'neutral'}
                 onClick={() => onToggleActiva(sub)}
+                loading={isToggling?.(sub.id)}
                 title={sub.activa ? 'Desactivar subcategoría' : 'Activar subcategoría'}
               />
               <AdminTableActions

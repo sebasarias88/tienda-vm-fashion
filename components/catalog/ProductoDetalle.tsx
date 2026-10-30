@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCarrito } from '@/lib/store'
 import { Producto, ProductoSeccion, VariacionTipo } from '@/types'
 import { getLineKey } from '@/lib/cart'
-import { buildVariacionesSeleccionadas, opcionDisponibleEnCatalogo, productoAgotadoEnCatalogo } from '@/lib/variaciones'
+import { buildVariacionCombinaciones, opcionDisponibleEnCatalogo, productoAgotadoEnCatalogo } from '@/lib/variaciones'
 import CatalogDetailImage from '@/components/catalog/CatalogDetailImage'
 import CatalogImage from '@/components/catalog/CatalogImage'
 import {
@@ -152,16 +152,20 @@ export default function ProductoDetalle({
     })
   }
 
-  const variacionesParaCarrito = buildVariacionesSeleccionadas(
-    variaciones,
-    selectedVariaciones,
-  )
-  const lineKeyActual = getLineKey(producto.id, variacionesParaCarrito)
+  // One cart line per chosen combination (e.g. 3 fragrances → 3 lines).
+  const combinaciones = buildVariacionCombinaciones(variaciones, selectedVariaciones)
+  const variasOpciones = combinaciones.length > 1
+  const lineKeyActual = variasOpciones
+    ? null
+    : getLineKey(producto.id, combinaciones[0])
 
-  const enCarrito = items.find(i => {
-    const key = i.lineKey ?? getLineKey(i.producto.id, i.variacionesSeleccionadas)
-    return key === lineKeyActual
-  })
+  const enCarrito = lineKeyActual
+    ? items.find(i => {
+        const key = i.lineKey ?? getLineKey(i.producto.id, i.variacionesSeleccionadas)
+        return key === lineKeyActual
+      })
+    : undefined
+  const productoEnCarrito = items.some(i => i.producto.id === producto.id)
 
   const handleAgregar = () => {
     if (agotado) return
@@ -188,8 +192,11 @@ export default function ProductoDetalle({
       }
     }
 
-    for (let i = 0; i < cantidad; i++) {
-      agregar(producto, variacionesParaCarrito)
+    const lineas = combinaciones.length ? combinaciones : [undefined]
+    for (const seleccion of lineas) {
+      for (let i = 0; i < cantidad; i++) {
+        agregar(producto, seleccion)
+      }
     }
     setAgregado(true)
     const isMobile =
@@ -605,6 +612,14 @@ export default function ProductoDetalle({
                   )}
                 </div>
 
+                {variasOpciones && (
+                  <p className="text-[12px] font-light leading-relaxed text-[var(--text-muted)]">
+                    Elegiste {combinaciones.length} opciones: se agregará{' '}
+                    {cantidad === 1 ? '1 unidad' : `${cantidad} unidades`} de cada una (
+                    {combinaciones.length * cantidad} en total). Puedes ajustar cada una en el carrito.
+                  </p>
+                )}
+
                 <motion.button
                   type="button"
                   onClick={handleAgregar}
@@ -642,7 +657,7 @@ export default function ProductoDetalle({
                   </AnimatePresence>
                 </motion.button>
 
-                {enCarrito && (
+                {productoEnCarrito && (
                   <Link
                     href={catalogPath(catalogType, '/carrito')}
                     className="block w-full py-3.5 text-center text-[11px] font-light uppercase tracking-[2px] text-[var(--gold)] transition-colors hover:text-[var(--gold-bright)]"

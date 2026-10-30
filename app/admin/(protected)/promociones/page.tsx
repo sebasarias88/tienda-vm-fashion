@@ -20,6 +20,7 @@ import {
 } from '@/components/admin/AdminTable'
 import AdminLoadError from '@/components/admin/AdminLoadError'
 import toast from 'react-hot-toast'
+import { usePendingKeys } from '@/lib/usePendingKeys'
 import {
   Plus,
   Tag,
@@ -28,6 +29,7 @@ import {
   Upload,
   Info,
   ImageIcon,
+  Loader2,
 } from 'lucide-react'
 
 type PromoForm = {
@@ -218,7 +220,10 @@ export default function PromocionesPage() {
     setDeleting(false)
   }
 
-  const toggleActiva = async (promo: Promocion) => {
+  const { run: runPending, isPending } = usePendingKeys()
+  const toggleActiva = (promo: Promocion) => runPending(promo.id, () => saveActiva(promo))
+
+  const saveActiva = async (promo: Promocion) => {
     const { error } = await supabase
       .from('promociones')
       .update({ activa: !promo.activa })
@@ -406,12 +411,15 @@ export default function PromocionesPage() {
                       <button
                         type="button"
                         onClick={() => toggleActiva(promo)}
-                        className={`rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[1px] transition-colors ${
+                        disabled={isPending(promo.id)}
+                        aria-busy={isPending(promo.id) || undefined}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[1px] transition-colors disabled:cursor-wait disabled:opacity-70 ${
                           promo.activa
                             ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                             : 'border-[var(--border-subtle)] text-[var(--text-faint)]'
                         }`}
                       >
+                        {isPending(promo.id) && <Loader2 size={10} className="animate-spin" />}
                         {promo.activa ? 'Activa' : 'Inactiva'}
                       </button>
                     </AdminTableTd>
