@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { scrollPageToTop } from '@/lib/scroll'
 
 /**
  * Resetea el scroll al inicio en cada cambio de ruta y desactiva la
@@ -18,7 +19,11 @@ export default function ScrollToTop() {
   }, [])
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    scrollPageToTop()
+    // Once more after the new page has painted, in case a closing drawer or
+    // Lenis moved the scroll back during the transition.
+    const id = requestAnimationFrame(() => scrollPageToTop())
+    return () => cancelAnimationFrame(id)
   }, [pathname])
 
   return null

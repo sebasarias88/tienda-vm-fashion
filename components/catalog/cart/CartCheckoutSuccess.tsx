@@ -71,7 +71,7 @@ export default function CartCheckoutSuccess({
         </h2>
         <p className="mx-auto mt-4 max-w-sm text-[13px] font-light leading-relaxed text-[var(--text-muted)]">
           Tu pedido ya está armado en WhatsApp. Envía el mensaje para confirmarlo con nosotros.
-          Tu carrito se mantiene hasta que confirmes que ya lo enviaste.
+          Vaciamos tu carrito para que tu próximo pedido empiece limpio.
         </p>
       </div>
 
@@ -137,7 +137,8 @@ export default function CartCheckoutSuccess({
       </div>
 
       <p className="text-center text-[11px] font-light leading-relaxed text-[var(--text-subtle)]">
-        Si cierras WhatsApp sin enviar, puedes volver al resumen o reabrir el chat cuando quieras.
+        Si cerraste WhatsApp sin enviar, toca «Aún no lo envié» para recuperar tu pedido o
+        «Reabrir WhatsApp» para enviarlo.
       </p>
     </motion.div>
   )

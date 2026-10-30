@@ -1,5 +1,6 @@
 'use client'
 
+import { scrollPageToTop } from '@/lib/scroll'
 import { useState, useMemo, useEffect, useRef, useTransition, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
@@ -192,9 +193,7 @@ export default function ProductosClient({
     if (paginaPrevia.current === pagina) return
     paginaPrevia.current = pagina
 
-    const id = requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    })
+    const id = requestAnimationFrame(() => scrollPageToTop())
     return () => cancelAnimationFrame(id)
   }, [pagina])
 

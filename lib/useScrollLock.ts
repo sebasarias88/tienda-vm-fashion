@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { scrollPageToTop } from '@/lib/scroll'
 
 type LenisLike = { stop: () => void; start: () => void }
 
@@ -17,6 +18,7 @@ export function useScrollLock(locked: boolean) {
     const html = document.documentElement
     const body = document.body
     const scrollY = window.scrollY
+    const lockedPath = window.location.pathname
 
     const prevHtmlOverflow = html.style.overflow
     const prevBodyOverflow = body.style.overflow
@@ -38,8 +40,15 @@ export function useScrollLock(locked: boolean) {
       body.style.position = prevBodyPosition
       body.style.top = prevBodyTop
       body.style.width = prevBodyWidth
-      window.scrollTo(0, scrollY)
       lenis?.start()
+      // If the overlay closed because the customer navigated (e.g. a link in
+      // the menu or cart drawer), the new page must start at the top instead
+      // of jumping back to where the old page was.
+      if (window.location.pathname !== lockedPath) {
+        scrollPageToTop()
+      } else {
+        window.scrollTo(0, scrollY)
+      }
     }
   }, [locked])
 }
