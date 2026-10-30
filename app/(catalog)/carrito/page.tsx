@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { scrollPageToTop } from '@/lib/scroll'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
@@ -568,7 +569,13 @@ export default function CarritoPage() {
     return Object.keys(e).length === 0
   }
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  // Every step change (buttons, step indicator, "Volver") starts at the top.
+  const pasoPrevio = useRef(step)
+  useEffect(() => {
+    if (pasoPrevio.current === step) return
+    pasoPrevio.current = step
+    scrollPageToTop()
+  }, [step])
 
   const handleContinuar = () => {
     if (items.length === 0) {
@@ -582,7 +589,6 @@ export default function CarritoPage() {
       return
     }
     setStep('datos')
-    scrollTop()
   }
 
   const handleConfirmar = () => {
@@ -591,7 +597,6 @@ export default function CarritoPage() {
       return
     }
     setStep('resumen')
-    scrollTop()
   }
 
   const handleEnviarWhatsApp = () => {
@@ -626,14 +631,12 @@ export default function CarritoPage() {
     setPedidoEnviado(items)
     vaciar()
     setStep('exito')
-    scrollTop()
   }
 
   const handleConfirmarPedidoEnviado = () => {
     setPedidoEnviado(null)
     resetCheckout()
     toast.success('¡Gracias! Recibiremos tu pedido por WhatsApp.')
-    scrollTop()
   }
 
   const handleReabrirWhatsApp = () => {
@@ -654,7 +657,6 @@ export default function CarritoPage() {
       setPedidoEnviado(null)
     }
     setStep('resumen')
-    scrollTop()
   }
 
   const inputClass = (campo: keyof DatosCliente) =>
