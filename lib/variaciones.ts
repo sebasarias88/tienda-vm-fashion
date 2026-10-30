@@ -79,21 +79,31 @@ export function withProductoVariacionesFlag<
   }))
 }
 
-export function buildVariacionesSeleccionadas(
+/**
+ * One selection per cart line. The product page lets customers pick several
+ * options at once (e.g. 3 fragrances); each combination becomes its own cart
+ * line so the order says exactly which option and how many of each.
+ */
+export function buildVariacionCombinaciones(
   variaciones: VariacionTipo[],
   selectedByTipoId: Record<string, string[]>,
-): Record<string, string> | undefined {
-  const result: Record<string, string> = {}
+): Record<string, string>[] {
+  let combinaciones: Record<string, string>[] = [{}]
+  let algunaSeleccion = false
 
   for (const tipo of variaciones) {
     const opcionIds = selectedByTipoId[tipo.id]
     if (!opcionIds?.length) continue
-    // Se respeta el orden de las opciones del tipo para una clave estable.
+    // Keep the type's option order so lines and keys are stable.
     const nombres = (tipo.opciones || [])
       .filter(o => opcionIds.includes(o.id))
       .map(o => o.nombre)
-    if (nombres.length) result[tipo.nombre] = nombres.join(', ')
+    if (!nombres.length) continue
+    algunaSeleccion = true
+    combinaciones = combinaciones.flatMap(c =>
+      nombres.map(nombre => ({ ...c, [tipo.nombre]: nombre })),
+    )
   }
 
-  return Object.keys(result).length > 0 ? result : undefined
+  return algunaSeleccion ? combinaciones : []
 }

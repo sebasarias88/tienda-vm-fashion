@@ -38,6 +38,7 @@ import {
   Package,
   Eye,
   EyeOff,
+  Loader2,
 } from 'lucide-react'
 import MobileAdminToolbar from '@/components/admin/mobile/MobileAdminToolbar'
 import MobileProductCard from '@/components/admin/mobile/MobileProductCard'
@@ -47,6 +48,7 @@ import { useDebouncedValue } from '@/lib/useDebounce'
 import { productIdsMatchingSearch } from '@/lib/productSearch'
 import { deleteCatalogImages } from '@/lib/catalogImages'
 import { getProductVideos } from '@/lib/productVideos'
+import { usePendingKeys } from '@/lib/usePendingKeys'
 
 type CategoriaInfo = { nombre: string; padre_id: string | null }
 
@@ -65,16 +67,20 @@ function VisibilityToggle({
   label,
   visible,
   onClick,
+  loading = false,
 }: {
   label: string
   visible: boolean
   onClick: () => void
+  loading?: boolean
 }) {
-  const Icon = visible ? Eye : EyeOff
+  const Icon = loading ? Loader2 : visible ? Eye : EyeOff
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={loading}
+      aria-busy={loading || undefined}
       title={
         visible
           ? `Visible en ${label.toLowerCase()} — click para ocultarlo`
@@ -87,7 +93,7 @@ function VisibilityToggle({
           : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)]'
       }`}
     >
-      <Icon size={11} strokeWidth={1.75} />
+      <Icon size={11} strokeWidth={1.75} className={loading ? 'animate-spin' : undefined} />
       {label}
     </button>
   )
@@ -100,6 +106,7 @@ function CatalogToggle({
   onClick,
   titleOn,
   titleOff,
+  loading = false,
 }: {
   label: string
   active: boolean
@@ -107,23 +114,27 @@ function CatalogToggle({
   onClick: () => void
   titleOn?: string
   titleOff?: string
+  loading?: boolean
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={loading}
+      aria-busy={loading || undefined}
       title={
         active
           ? titleOn ?? `Disponible en ${label.toLowerCase()} — click para marcar agotado`
           : titleOff ?? `Agotado en ${label.toLowerCase()} — click para habilitar venta`
       }
       aria-pressed={active}
-      className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[9px] font-light uppercase tracking-[0.8px] transition-all duration-200 ${
+      className={`inline-flex items-center justify-center gap-1 rounded-full border px-2 py-0.5 text-[9px] disabled:cursor-wait disabled:opacity-70 font-light uppercase tracking-[0.8px] transition-all duration-200 ${
         active
           ? CATALOG_TOGGLE_STYLES[tone]
           : 'border-[var(--border-subtle)] bg-transparent text-[var(--text-faint)] hover:border-[rgba(248,246,241,0.18)] hover:text-[var(--text-muted)]'
       }`}
     >
+      {loading && <Loader2 size={9} className="animate-spin" />}
       {label}
     </button>
   )
@@ -258,7 +269,15 @@ export default function ProductosPage() {
     setDeleting(false)
   }
 
-  const toggleDisponible = async (p: Producto) => {
+  const { run: runPending, isPending } = usePendingKeys()
+  const toggleDisponible = (p: Producto) =>
+    runPending(`${p.id}:disponible`, () => saveDisponible(p))
+  const toggleCatalogo = (p: Producto, campo: 'disponible_detal' | 'disponible_mayoreo') =>
+    runPending(`${p.id}:${campo}`, () => saveCatalogo(p, campo))
+  const toggleVisible = (p: Producto, campo: 'visible_detal' | 'visible_mayoreo') =>
+    runPending(`${p.id}:${campo}`, () => saveVisible(p, campo))
+
+  const saveDisponible = async (p: Producto) => {
     const { error } = await supabase
       .from('productos')
       .update({ disponible: !p.disponible })
@@ -271,7 +290,7 @@ export default function ProductosPage() {
     }
   }
 
-  const toggleCatalogo = async (
+  const saveCatalogo = async (
     p: Producto,
     campo: 'disponible_detal' | 'disponible_mayoreo',
   ) => {
@@ -293,7 +312,7 @@ export default function ProductosPage() {
     }
   }
 
-  const toggleVisible = async (
+  const saveVisible = async (
     p: Producto,
     campo: 'visible_detal' | 'visible_mayoreo',
   ) => {
@@ -503,18 +522,21 @@ export default function ProductosPage() {
                         active={p.disponible}
                         tone="stock"
                         onClick={() => toggleDisponible(p)}
+                        loading={isPending(`${p.id}:disponible`)}
                       />
                       <CatalogToggle
                         label="Detal"
                         active={p.disponible_detal}
                         tone="detal"
                         onClick={() => toggleCatalogo(p, 'disponible_detal')}
+                        loading={isPending(`${p.id}:disponible_detal`)}
                       />
                       <CatalogToggle
                         label="Mayorista"
                         active={p.disponible_mayoreo}
                         tone="mayoreo"
                         onClick={() => toggleCatalogo(p, 'disponible_mayoreo')}
+                        loading={isPending(`${p.id}:disponible_mayoreo`)}
                       />
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -525,11 +547,13 @@ export default function ProductosPage() {
                         label="Detal"
                         visible={p.visible_detal !== false}
                         onClick={() => toggleVisible(p, 'visible_detal')}
+                        loading={isPending(`${p.id}:visible_detal`)}
                       />
                       <VisibilityToggle
                         label="Mayorista"
                         visible={p.visible_mayoreo !== false}
                         onClick={() => toggleVisible(p, 'visible_mayoreo')}
+                        loading={isPending(`${p.id}:visible_mayoreo`)}
                       />
                     </div>
                   </div>
@@ -638,6 +662,7 @@ export default function ProductosPage() {
                 setDeleteModal(true)
               }}
               onToggleDisponible={() => toggleDisponible(p)}
+              togglingDisponible={isPending(`${p.id}:disponible`)}
             />
           ))}
         </div>

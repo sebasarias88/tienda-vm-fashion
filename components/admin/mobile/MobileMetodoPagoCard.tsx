@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   CreditCard,
   Edit2,
+  Loader2,
   Percent,
   Trash2,
   XCircle,
@@ -21,6 +22,7 @@ type MobileMetodoPagoCardProps = {
   onEdit: () => void
   onDelete: () => void
   onToggleActivo: () => void
+  toggling?: boolean
 }
 
 export default function MobileMetodoPagoCard({
@@ -28,6 +30,7 @@ export default function MobileMetodoPagoCard({
   onEdit,
   onDelete,
   onToggleActivo,
+  toggling = false,
 }: MobileMetodoPagoCardProps) {
   const tienePorcentaje = config.porcentaje_adicional > 0
   const tieneFijo = config.monto_adicional_fijo > 0
@@ -92,11 +95,19 @@ export default function MobileMetodoPagoCard({
         <button
           type="button"
           onClick={onToggleActivo}
-          className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg px-2.5 text-[10px] uppercase tracking-[0.8px] ${
+          disabled={toggling}
+          aria-busy={toggling || undefined}
+          className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg px-2.5 text-[10px] uppercase tracking-[0.8px] disabled:opacity-70 ${
             config.activo ? 'text-emerald-400' : 'text-[var(--text-muted)]'
           }`}
         >
-          {config.activo ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+          {toggling ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : config.activo ? (
+            <CheckCircle2 size={14} />
+          ) : (
+            <XCircle size={14} />
+          )}
           {config.activo ? 'Activo' : 'Inactivo'}
         </button>
         <div className="flex items-center gap-1">
