@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { scrollPageToTop } from '@/lib/scroll'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { useCarrito } from '@/lib/store'
@@ -282,7 +283,7 @@ export default function CarritoPage() {
       : 'detal'
   const productosHref = catalogPath(catalogType, '/productos')
 
-  const { items, quitar, actualizarCantidad, vaciar } = useCarrito()
+  const { items, quitar, actualizarCantidad, vaciar, reemplazar } = useCarrito()
   useRestoreSharedCart(catalogType)
   const [mounted, setMounted] = useState(false)
   const [step, setStep] = useState<Step>('carrito')
@@ -297,6 +298,8 @@ export default function CarritoPage() {
   })
   const [loadingConfig, setLoadingConfig] = useState(true)
   const [whatsappMensaje, setWhatsappMensaje] = useState<string | null>(null)
+  /** Lines of the order just sent, kept in memory so "Aún no lo envié" can restore them. */
+  const [pedidoEnviado, setPedidoEnviado] = useState<ItemCarrito[] | null>(null)
   const [idsConVariaciones, setIdsConVariaciones] = useState<Set<string>>(new Set())
   const [variantesPrecargadas, setVariantesPrecargadas] = useState(false)
   const [metodosConfig, setMetodosConfig] = useState<MetodoPagoConfig[]>([])
@@ -566,7 +569,13 @@ export default function CarritoPage() {
     return Object.keys(e).length === 0
   }
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  // Every step change (buttons, step indicator, "Volver") starts at the top.
+  const pasoPrevio = useRef(step)
+  useEffect(() => {
+    if (pasoPrevio.current === step) return
+    pasoPrevio.current = step
+    scrollPageToTop()
+  }, [step])
 
   const handleContinuar = () => {
     if (items.length === 0) {
@@ -580,7 +589,6 @@ export default function CarritoPage() {
       return
     }
     setStep('datos')
-    scrollTop()
   }
 
   const handleConfirmar = () => {
@@ -589,7 +597,6 @@ export default function CarritoPage() {
       return
     }
     setStep('resumen')
-    scrollTop()
   }
 
   const handleEnviarWhatsApp = () => {
@@ -619,15 +626,17 @@ export default function CarritoPage() {
 
     setWhatsappMensaje(mensaje)
     abrirWhatsApp(mensaje, config.whatsapp_numero)
+    // Empty the cart right away so the next order starts clean, even if the
+    // customer never taps "Ya envié el mensaje" and just leaves the page.
+    setPedidoEnviado(items)
+    vaciar()
     setStep('exito')
-    scrollTop()
   }
 
   const handleConfirmarPedidoEnviado = () => {
-    vaciar()
+    setPedidoEnviado(null)
     resetCheckout()
     toast.success('¡Gracias! Recibiremos tu pedido por WhatsApp.')
-    scrollTop()
   }
 
   const handleReabrirWhatsApp = () => {
@@ -637,8 +646,17 @@ export default function CarritoPage() {
   }
 
   const handleVolverAlResumen = () => {
+    if (pedidoEnviado?.length) {
+      // Bring the order back, keeping anything added meanwhile.
+      const actuales = useCarrito.getState().items
+      const claves = new Set(actuales.map(itemLineKey))
+      reemplazar([
+        ...pedidoEnviado.filter(i => !claves.has(itemLineKey(i))),
+        ...actuales,
+      ])
+      setPedidoEnviado(null)
+    }
     setStep('resumen')
-    scrollTop()
   }
 
   const inputClass = (campo: keyof DatosCliente) =>
