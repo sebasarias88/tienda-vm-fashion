@@ -7,10 +7,9 @@ import { useCarrito } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { DatosCliente, ItemCarrito, MetodoPagoConfig, TipoEntrega } from '@/types'
 import { generarMensajeWhatsApp, abrirWhatsApp } from '@/lib/whatsapp'
-import {
-  findItemsSinVariaciones,
-  getProductIdsWithVariaciones,
-} from '@/lib/cartCheckout'
+import { findItemsSinVariaciones } from '@/lib/cartCheckout'
+import { validateCartItems } from '@/lib/cartValidation'
+import { useCartHydrated } from '@/lib/useCartHydrated'
 import {
   cartSubtotal,
   formatVariacionesResumen,
@@ -373,27 +372,76 @@ export default function CarritoPage() {
     void fetchConfig()
   }, [fetchConfig])
 
+  /**
+   * The cart is saved in the customer's browser for days, so a product can sell
+   * out after it was added. Re-check every line against the database when the
+   * cart opens and again on the summary step, before the WhatsApp order exists.
+   * Only line identity is a dependency, so quantity taps don't trigger queries.
+   */
+  const cartHydrated = useCartHydrated()
+  const cartLinesKey = useMemo(
+    () => items.map(itemLineKey).sort().join('|'),
+    [items],
+  )
+
   useEffect(() => {
-    if (step !== 'resumen' || items.length === 0) {
+    const debeValidar = step === 'carrito' || step === 'resumen'
+    if (!cartHydrated || !debeValidar || !cartLinesKey) {
       setVariantesPrecargadas(false)
       setIdsConVariaciones(new Set())
       return
     }
 
     let cancelled = false
-    const productoIds = [...new Set(items.map(i => i.producto.id))]
+    setVariantesPrecargadas(false)
+    const snapshot = useCarrito.getState().items
 
-    void getProductIdsWithVariaciones(supabase, productoIds).then(ids => {
-      if (!cancelled) {
-        setIdsConVariaciones(ids)
+    void validateCartItems(supabase, snapshot, catalogType).then(result => {
+      if (cancelled) return
+      if (!result) {
+        // Database unreachable: don't block the sale; the store confirms by chat.
+        setIdsConVariaciones(new Set())
         setVariantesPrecargadas(true)
+        return
       }
+
+      const { reemplazar, items: actuales } = useCarrito.getState()
+      if (result.changed) {
+        reemplazar(result.items)
+      } else {
+        // Same lines: refresh product data (price, stock) but keep any quantity
+        // the customer changed while the check was running.
+        const frescos = new Map(result.items.map(i => [itemLineKey(i), i.producto]))
+        reemplazar(
+          actuales.map(i => {
+            const producto = frescos.get(itemLineKey(i))
+            return producto ? { ...i, producto } : i
+          }),
+        )
+      }
+
+      if (result.removed.length) {
+        toast.error(
+          `Quitamos del carrito lo que ya está agotado: ${result.removed.join(', ')}`,
+          { duration: 8000 },
+        )
+      }
+      if (result.split.length) {
+        toast(
+          `Separamos las opciones de ${result.split.join(', ')} en una línea por opción. Revisa las cantidades.`,
+          { duration: 8000 },
+        )
+      }
+
+      if (!result.items.length) setStep('carrito')
+      setIdsConVariaciones(result.idsConVariaciones)
+      setVariantesPrecargadas(true)
     })
 
     return () => {
       cancelled = true
     }
-  }, [step, items])
+  }, [step, cartLinesKey, cartHydrated, catalogType])
 
   useEffect(() => {
     if (!datos.metodoPago) {
