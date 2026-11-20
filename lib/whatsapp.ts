@@ -123,7 +123,7 @@ Nombre: ${cliente.nombre}
 Celular: ${cliente.celular}
 ${datosEntrega}
 
-💳 *Método de pago:* ${cliente.metodoPago}${cliente.notas ? `\n📝 *Notas:* ${cliente.notas}` : ''}
+💳 *Método de pago:* ${cliente.metodoPago}${cliente.notas ? `\n📝 *Notas:* ${cliente.notas}` : ''}${cliente.aceptaPoliticas === 'si' ? `\n✅ Aceptó términos y tratamiento de datos (${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })})` : ''}
 
 🛍️ *Productos*
 ${productosLineas}

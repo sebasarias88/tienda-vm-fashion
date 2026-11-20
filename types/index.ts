@@ -130,6 +130,8 @@ export type DatosCliente = {
   tipoEntrega: TipoEntrega | ''
   metodoPago: string
   notas: string
+  /** 'si' once the customer accepted the terms and privacy policy (Ley 1581). */
+  aceptaPoliticas: string
 }
 
 export type Banner = {

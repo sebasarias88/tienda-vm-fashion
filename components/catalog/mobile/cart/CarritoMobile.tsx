@@ -19,6 +19,7 @@ import { type CatalogType } from '@/lib/catalog'
 import { formatCargoLabel } from '@/lib/metodosPago'
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
 import MobileCartSteps, { type Step } from '@/components/catalog/mobile/cart/MobileCartSteps'
+import PoliciesConsent from '@/components/legal/PoliciesConsent'
 import CartCheckoutSuccess from '@/components/catalog/cart/CartCheckoutSuccess'
 import MobileCartItem, { formatPrecio } from '@/components/catalog/mobile/cart/MobileCartItem'
 import MobileCartSummary from '@/components/catalog/mobile/cart/MobileCartSummary'
@@ -654,6 +655,18 @@ export default function CarritoMobile({
                   onChange={e => setDatos(d => ({ ...d, notas: e.target.value }))}
                   placeholder="Ej: dejar en portería, timbre no funciona..."
                   rows={2}
+                />
+              </div>
+
+              <div className="px-4 pb-4">
+                <PoliciesConsent
+                  compact
+                  checked={datos.aceptaPoliticas === 'si'}
+                  error={errores.aceptaPoliticas}
+                  onChange={checked => {
+                    setDatos(d => ({ ...d, aceptaPoliticas: checked ? 'si' : '' }))
+                    if (errores.aceptaPoliticas) setErrores(er => ({ ...er, aceptaPoliticas: '' }))
+                  }}
                 />
               </div>
             </div>

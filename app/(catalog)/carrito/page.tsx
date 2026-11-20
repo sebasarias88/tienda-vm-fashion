@@ -11,6 +11,7 @@ import { generarMensajeWhatsApp, abrirWhatsApp } from '@/lib/whatsapp'
 import { findItemsSinVariaciones } from '@/lib/cartCheckout'
 import { validateCartItems } from '@/lib/cartValidation'
 import { useCartHydrated } from '@/lib/useCartHydrated'
+import PoliciesConsent from '@/components/legal/PoliciesConsent'
 import {
   cartSubtotal,
   formatVariacionesResumen,
@@ -101,6 +102,7 @@ const DATOS_INICIALES: DatosCliente = {
   tipoEntrega: '',
   metodoPago: '',
   notas: '',
+  aceptaPoliticas: '',
 }
 
 const CIUDADES_ARMENIA = ['armenia', 'armenia quindío', 'armenia quindio']
@@ -565,6 +567,9 @@ export default function CarritoPage() {
       if (!datos.ciudad.trim()) e.ciudad = 'La ciudad es requerida'
     }
     if (!datos.metodoPago) e.metodoPago = 'Selecciona un método de pago'
+    if (datos.aceptaPoliticas !== 'si') {
+      e.aceptaPoliticas = 'Para enviar tu pedido debes aceptar los términos y la política de privacidad'
+    }
     setErrores(e)
     return Object.keys(e).length === 0
   }
@@ -1276,6 +1281,15 @@ export default function CarritoPage() {
                     className="w-full resize-none border-0 border-b border-[var(--border-input)] bg-transparent py-3 text-[13px] font-light text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-faint)] focus:border-[var(--gold)]"
                   />
                 </section>
+
+                <PoliciesConsent
+                  checked={datos.aceptaPoliticas === 'si'}
+                  error={errores.aceptaPoliticas}
+                  onChange={checked => {
+                    setDatos(d => ({ ...d, aceptaPoliticas: checked ? 'si' : '' }))
+                    if (errores.aceptaPoliticas) setErrores(er => ({ ...er, aceptaPoliticas: '' }))
+                  }}
+                />
 
                 <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-8 sm:flex-row">
                   <button

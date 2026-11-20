@@ -4,6 +4,7 @@ import Footer from '@/components/catalog/Footer'
 import PageTransition from '@/components/catalog/PageTransition'
 import NavigationProgress from '@/components/catalog/NavigationProgress'
 import FloatingWhatsApp from '@/components/catalog/FloatingWhatsApp'
+import CookieNotice from '@/components/legal/CookieNotice'
 import JsonLd from '@/components/seo/JsonLd'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import { getSiteConfig } from '@/lib/site-config'
@@ -45,6 +46,7 @@ export default async function CatalogLayout({
       <FloatingWhatsApp
         whatsapp={config['whatsapp_numero'] || '573185867702'}
       />
+      <CookieNotice />
     </div>
   )
 }
