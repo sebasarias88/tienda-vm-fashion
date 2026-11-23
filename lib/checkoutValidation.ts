@@ -1,4 +1,4 @@
-/** Validation for the checkout fields the store's e-invoicing system requires. */
+/** Validation for the checkout fields the store's invoicing requires. */
 
 /** Cédula or NIT: digits, optionally with dots, spaces or a dash (verification digit). */
 export function documentoValido(value: string): boolean {

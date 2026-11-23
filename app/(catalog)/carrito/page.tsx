@@ -1064,7 +1064,7 @@ export default function CarritoPage() {
                       )}
                     </div>
                     <p className="text-[11px] font-light text-[var(--text-subtle)] sm:col-span-2">
-                      Tu cédula y correo se usan para la factura electrónica de tu compra.
+                      Tu cédula y correo se usan para la factura de tu compra.
                     </p>
                   </div>
                 </section>

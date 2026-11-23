@@ -397,7 +397,7 @@ export default function CarritoMobile({
                 </CartFormField>
 
                 <p className="py-3 text-[11px] font-light text-[var(--text-subtle)]">
-                  Tu cédula y correo se usan para la factura electrónica de tu compra.
+                  Tu cédula y correo se usan para la factura de tu compra.
                 </p>
               </div>
             </div>

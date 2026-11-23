@@ -29,7 +29,7 @@ export default function TermsPage() {
         <h2>1. Quién vende</h2>
         <ul>
           <li><strong>Vendedor:</strong> {legalOwnerLabel()}</li>
-          <li><strong>NIT / C.C.:</strong> {o.nit}</li>
+          <li><strong>NIT:</strong> {o.nit}</li>
           <li><strong>Dirección:</strong> {o.address}, {o.city}</li>
           <li><strong>Correo:</strong> <a href={`mailto:${o.email}`}>{o.email}</a></li>
           <li><strong>Teléfono y WhatsApp:</strong> {o.phone}</li>

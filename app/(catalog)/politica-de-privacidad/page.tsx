@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
         <h2>1. Responsable del tratamiento</h2>
         <ul>
           <li><strong>Nombre:</strong> {legalOwnerLabel()}</li>
-          <li><strong>NIT / C.C.:</strong> {o.nit}</li>
+          <li><strong>NIT:</strong> {o.nit}</li>
           <li><strong>Dirección:</strong> {o.address}, {o.city}</li>
           <li><strong>Correo:</strong> <a href={`mailto:${o.email}`}>{o.email}</a></li>
           <li><strong>Teléfono y WhatsApp:</strong> {o.phone}</li>
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
         <ul>
           <li>Preparar, confirmar, cobrar y entregar tu pedido.</li>
           <li>Verificar tus pagos.</li>
-          <li>Expedir y enviarte la factura electrónica de tu compra (por eso pedimos tu cédula o NIT y tu correo).</li>
+          <li>Expedir y enviarte la factura de tu compra (por eso pedimos tu cédula o NIT y tu correo).</li>
           <li>Responder tus preguntas, solicitudes, quejas y reclamos.</li>
           <li>Atender garantías, cambios, retracto y reversión de pagos.</li>
           <li>Cumplir obligaciones legales, contables y tributarias.</li>
@@ -83,10 +83,6 @@ export default function PrivacyPolicyPage() {
         <p>No vendemos ni alquilamos tus datos. Solo los compartimos cuando hace falta para atender tu pedido:</p>
         <ul>
           <li>Empresas de mensajería o transportadoras, para entregarte el pedido.</li>
-          <li>
-            El proveedor de facturación electrónica y la DIAN, con los datos necesarios para
-            expedir tu factura, como lo exige la ley tributaria.
-          </li>
           <li>
             Si eliges pagar con una entidad de financiación (por ejemplo Addi o Sistecrédito),
             esa entidad te pedirá directamente los datos que necesita, bajo su propia política

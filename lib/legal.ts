@@ -1,14 +1,14 @@
 import { CIUDAD_NEGOCIO, DIRECCION_NEGOCIO } from '@/lib/negocio'
 
 /**
- * Identity of the data controller and seller, as given by the owner
- * (2026-11-23). Change it here and every legal page updates.
+ * Identity of the data controller and seller, taken from the owner's RUT
+ * (DIAN, updated 2026-03-21). The address is the store's, not the home
+ * address on the RUT. Change it here and every legal page updates.
  */
 export const LEGAL_OWNER = {
-  name: 'Tienda VM Fashion',
+  name: 'Viviana Marcela Arias González',
   personType: 'persona natural',
-  /** Tax ID / cédula as registered in the owner's RUT. */
-  nit: '41.953.771',
+  nit: '41.953.771-9',
   tradeName: 'Tienda VM Fashion',
   address: DIRECCION_NEGOCIO,
   city: `${CIUDAD_NEGOCIO}, Colombia`,
@@ -18,9 +18,9 @@ export const LEGAL_OWNER = {
 
 /** "Name (persona natural)", adding the trade name only when it differs. */
 export function legalOwnerLabel(): string {
-  const o = LEGAL_OWNER
-  const base = `${o.name} (${o.personType})`
-  return o.tradeName === o.name ? base : `${base}, nombre comercial ${o.tradeName}`
+  const { name, personType, tradeName }: Record<string, string> = LEGAL_OWNER
+  const base = `${name} (${personType})`
+  return tradeName === name ? base : `${base}, nombre comercial ${tradeName}`
 }
 
 /** Date shown as "última actualización" on the legal pages. */
