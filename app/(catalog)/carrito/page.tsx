@@ -12,6 +12,7 @@ import { findItemsSinVariaciones } from '@/lib/cartCheckout'
 import { validateCartItems } from '@/lib/cartValidation'
 import { useCartHydrated } from '@/lib/useCartHydrated'
 import PoliciesConsent from '@/components/legal/PoliciesConsent'
+import { correoValido, documentoValido } from '@/lib/checkoutValidation'
 import {
   cartSubtotal,
   formatVariacionesResumen,
@@ -97,6 +98,8 @@ type Step = 'carrito' | 'datos' | 'resumen' | 'exito'
 const DATOS_INICIALES: DatosCliente = {
   nombre: '',
   celular: '',
+  documento: '',
+  correo: '',
   direccion: '',
   ciudad: '',
   tipoEntrega: '',
@@ -561,6 +564,10 @@ export default function CarritoPage() {
     if (!datos.nombre.trim()) e.nombre = 'El nombre es requerido'
     if (!datos.celular.trim()) e.celular = 'El celular es requerido'
     else if (!/^[0-9+\s]{7,15}$/.test(datos.celular.trim())) e.celular = 'Número inválido'
+    if (!datos.documento.trim()) e.documento = 'La cédula o NIT es requerida para tu factura'
+    else if (!documentoValido(datos.documento)) e.documento = 'Escribe solo los números de tu cédula o NIT'
+    if (!datos.correo.trim()) e.correo = 'El correo es requerido para enviarte la factura'
+    else if (!correoValido(datos.correo)) e.correo = 'Correo inválido'
     if (!datos.tipoEntrega) e.tipoEntrega = 'Selecciona cómo recibir tu pedido'
     if (datos.tipoEntrega === 'envio') {
       if (!datos.direccion.trim()) e.direccion = 'La dirección es requerida'
@@ -1017,6 +1024,48 @@ export default function CarritoPage() {
                         <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.celular}</p>
                       )}
                     </div>
+                    <div>
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
+                        Cédula o NIT *
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={datos.documento}
+                        onChange={e => {
+                          setDatos(d => ({ ...d, documento: e.target.value }))
+                          if (errores.documento) setErrores(er => ({ ...er, documento: '' }))
+                        }}
+                        placeholder="Ej: 1094123456"
+                        className={inputClass('documento')}
+                      />
+                      {errores.documento && (
+                        <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.documento}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[11px] font-light uppercase tracking-[1.5px] text-[var(--text-muted)]">
+                        Correo electrónico *
+                      </label>
+                      <input
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={datos.correo}
+                        onChange={e => {
+                          setDatos(d => ({ ...d, correo: e.target.value }))
+                          if (errores.correo) setErrores(er => ({ ...er, correo: '' }))
+                        }}
+                        placeholder="Ej: maria@gmail.com"
+                        className={inputClass('correo')}
+                      />
+                      {errores.correo && (
+                        <p className="mt-1.5 text-[11px] font-light text-red-400">{errores.correo}</p>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-light text-[var(--text-subtle)] sm:col-span-2">
+                      Tu cédula y correo se usan para la factura electrónica de tu compra.
+                    </p>
                   </div>
                 </section>
 
@@ -1358,6 +1407,8 @@ export default function CarritoPage() {
                     <dl className="space-y-2.5">
                       {[
                         { label: 'Nombre', value: datos.nombre },
+                        { label: 'Cédula/NIT', value: datos.documento },
+                        { label: 'Correo', value: datos.correo },
                         { label: 'Celular', value: datos.celular },
                         {
                           label: 'Entrega',

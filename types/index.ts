@@ -124,6 +124,10 @@ export type TipoEntrega = 'envio' | 'recogida'
 export type DatosCliente = {
   nombre: string
   celular: string
+  /** Cédula or NIT — required by the store's electronic invoicing. */
+  documento: string
+  /** E-mail where the electronic invoice is sent. */
+  correo: string
   direccion: string
   ciudad: string
   /** envio = domicilio · recogida = tienda física */

@@ -73,6 +73,7 @@ export default function ProductosCarousel({
         </motion.div>
 
         <HorizontalCarousel
+          label={eyebrow}
           itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]"
           gapClassName="gap-3 sm:gap-4"
         >

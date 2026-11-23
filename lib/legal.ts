@@ -1,27 +1,27 @@
 import { CIUDAD_NEGOCIO, DIRECCION_NEGOCIO } from '@/lib/negocio'
 
 /**
- * Identity of the data controller and seller, taken from the owner's RUT.
- * Change it here and every legal page updates.
- *
- * TODO(legal): fill name, personType, nit and email with Vivi's RUT data
- * before merging to main. `LEGAL_OWNER_PENDING` lists what is still missing.
+ * Identity of the data controller and seller, as given by the owner
+ * (2026-11-23). Change it here and every legal page updates.
  */
 export const LEGAL_OWNER = {
-  name: '[NOMBRE COMPLETO O RAZÓN SOCIAL]',
+  name: 'Tienda VM Fashion',
   personType: 'persona natural',
-  nit: '[NIT O CÉDULA]',
+  /** Tax ID / cédula as registered in the owner's RUT. */
+  nit: '41.953.771',
   tradeName: 'Tienda VM Fashion',
   address: DIRECCION_NEGOCIO,
   city: `${CIUDAD_NEGOCIO}, Colombia`,
-  email: '[CORREO DE CONTACTO]',
+  email: 'tiendavm.fashion@gmail.com',
   phone: '318 586 7702',
 } as const
 
-/** Fields still holding a placeholder (checked in development only). */
-export const LEGAL_OWNER_PENDING = Object.entries(LEGAL_OWNER)
-  .filter(([, value]) => value.startsWith('['))
-  .map(([key]) => key)
+/** "Name (persona natural)", adding the trade name only when it differs. */
+export function legalOwnerLabel(): string {
+  const o = LEGAL_OWNER
+  const base = `${o.name} (${o.personType})`
+  return o.tradeName === o.name ? base : `${base}, nombre comercial ${o.tradeName}`
+}
 
 /** Date shown as "última actualización" on the legal pages. */
 export const LEGAL_UPDATED_AT = '20 de noviembre de 2026'

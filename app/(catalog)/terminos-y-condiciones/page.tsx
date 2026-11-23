@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import LegalPage from '@/components/legal/LegalPage'
-import { LEGAL_OWNER } from '@/lib/legal'
+import { LEGAL_OWNER, legalOwnerLabel } from '@/lib/legal'
 
 export const metadata: Metadata = {
   title: 'Términos y condiciones',
@@ -28,8 +28,8 @@ export default function TermsPage() {
       <section>
         <h2>1. Quién vende</h2>
         <ul>
-          <li><strong>Vendedor:</strong> {o.name} ({o.personType}), nombre comercial {o.tradeName}</li>
-          <li><strong>NIT:</strong> {o.nit}</li>
+          <li><strong>Vendedor:</strong> {legalOwnerLabel()}</li>
+          <li><strong>NIT / C.C.:</strong> {o.nit}</li>
           <li><strong>Dirección:</strong> {o.address}, {o.city}</li>
           <li><strong>Correo:</strong> <a href={`mailto:${o.email}`}>{o.email}</a></li>
           <li><strong>Teléfono y WhatsApp:</strong> {o.phone}</li>

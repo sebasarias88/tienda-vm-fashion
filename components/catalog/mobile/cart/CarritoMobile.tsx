@@ -11,6 +11,8 @@ import {
   Truck,
   Package,
   Phone,
+  IdCard,
+  Mail,
   Info,
   Store,
 } from 'lucide-react'
@@ -326,7 +328,7 @@ export default function CarritoMobile({
                     Tus datos
                   </p>
                   <p className="mt-1 text-[12px] font-light text-[var(--text-muted)]">
-                    Nombre y celular de contacto
+                    Contacto y datos para tu factura
                   </p>
                 </div>
               </div>
@@ -362,6 +364,41 @@ export default function CarritoMobile({
                     autoComplete="tel"
                   />
                 </CartFormField>
+
+                <CartFormField id="cart-documento" label="Cédula o NIT" required error={errores.documento}>
+                  <input
+                    id="cart-documento"
+                    type="text"
+                    inputMode="numeric"
+                    value={datos.documento}
+                    onChange={e => {
+                      setDatos(d => ({ ...d, documento: e.target.value }))
+                      if (errores.documento) setErrores(er => ({ ...er, documento: '' }))
+                    }}
+                    placeholder="Ej: 1094123456"
+                    className={checkoutInputClass}
+                  />
+                </CartFormField>
+
+                <CartFormField id="cart-correo" label="Correo electrónico" required error={errores.correo}>
+                  <input
+                    id="cart-correo"
+                    type="email"
+                    inputMode="email"
+                    value={datos.correo}
+                    onChange={e => {
+                      setDatos(d => ({ ...d, correo: e.target.value }))
+                      if (errores.correo) setErrores(er => ({ ...er, correo: '' }))
+                    }}
+                    placeholder="Ej: maria@gmail.com"
+                    className={checkoutInputClass}
+                    autoComplete="email"
+                  />
+                </CartFormField>
+
+                <p className="py-3 text-[11px] font-light text-[var(--text-subtle)]">
+                  Tu cédula y correo se usan para la factura electrónica de tu compra.
+                </p>
               </div>
             </div>
 
@@ -753,6 +790,8 @@ export default function CarritoMobile({
               <dl className="mobile-cart-data-list">
                 {[
                   { label: 'Nombre', value: datos.nombre, icon: User },
+                  { label: 'Cédula/NIT', value: datos.documento, icon: IdCard },
+                  { label: 'Correo', value: datos.correo, icon: Mail },
                   { label: 'Celular', value: datos.celular, icon: Phone },
                   {
                     label: 'Entrega',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import LegalPage from '@/components/legal/LegalPage'
-import { LEGAL_OWNER } from '@/lib/legal'
+import { LEGAL_OWNER, legalOwnerLabel } from '@/lib/legal'
 
 export const metadata: Metadata = {
   title: 'Política de tratamiento de datos personales',
@@ -27,8 +27,8 @@ export default function PrivacyPolicyPage() {
       <section>
         <h2>1. Responsable del tratamiento</h2>
         <ul>
-          <li><strong>Nombre:</strong> {o.name} ({o.personType}), nombre comercial {o.tradeName}</li>
-          <li><strong>NIT:</strong> {o.nit}</li>
+          <li><strong>Nombre:</strong> {legalOwnerLabel()}</li>
+          <li><strong>NIT / C.C.:</strong> {o.nit}</li>
           <li><strong>Dirección:</strong> {o.address}, {o.city}</li>
           <li><strong>Correo:</strong> <a href={`mailto:${o.email}`}>{o.email}</a></li>
           <li><strong>Teléfono y WhatsApp:</strong> {o.phone}</li>
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
       <section>
         <h2>2. Qué datos recogemos</h2>
         <ul>
-          <li>Al hacer un pedido: nombre, celular, ciudad, dirección de entrega, notas del pedido y el método de pago que eliges.</li>
+          <li>Al hacer un pedido: nombre, cédula o NIT, correo electrónico, celular, ciudad, dirección de entrega, notas del pedido y el método de pago que eliges.</li>
           <li>Cuando nos escribes por WhatsApp: tu número y lo que nos cuentas en la conversación.</li>
           <li>
             Datos técnicos mínimos para que la tienda funcione, como los productos de tu carrito
@@ -58,6 +58,7 @@ export default function PrivacyPolicyPage() {
         <ul>
           <li>Preparar, confirmar, cobrar y entregar tu pedido.</li>
           <li>Verificar tus pagos.</li>
+          <li>Expedir y enviarte la factura electrónica de tu compra (por eso pedimos tu cédula o NIT y tu correo).</li>
           <li>Responder tus preguntas, solicitudes, quejas y reclamos.</li>
           <li>Atender garantías, cambios, retracto y reversión de pagos.</li>
           <li>Cumplir obligaciones legales, contables y tributarias.</li>
@@ -82,6 +83,10 @@ export default function PrivacyPolicyPage() {
         <p>No vendemos ni alquilamos tus datos. Solo los compartimos cuando hace falta para atender tu pedido:</p>
         <ul>
           <li>Empresas de mensajería o transportadoras, para entregarte el pedido.</li>
+          <li>
+            El proveedor de facturación electrónica y la DIAN, con los datos necesarios para
+            expedir tu factura, como lo exige la ley tributaria.
+          </li>
           <li>
             Si eliges pagar con una entidad de financiación (por ejemplo Addi o Sistecrédito),
             esa entidad te pedirá directamente los datos que necesita, bajo su propia política

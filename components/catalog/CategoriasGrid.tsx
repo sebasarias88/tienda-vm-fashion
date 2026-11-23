@@ -57,6 +57,7 @@ export default function CategoriasGrid({
         </motion.div>
 
         <HorizontalCarousel
+          label="Categorías"
           itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]"
           gapClassName="gap-3 sm:gap-4"
         >

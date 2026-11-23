@@ -120,6 +120,8 @@ export function generarMensajeWhatsApp(
 
 👤 *Datos del cliente*
 Nombre: ${cliente.nombre}
+Cédula/NIT: ${cliente.documento}
+Correo: ${cliente.correo}
 Celular: ${cliente.celular}
 ${datosEntrega}
 
