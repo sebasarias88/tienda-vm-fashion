@@ -3,6 +3,7 @@ import Footer from '@/components/catalog/Footer'
 import PageTransition from '@/components/catalog/PageTransition'
 import NavigationProgress from '@/components/catalog/NavigationProgress'
 import FloatingWhatsApp from '@/components/catalog/FloatingWhatsApp'
+import CookieNotice from '@/components/legal/CookieNotice'
 import { formatPrecio, MAYOREO_MIN_COMPRA, MAYOREO_RECOMPRA } from '@/lib/catalog'
 import { getSiteConfig } from '@/lib/site-config'
 import { getCategoriasActivas } from '@/lib/catalog-data'
@@ -56,6 +57,7 @@ export default async function MayoreoLayout({
         whatsapp={config['whatsapp_numero'] || '573185867702'}
         catalogType="mayoreo"
       />
+      <CookieNotice />
     </div>
   )
 }

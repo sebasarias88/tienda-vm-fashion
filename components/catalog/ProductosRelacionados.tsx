@@ -35,7 +35,7 @@ export default function ProductosRelacionados({
           </h2>
         </motion.div>
 
-        <HorizontalCarousel itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]" gapClassName="gap-3 sm:gap-4">
+        <HorizontalCarousel label="Productos relacionados" itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]" gapClassName="gap-3 sm:gap-4">
           {productos.map((producto, i) => (
             <motion.div
               key={producto.id}

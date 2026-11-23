@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { catalogPath, type CatalogType } from '@/lib/catalog'
 import { DIRECCION_COMPLETA } from '@/lib/negocio'
+import { LEGAL_LINKS } from '@/lib/legal'
 import { buildWhatsAppUrl, mensajeConsultaWhatsApp } from '@/lib/whatsapp'
 
 type Props = {
@@ -107,9 +108,25 @@ export default function Footer({
         </div>
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-[var(--border-subtle)] py-6 sm:flex-row">
-          <p className="text-center text-[12px] font-light text-[var(--text-subtle)] sm:text-left">
-            © {new Date().getFullYear()} {nombreNegocio}. Todos los derechos reservados.
-          </p>
+          <div className="flex flex-col items-center gap-2 sm:items-start">
+            <p className="text-center text-[12px] font-light text-[var(--text-subtle)] sm:text-left">
+              © {new Date().getFullYear()} {nombreNegocio}. Todos los derechos reservados.
+            </p>
+            <nav
+              aria-label="Información legal"
+              className="flex flex-wrap justify-center gap-x-4 gap-y-1 sm:justify-start"
+            >
+              {LEGAL_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-[11px] font-light text-[var(--text-subtle)] underline-offset-2 transition-colors hover:text-[var(--gold)] hover:underline"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
           <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-[var(--gold-subtle)]">
             Pedidos vía WhatsApp
           </p>

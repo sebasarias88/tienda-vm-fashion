@@ -3,6 +3,7 @@ import { createSupabasePublic } from '@/lib/supabase-public'
 import { catalogPath } from '@/lib/catalog'
 import { toAbsoluteUrl } from '@/lib/seo'
 import { flattenCategorias, getCategoriasActivas } from '@/lib/catalog-data'
+import { LEGAL_LINKS } from '@/lib/legal'
 
 /** Regenerated at most once per hour (was rendered on every request). */
 export const revalidate = 3600
@@ -40,6 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.7,
     },
+    ...LEGAL_LINKS.map(({ href }) => ({
+      url: toAbsoluteUrl(href),
+      changeFrequency: 'yearly' as const,
+      priority: 0.2,
+    })),
   ]
 
   const productRoutes: MetadataRoute.Sitemap = (productos ?? []).flatMap(producto => {

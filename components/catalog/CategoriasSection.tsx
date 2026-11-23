@@ -72,7 +72,7 @@ export default function CategoriasSection({
         </div>
       </motion.div>
 
-      <HorizontalCarousel itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]" gapClassName="gap-3 sm:gap-4">
+      <HorizontalCarousel label="Categorías" itemClassName="w-[68vw] sm:w-[240px] lg:w-[260px]" gapClassName="gap-3 sm:gap-4">
         {categoriasRaiz.map((cat, i) => (
           <motion.div
             key={cat.id}

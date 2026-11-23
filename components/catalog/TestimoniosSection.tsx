@@ -75,6 +75,7 @@ export default function TestimoniosSection() {
         </motion.div>
 
         <HorizontalCarousel
+          label="Opiniones de clientes"
           itemClassName="w-[85vw] sm:w-[320px] lg:w-[340px]"
           gapClassName="gap-4 sm:gap-5"
         >
